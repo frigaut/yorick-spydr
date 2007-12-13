@@ -1,0 +1,46 @@
+Software Package in Yorick for Data Reduction
+
+From the command line:
+$ yorick -i path_to_spydr/spydr.i image1 image2 ...
+where image can contain wild cards
+
+or, within yorick:
+spydr,"image1",...
+where image1 is a filename (can contain widl cards)
+or
+spydr,images
+where images can be a single image or a datacube.
+
+EXAMPLES:
+$ spydr 20070730_2*.fits
+$ spydr 20070730_2[2-3]?.fits 20070730_241.fits
+> spydr,"~/ascam/2007jun26/20070625T2000*.fits"
+> spydr,["20070730_1[1-3].fits","20070730_23.fits"]
+> spydr,image
+> spydr,[im1,im2]
+
+RESTRICTIONS:
+- all images have to be of the same size
+- only fits images handled to date
+- the ITT display is not very well handled
+
+USE:
+Once loaded, number of possibilities are offered by the GUI.
+There is a number of shortcuts. Type "?" or og to the help
+menu to list them all. Shortcuts are events are received only
+when the cursor is in the main graphic window.
+
+INSTALLATION:
+- The environment variable SPYDRTOP has to point to the package
+  top directory. Otherwise, the default "contrib/spydr" is used.
+- You can define an alias or write a wrapper to conveniently
+  call spydr from the command line without having to write the
+  yorick -i ...
+  Example of a spydr wrapper:
+  #!/bin/sh
+  yorick -i spydr/spydr.i $*
+- This plugins follows the generic yorick installation instructions:
+  yorick -batch make.i
+  make
+  make install
+  
