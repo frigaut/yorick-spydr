@@ -31,14 +31,12 @@ menu to list them all. Shortcuts are events are received only
 when the cursor is in the main graphic window.
 
 INSTALLATION:
-- The environment variable SPYDRTOP has to point to the package
-  top directory. Otherwise, the default "contrib/spydr" is used.
 - You can define an alias or write a wrapper to conveniently
   call spydr from the command line without having to write the
   yorick -i ...
   Example of a spydr wrapper:
   #!/bin/sh
-  yorick -i spydr/spydr.i $*
+  yorick -i spydr.i $*
 - This plugins follows the generic yorick installation instructions:
   yorick -batch make.i
   make
