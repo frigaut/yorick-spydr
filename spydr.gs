@@ -1,5 +1,5 @@
 # Gist boxed.gs drawing style
-# $Id: spydr.gs,v 1.1 2007-12-13 13:02:20 frigaut Exp $
+# $Id: spydr.gs,v 1.1.1.1 2007-12-13 13:02:20 frigaut Exp $
 
 # A single coordinate system on a portrait page with frame
 # Legends: two columns below viewport, no contour legends

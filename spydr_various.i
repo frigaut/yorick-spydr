@@ -1,5 +1,5 @@
 /*
-  $Id: spydr_various.i,v 1.1 2007-12-13 13:02:21 frigaut Exp $
+  $Id: spydr_various.i,v 1.1.1.1 2007-12-13 13:02:21 frigaut Exp $
  */
 
 require,"style.i";
@@ -8,7 +8,7 @@ require,"style.i";
    UTIL.I
    A collection of routines for general purpose.
 
-   $Id: spydr_various.i,v 1.1 2007-12-13 13:02:21 frigaut Exp $
+   $Id: spydr_various.i,v 1.1.1.1 2007-12-13 13:02:21 frigaut Exp $
 
    last revision/addition: 2003June13
  */
