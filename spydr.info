@@ -1,6 +1,6 @@
 Package: spydr
 Kind: plugin
-Version: 0.5.0
+Version: 0.5.1
 Revision: 1
 Description: Image display and analysis GUI
 License: GPLv2
@@ -32,7 +32,8 @@ make install
 
 
 The install puts spydr.i in Y_SITE/i, the mouse_nowait.so library in
-Y_HOME/lib and the spydr_start.i in Y_SITE/i-start
+Y_HOME/lib and the spydr_start.i in Y_SITE/i-start. It also puts
+the spydr.conf file in /etc and a spydr executable in /usr/local/bin
 
 <<
 DescPort: <<

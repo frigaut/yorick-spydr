@@ -1,34 +1,38 @@
-/* yfwhm.i
-   v1.2, 2004mar03:
-   - was not working anymore. Some error related to fits_read in old fits2.i package.
-   I have upgraded the routine to use the new newfits.i package I wrote last year.
-   2003jan31: work on v1.1. This new version brings the following improvements:
-   - can now compute airmass and airmass corrected FWHM ("-a" flag)
-   - two step fitting: first one fits a round profile, with loose tolerance,
-   second stage fits an elliptical profile, with tighter tolerance.
-   Overall, this makes the process more robust and faster (avoids the
-   sometime long computation time).
-   - now the fwhm err is computed for both axis, and then averaged, instead
-   of being computed from the stad dev of [fwhmX,fwhmY]. This gives a more
-   faithful idea of the std on the measurement, instead of being dominated
-   by the difference between fwhmX and Y in case the image is elongated.
-   - added option "-1", in which the subimage and fit are displayed in the
-   same window as the main image (one window only, more convenient but
-   not as big a subimage for display
+/*
+ * spydr_psffit.i
+ * 
+ * PSF fitting functions for spydr. Computes Strehl ratio and FWHM.
+ *
+ * This file is part of spydr, an image viewer/data analysis tool
+ *
+ * $Id: spydr_psffit.i,v 1.2 2007-12-13 13:43:27 frigaut Exp $
+ *
+ * Copyright (c) 2007, Francois Rigaut
+ *
+ * This program is free software; you can redistribute it and/or  modify it
+ * under the terms of the GNU General Public License  as  published  by the
+ * Free Software Foundation; either version 2 of the License,  or  (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope  that  it  will  be  useful, but
+ * WITHOUT  ANY   WARRANTY;   without   even   the   implied   warranty  of
+ * MERCHANTABILITY or  FITNESS  FOR  A  PARTICULAR  PURPOSE.   See  the GNU
+ * General Public License for more details (to receive a  copy  of  the GNU
+ * General Public License, write to the Free Software Foundation, Inc., 675
+ * Mass Ave, Cambridge, MA 02139, USA).
+ *
+ * $Log: spydr_psffit.i,v $
+ * Revision 1.2  2007-12-13 13:43:27  frigaut
+ * - added license headers in all files
+ * - added LICENSE
+ * - slightly modified Makefile
+ * - updated info
+ * - bumped to 0.5.1
+ *
+ *
+ *
+ */
 
-   One nice solution when processing lots of data is to have three terms
-   open:
-   in the first one, type
-   cd /net/tyl/astrodata/
-   ls 2002dec22/wfs/seeing*.fits | eval `awk '{print "yfwhm -a -1 -p 0.12 -s 55000",$1" >> /tmp/yfwhm.log ;"}'`
-
-   in the second one:
-   tail -f /tmp/yfwhm.log
-
-   in the third one:
-   cat /tmp/yfwhm.log | awk '{if (substr($1,1,4) == "2002") print $0}'
-   That's just neat.
-*/
 
 version = "1.5";
 modifDate = "June 17, 2007";

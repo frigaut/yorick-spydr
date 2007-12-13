@@ -71,10 +71,12 @@ MAKE_TEMPLATE = protect-against-1.5
 install::
 	mkdir -p $(Y_SITE)/python
 	mkdir -p $(Y_SITE)/glade
+	mkdir -p /usr/local/bin
 	cp -p spydr.py $(Y_SITE)/python/
 	cp -p spydr.glade $(Y_SITE)/glade/
 	cp -p spydr*.gs $(Y_SITE)/g/
-	cp -p spydr.conf /etc/spydr.conf
+	cp -p spydr.conf /etc/
+	cp -p spydr /usr/local/bin/
 
 # -------------------------------------------------------- end of Makefile
 
