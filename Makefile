@@ -69,14 +69,23 @@ MAKE_TEMPLATE = protect-against-1.5
 #	$(CC) $(CPPFLAGS) $(CFLAGS) -DMY_SWITCH -o $@ -c myfunc.c
 
 install::
-	mkdir -p $(Y_SITE)/python
-	mkdir -p $(Y_SITE)/glade
-	mkdir -p /usr/local/bin
-	cp -p spydr.py $(Y_SITE)/python/
-	cp -p spydr.glade $(Y_SITE)/glade/
-	cp -p spydr*.gs $(Y_SITE)/g/
-	cp -p spydr.conf /etc/
-	cp -p spydr /usr/local/bin/
+	mkdir -p $(DEST_Y_SITE)/python
+	mkdir -p $(DEST_Y_SITE)/glade
+	mkdir -p $(DEST_Y_SITE)/g
+	mkdir -p $(DEST_Y_SITE)/share/spydr
+	mkdir -p $(DEST_Y_BINDIR)
+	cp -p spydr.py $(DEST_Y_SITE)/python/
+	cp -p spydr.glade $(DEST_Y_SITE)/glade/
+	cp -p spydr*.gs $(DEST_Y_SITE)/g/
+	cp -p spydr.conf $(DEST_Y_SITE)/share/spydr/
+	cp -p spydr $(DEST_Y_BINDIR)/
+
+uninstall::
+	-rf $(DEST_Y_SITE)/python/spydr.py
+	-rf $(DEST_Y_SITE)/glade/spydr.glade
+	-rf $(DEST_Y_SITE)/g/spydr*.gs
+	-rm -rf $(DEST_Y_SITE)/share/spydr
+	-rm $(DEST_Y_BINDIR)/spydr
 
 # -------------------------------------------------------- end of Makefile
 
