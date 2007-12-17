@@ -81,9 +81,9 @@ install::
 	cp -p spydr $(DEST_Y_BINDIR)/
 
 uninstall::
-	-rf $(DEST_Y_SITE)/python/spydr.py
-	-rf $(DEST_Y_SITE)/glade/spydr.glade
-	-rf $(DEST_Y_SITE)/g/spydr*.gs
+	-rm $(DEST_Y_SITE)/python/spydr.py
+	-rm $(DEST_Y_SITE)/glade/spydr.glade
+	-rm $(DEST_Y_SITE)/g/spydr*.gs
 	-rm -rf $(DEST_Y_SITE)/share/spydr
 	-rm $(DEST_Y_BINDIR)/spydr
 

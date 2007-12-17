@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.2 2007-12-13 13:43:27 frigaut Exp $
+ * $Id: spydr.i,v 1.3 2007-12-17 13:29:05 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  * 
@@ -24,7 +24,11 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: spydr.i,v $
- * Revision 1.2  2007-12-13 13:43:27  frigaut
+ * Revision 1.3  2007-12-17 13:29:05  frigaut
+ * - fixed typo in Makefile uninstall rule
+ * - updated one filter in nici filter list
+ *
+ * Revision 1.2  2007/12/13 13:43:27  frigaut
  * - added license headers in all files
  * - added LICENSE
  * - slightly modified Makefile
@@ -873,7 +877,7 @@ func figure_image_wavelength(fh)
     if (wav=="CH4-H4%L_G0000") wavl=1.653;   // TBC
     if (wav=="CH4-H1%S_G0000") wavl=1.587;   // TBC
     if (wav=="CH4-H1%Sp_G0000") wavl=1.603;   // TBC
-
+    if (wav=="CH4-H4%S_G0743") wavl=1.578;
   }
   return wavl;
 }
@@ -1005,6 +1009,9 @@ func spydr(image)
       // we're dealing with a data cube.
       spydr_cube = spydr_im;
       set_imnum,1;
+      spydr_pixsize = array(spydr_pixsize,dimsof(spydr_cube)(4));
+      spydr_wavelength = array(spydr_wavelength,dimsof(spydr_cube)(4));
+      spydr_imname = image(1)+swrite(format=" %d",indgen(dimsof(spydr_cube)(4)));
       // spydr_im=spydr_cube(,,1);
     } else if (numberof(spydr_imname)>1) {
       // several images. read the others (note we can't have
