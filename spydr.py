@@ -3,7 +3,7 @@
 # 
 # This file is part of spydr, an image viewer/data analysis tool
 #
-# $Id: spydr.py,v 1.2 2007-12-13 13:43:27 frigaut Exp $
+# $Id: spydr.py,v 1.3 2007-12-17 20:54:47 frigaut Exp $
 #
 # Copyright (c) 2007, Francois Rigaut
 #
@@ -20,7 +20,13 @@
 # Mass Ave, Cambridge, MA 02139, USA).
 # 
 # $Log: spydr.py,v $
-# Revision 1.2  2007-12-13 13:43:27  frigaut
+# Revision 1.3  2007-12-17 20:54:47  frigaut
+# - added set/unset debug of yorick/python communication in GUI help menu
+# - gotten rid of usleep calls and replaced by flush of pipe every seconds
+#   (as for yao)
+# - added debug from python side (set pyk_debug)
+#
+# Revision 1.2  2007/12/13 13:43:27  frigaut
 # - added license headers in all files
 # - added LICENSE
 # - slightly modified Makefile
@@ -51,10 +57,11 @@ class spydr:
       # callbacks and glade UI
       dic = {
          #'on_about_activate': self.on_about_activate,
+         'on_debug_toggled': self.on_debug_toggled,
          'on_quit_activate' : self.on_quit_activate,
          'on_window1_map_event': self.on_window1_map,
          'on_drawingarea1_enter_notify_event': self.on_drawingarea1_enter_notify_event,
-         #'on_drawingarea1_leave_notify_event': self.on_drawingarea1_leave_notify_event,
+         'on_drawingarea1_leave_notify_event': self.on_drawingarea1_leave_notify_event,
          'on_cmin_value_changed': self.on_cmin_value_changed,
          'on_cmax_value_changed': self.on_cmax_value_changed,
          'on_cmincmax_toggled': self.on_cmincmax_toggled,
@@ -132,6 +139,7 @@ class spydr:
       dsx = int(600.*dpi/100)+5
       dsy = int(310.*dpi/100)+25
       self.glade.get_widget('drawingarea3').set_size_request(dsx,dsy)
+      self.pyk_debug=0
       
       # run
       gtk.main()
@@ -213,6 +221,14 @@ class spydr:
       dialog = gtk.MessageDialog(type=gtk.MESSAGE_WARNING,buttons=gtk.BUTTONS_OK,message_format=msg)
       dialog.run()
       dialog.destroy()
+      
+   def on_debug_toggled(self,wdg):
+      if (wdg.get_active()):
+         self.pyk_debug=1
+         self.py2yo("pyk_set pyk_debug 1")
+      else:
+         self.pyk_debug=0
+         self.py2yo("pyk_set pyk_debug 0")
 
    def on_comboboxentry_changed(self,wdg):
       itt = wdg.get_active_text()
@@ -484,8 +500,10 @@ class spydr:
          self.doing_zoom=1
       #self.set_cursor_busy(0)
 
-#   def on_drawingarea1_leave_notify_event(self,wdg,*args):
-#      self.py2yo('write hola')
+   def on_drawingarea1_leave_notify_event(self,wdg,*args):
+      if (self.doing_zoom==1):
+         self.py2yo('pyk_set stop_zoom 1')
+         self.doing_zoom=0
 #      self.set_cursor_busy(1)
 
    def on_spydr_help_activate(self,wdg):
@@ -538,6 +556,9 @@ class spydr:
    # minimal wrapper for yorick/python communication
    #
    
+   def yo2py_flush(self):
+      sys.stdin.flush()
+   
    def py2yo(self,msg):
       # sends string command to yorick's eval
       sys.stdout.write(msg+'\n')
@@ -552,6 +573,8 @@ class spydr:
          try:
             msg = sys.stdin.readline()
             msg = "self."+msg
+            if (self.pyk_debug): 
+               sys.stderr.write("Python stdin:"+msg)
             exec(msg)
          except IOError, e:
             if e.errno == errno.EAGAIN:

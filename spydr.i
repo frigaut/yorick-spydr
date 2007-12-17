@@ -4,13 +4,10 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.3 2007-12-17 13:29:05 frigaut Exp $
+ * $Id: spydr.i,v 1.4 2007-12-17 20:54:47 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  * 
- * This package needs usleep, available through pkg_mngr or possibly your 
- * distro package manager
- *
  * This program is free software; you can redistribute it and/or  modify it
  * under the terms of the GNU General Public License  as  published  by the
  * Free Software Foundation; either version 2 of the License,  or  (at your
@@ -24,7 +21,13 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: spydr.i,v $
- * Revision 1.3  2007-12-17 13:29:05  frigaut
+ * Revision 1.4  2007-12-17 20:54:47  frigaut
+ * - added set/unset debug of yorick/python communication in GUI help menu
+ * - gotten rid of usleep calls and replaced by flush of pipe every seconds
+ *   (as for yao)
+ * - added debug from python side (set pyk_debug)
+ *
+ * Revision 1.3  2007/12/17 13:29:05  frigaut
  * - fixed typo in Makefile uninstall rule
  * - updated one filter in nici filter list
  *
@@ -45,7 +48,7 @@ require,"pyk.i";
 require,"mouse_nowait.i";
 require,"astro_util1.i";
 require,"spydr_psffit.i";
-require,"usleep.i";
+//require,"usleep.i";
 require,"util_fr.i";
 require,"histo.i";
 require,"plot.i";
@@ -54,15 +57,21 @@ require,"pathfun.i";
 
 func which_spydrconf(void) {
   // look for a possible user's spydr.conf:
-  local file;
-  file = "/etc/spydr.conf"; // default
-  w = get_path()+"spydr.conf";
-  for (i=1;i<=numberof(w);i++) {
-    if (open(w(i),"r",1)) {
-      file=w(i);
-      break;
-    }
+  require,"pathfun.i";
+  local file,path;
+  path1 = pathform(_("/etc/",Y_SITE,Y_USER));
+  file = find_in_path("spydr.conf",takefirst=1,path=path1);
+  if (file==[]) {
+    path2 = pathform(_(Y_SITE,Y_USER)+"share/");
+    file = find_in_path("spydr.conf",takefirst=1,path=path2);
   }
+  if (file==[]) {
+    path3 = pathform(_(Y_SITE,Y_USER)+"share/spydr/");
+    file = find_in_path("spydr.conf",takefirst=1,path=path3);
+  }
+  if (file==[]) \
+    error,swrite(format="Can't find spydr.conf in %s:%s:%s\n",path1,path2,path3);
+  
   return file;
 }
 
@@ -161,7 +170,7 @@ func spydr_win_init(pid1,pid2,pid3)
   window,spydr_wins(3);
   plot_histo;
   window,spydr_wins(1);
-  usleep,100;
+  //  usleep,100;
   pyk,"done_init = 1";
   spydr_lut,0;
 }
@@ -621,7 +630,7 @@ func gui_update(void)
   pyk,swrite(format="y_set_checkbutton('compute_strehl',%d)",long(compute_strehl));
   pyk,swrite(format="glade.get_widget('plugins').set_active(%d)",spydr_showplugins);
   if (imnum) pyk,swrite(format="y_set_imnum_visibility(1,%d)",dimsof(spydr_cube)(4));
-  usleep,100;
+  //  usleep,100;
   pyk,swrite(format="y_set_checkbutton('output_magnitudes',%d)",long(output_magnitudes));
   pyk,swrite(format="y_set_cmincmax(%f,%f,%f,0)",float(cmin),float(cmax),float(cmax-cmin)/100.);
   gui_realized=1;
@@ -634,7 +643,7 @@ func imchange_update(void)
   
   pyk,swrite(format="y_parm_update('pixsize',%f)",float(spydr_pixsize(imnum)));
   pyk,swrite(format="y_parm_update('wavelength',%f)",float(spydr_wavelength(imnum)));
-  usleep,100;
+  //  usleep,100;
   pyk,swrite(format="y_parm_update('zero_point',%f)",float(spydr_zero_point));
 }
 
@@ -1069,6 +1078,13 @@ func spydr(image)
   write,"\rSPYDR ready                                                    ";  
 }
 
+func pyk_flush(void)
+{
+  pyk,"yo2py_flush";
+  after,1.,pyk_flush;
+}
+
+
 // when called from the command line:
 arg     = get_argv();
 
@@ -1085,3 +1101,5 @@ python_exec = spydrtop+"/python/spydr.py";
 pyk_cmd=[python_exec,spydrtop,spydr_context,spydr_dpi];
 
 if (numberof(arg)>=4) spydr,arg(4:);
+
+pyk_flush;
