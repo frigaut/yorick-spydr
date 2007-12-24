@@ -1,6 +1,6 @@
 Package: spydr
 Kind: plugin
-Version: 0.5.1
+Version: 0.5.2
 Revision: 1
 Description: Image display and analysis GUI
 License: GPLv2
