@@ -13,8 +13,8 @@ TGT=$(DEFAULT_TGT)
 
 # ------------------------------------------------ macros for this package
 
-PKG_NAME=mouse_nowait
-PKG_I=mouse_nowait.i spydr.i spydr_plugins.i spydr_psffit.i spydr_various.i
+PKG_NAME=spydr
+PKG_I=mouse_nowait.i spydr.i
 
 OBJS=mouse_nowait.o
 
@@ -37,7 +37,7 @@ PKG_CLEAN=
 # autoload file for this package, if any
 PKG_I_START=spydr_start.i
 # non-pkg.i include files for this package, if any
-PKG_I_EXTRA=
+PKG_I_EXTRA=spydr_plugins.i spydr_psffit.i spydr_various.i
 
 # -------------------------------- standard targets and rules (in Makepkg)
 
@@ -87,6 +87,9 @@ uninstall::
 	-rm -rf $(DEST_Y_SITE)/share/spydr
 	-rm $(DEST_Y_BINDIR)/spydr
 
+clean::
+	rm -rf binaries
+
 # -------------------------------------------------------- end of Makefile
 
 
@@ -104,10 +107,14 @@ package:
 	$(MAKE)
 	$(LD_DLL) -o $(PKG_NAME).so $(OBJS) ywrap.o $(PKG_DEPLIBS_STATIC) $(DLL_DEF)
 	mkdir -p binaries/$(PKG_NAME)/dist/y_home/lib
+	mkdir -p binaries/$(PKG_NAME)/dist/y_home/bin
 	mkdir -p binaries/$(PKG_NAME)/dist/y_home/i-start
 	mkdir -p binaries/$(PKG_NAME)/dist/y_site/i0
+	mkdir -p binaries/$(PKG_NAME)/dist/y_site/i
 	cp -p $(PKG_I) binaries/$(PKG_NAME)/dist/y_site/i0/
+	cp -p $(PKG_I_EXTRA) binaries/$(PKG_NAME)/dist/y_site/i/
 	cp -p $(PKG_NAME).so binaries/$(PKG_NAME)/dist/y_home/lib/
+	cp -p spydr binaries/$(PKG_NAME)/dist/y_home/bin/
 	if test -f "check.i"; then cp -p check.i binaries/$(PKG_NAME)/.; fi
 	if test -n "$(PKG_I_START)"; then cp -p $(PKG_I_START) \
 	  binaries/$(PKG_NAME)/dist/y_home/i-start/; fi

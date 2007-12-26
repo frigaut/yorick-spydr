@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.5 2007-12-24 17:16:52 frigaut Exp $
+ * $Id: spydr.i,v 1.6 2007-12-26 17:41:47 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  * 
@@ -21,7 +21,11 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: spydr.i,v $
- * Revision 1.5  2007-12-24 17:16:52  frigaut
+ * Revision 1.6  2007-12-26 17:41:47  frigaut
+ * - removed dependency on usleep in info file
+ * - bumped to 0.5.3
+ *
+ * Revision 1.5  2007/12/24 17:16:52  frigaut
  * bumped to version 0.5.2
  * don't know why mouse-nowait.c is in here (no diff)
  *
@@ -46,7 +50,7 @@
  *
  */
 
-spydr_version = "0.5.2";
+spydr_version = "0.5.3";
 
 require,"pyk.i";
 require,"mouse_nowait.i";

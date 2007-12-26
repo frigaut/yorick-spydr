@@ -1,13 +1,13 @@
 Package: spydr
 Kind: plugin
-Version: 0.5.2
+Version: 0.5.3
 Revision: 1
 Description: Image display and analysis GUI
 License: GPLv2
 Author: Francois Rigaut
 Maintainer: Francois Rigaut <frigaut@users.sourceforge.net>
 OS:
-Depends: yorick(>=2.1.04x), yutils(>=1.0), imutil(>0.5), usleep
+Depends: yorick(>=2.1.04x), yutils(>=1.0), imutil(>0.5)
 Source: http://www.maumae.net/yorick/packages/%o/tarballs/spydr-%v-%o.tgz
 Source-MD5:
 Source-Directory: contrib/spydr
