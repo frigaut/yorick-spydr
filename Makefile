@@ -68,6 +68,9 @@ MAKE_TEMPLATE = protect-against-1.5
 #myfunc.o: myapi.h myfunc.c
 #	$(CC) $(CPPFLAGS) $(CFLAGS) -DMY_SWITCH -o $@ -c myfunc.c
 
+clean::
+	-rm -rf binaries
+
 install::
 	mkdir -p $(DEST_Y_SITE)/python
 	mkdir -p $(DEST_Y_SITE)/glade
@@ -86,9 +89,6 @@ uninstall::
 	-rm $(DEST_Y_SITE)/g/spydr*.gs
 	-rm -rf $(DEST_Y_SITE)/share/spydr
 	-rm $(DEST_Y_BINDIR)/spydr
-
-clean::
-	rm -rf binaries
 
 # -------------------------------------------------------- end of Makefile
 
