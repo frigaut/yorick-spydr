@@ -6,7 +6,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: mouse_nowait.i,v 1.2 2007-12-13 13:43:27 frigaut Exp $
+ * $Id: mouse_nowait.i,v 1.3 2007-12-26 20:32:37 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -23,7 +23,10 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: mouse_nowait.i,v $
- * Revision 1.2  2007-12-13 13:43:27  frigaut
+ * Revision 1.3  2007-12-26 20:32:37  frigaut
+ * changed name of plugin to be consistant with earlier Makefile changes
+ *
+ * Revision 1.2  2007/12/13 13:43:27  frigaut
  * - added license headers in all files
  * - added LICENSE
  * - slightly modified Makefile
@@ -35,6 +38,6 @@
  */
 
 
-plug_in,"mouse_nowait";
+plug_in,"spydr";
 
 extern mouse_nowait;
