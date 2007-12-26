@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.6 2007-12-26 17:41:47 frigaut Exp $
+ * $Id: spydr.i,v 1.7 2007-12-26 21:55:56 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  * 
@@ -21,7 +21,11 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: spydr.i,v $
- * Revision 1.6  2007-12-26 17:41:47  frigaut
+ * Revision 1.7  2007-12-26 21:55:56  frigaut
+ * - updated Makefile for package use (instead of plugin)
+ * - bumped to 0.6.0
+ *
+ * Revision 1.6  2007/12/26 17:41:47  frigaut
  * - removed dependency on usleep in info file
  * - bumped to 0.5.3
  *
@@ -50,13 +54,11 @@
  *
  */
 
-spydr_version = "0.5.3";
+spydr_version = "0.6.0";
 
 require,"pyk.i";
-require,"mouse_nowait.i";
 require,"astro_util1.i";
 require,"spydr_psffit.i";
-//require,"usleep.i";
 require,"util_fr.i";
 require,"histo.i";
 require,"plot.i";
@@ -178,7 +180,6 @@ func spydr_win_init(pid1,pid2,pid3)
   window,spydr_wins(3);
   plot_histo;
   window,spydr_wins(1);
-  //  usleep,100;
   pyk,"done_init = 1";
   spydr_lut,0;
 }
@@ -638,7 +639,6 @@ func gui_update(void)
   pyk,swrite(format="y_set_checkbutton('compute_strehl',%d)",long(compute_strehl));
   pyk,swrite(format="glade.get_widget('plugins').set_active(%d)",spydr_showplugins);
   if (imnum) pyk,swrite(format="y_set_imnum_visibility(1,%d)",dimsof(spydr_cube)(4));
-  //  usleep,100;
   pyk,swrite(format="y_set_checkbutton('output_magnitudes',%d)",long(output_magnitudes));
   pyk,swrite(format="y_set_cmincmax(%f,%f,%f,0)",float(cmin),float(cmax),float(cmax-cmin)/100.);
   gui_realized=1;
@@ -651,7 +651,6 @@ func imchange_update(void)
   
   pyk,swrite(format="y_parm_update('pixsize',%f)",float(spydr_pixsize(imnum)));
   pyk,swrite(format="y_parm_update('wavelength',%f)",float(spydr_wavelength(imnum)));
-  //  usleep,100;
   pyk,swrite(format="y_parm_update('zero_point',%f)",float(spydr_zero_point));
 }
 
@@ -671,7 +670,7 @@ func get_cursor(wid)
  */
 {
   if (wid==[]) wid=spydr_wins(1);
-  cur = mouse_nowait(wid);
+  cur = current_mouse(wid);
   if (cur==[]) return;
   cur = long(cur);
   cur(1:2) = cur(1:2)+1; //ceil

@@ -1,13 +1,13 @@
 Package: spydr
-Kind: plugin
-Version: 0.5.3
+Kind: package
+Version: 0.6.0
 Revision: 1
 Description: Image display and analysis GUI
 License: GPLv2
 Author: Francois Rigaut
 Maintainer: Francois Rigaut <frigaut@users.sourceforge.net>
-OS:
-Depends: yorick(>=2.1.04x), yutils(>=1.0), imutil(>0.5)
+OS: architecture independant
+Depends: yorick(>=2.1.04x), yutils(>=1.0), imutil(>0.5), yao (>4.0)
 Source: http://www.maumae.net/yorick/packages/%o/tarballs/spydr-%v-%o.tgz
 Source-MD5:
 Source-Directory: contrib/spydr
@@ -19,21 +19,14 @@ See README and help,spydr
 DescUsage: <<
 Installation from source:
 
-see installation instructions in Makefile.
-Basically, you will need a C compiler and make/gnumake.
-You need yorick in your executable path.
+Since version 0.6, spydr uses current_mouse(), and is therefore purely
+interpreted. No need for a compiler.
 
-You will need also the glade libraries, python, and the pygtk modules.
-
-yorick -batch make.i
-make
-make check
 make install
 
+to install
 
-The install puts spydr.i in Y_SITE/i, the mouse_nowait.so library in
-Y_HOME/lib and the spydr_start.i in Y_SITE/i-start. It also puts
-the spydr.conf file in /etc and a spydr executable in /usr/local/bin
+You will need also the glade libraries, python, and the pygtk modules.
 
 <<
 DescPort: <<

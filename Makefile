@@ -1,75 +1,43 @@
 # these values filled in by    yorick -batch make.i
-Y_MAKEDIR=/home/frigaut/yorick-2.1/Linux-i686
-Y_EXE=/home/frigaut/yorick-2.1/Linux-i686/bin/yorick
+Y_MAKEDIR=/usr/lib/yorick/2.1
+Y_EXE=/usr/lib/yorick/2.1/bin/yorick
 Y_EXE_PKGS=
-Y_EXE_HOME=/home/frigaut/yorick-2.1/Linux-i686
-Y_EXE_SITE=/home/frigaut/yorick-2.1
+Y_EXE_HOME=/usr/lib/yorick/2.1
+Y_EXE_SITE=/usr/share/yorick/2.1
 
-# ----------------------------------------------------- optimization flags
-
-# options for make command line, e.g.-   make COPT=-g TGT=exe
-COPT=$(COPT_DEFAULT)
-TGT=$(DEFAULT_TGT)
+# 
+# !! THIS IS NOT A PLUGIN !!
+# This is a package made of several interpreted 
+# include file. This makefile is just used to install,
+# uninstall it or build the distribution tar file.
 
 # ------------------------------------------------ macros for this package
 
-PKG_NAME=spydr
-PKG_I=mouse_nowait.i spydr.i
-
-OBJS=mouse_nowait.o
-
-# change to give the executable a name other than yorick
-PKG_EXENAME=yorick
-
-# PKG_DEPLIBS=-Lsomedir -lsomelib   for dependencies of this package
-PKG_DEPLIBS=
-# set compiler (or rarely loader) flags specific to this package
-PKG_CFLAGS=
-PKG_LDFLAGS=
-
-# list of additional package names you want in PKG_EXENAME
-# (typically Y_EXE_PKGS should be first here)
-EXTRA_PKGS=$(Y_EXE_PKGS)
-
-# list of additional files for clean
-PKG_CLEAN=
-
+# used for distribution
+PKG_NAME = spydr
+# include files for this package
+PKG_I=spydr.i spydr_plugins.i spydr_psffit.i spydr_various.i
 # autoload file for this package, if any
-PKG_I_START=spydr_start.i
-# non-pkg.i include files for this package, if any
-PKG_I_EXTRA=spydr_plugins.i spydr_psffit.i spydr_various.i
-
-# -------------------------------- standard targets and rules (in Makepkg)
-
-# set macros Makepkg uses in target and dependency names
-# DLL_TARGETS, LIB_TARGETS, EXE_TARGETS
-# are any additional targets (defined below) prerequisite to
-# the plugin library, archive library, and executable, respectively
-PKG_I_DEPS=$(PKG_I)
-Y_DISTMAKE=distmake
-
-include $(Y_MAKEDIR)/Make.cfg
-include $(Y_MAKEDIR)/Makepkg
-include $(Y_MAKEDIR)/Make$(TGT)
+PKG_I_START=
 
 # override macros Makepkg sets for rules and other macros
 # Y_HOME and Y_SITE in Make.cfg may not be correct (e.g.- relocatable)
 Y_HOME=$(Y_EXE_HOME)
 Y_SITE=$(Y_EXE_SITE)
 
-# reduce chance of yorick-1.5 corrupting this Makefile
-MAKE_TEMPLATE = protect-against-1.5
+DEST_Y_SITE=$(DESTDIR)$(Y_SITE)
+DEST_Y_HOME=$(DESTDIR)$(Y_HOME)
+DEST_Y_BINDIR=$(DEST_Y_HOME)/bin
 
 # ------------------------------------- targets and rules for this package
 
-# simple example:
-#myfunc.o: myapi.h
-# more complex example (also consider using PKG_CFLAGS above):
-#myfunc.o: myapi.h myfunc.c
-#	$(CC) $(CPPFLAGS) $(CFLAGS) -DMY_SWITCH -o $@ -c myfunc.c
+build:
+	@echo "Nothing to build. This is not a plugin"
+	@echo "other targets: install, uninstall, clean"
+	@echo "for maintainers: package, distpkg"
 
 clean::
-	-rm -rf binaries
+	-rm -rf pkg
 
 install::
 	mkdir -p $(DEST_Y_SITE)/python
@@ -77,6 +45,7 @@ install::
 	mkdir -p $(DEST_Y_SITE)/g
 	mkdir -p $(DEST_Y_SITE)/share/spydr
 	mkdir -p $(DEST_Y_BINDIR)
+	cp -p $(PKG_I) $(DEST_Y_SITE)/i/
 	cp -p spydr.py $(DEST_Y_SITE)/python/
 	cp -p spydr.glade $(DEST_Y_SITE)/glade/
 	cp -p spydr*.gs $(DEST_Y_SITE)/g/
@@ -84,19 +53,16 @@ install::
 	cp -p spydr $(DEST_Y_BINDIR)/
 
 uninstall::
+	-cd $(DEST_Y_SITE)/i; rm $(PKG_I) 
 	-rm $(DEST_Y_SITE)/python/spydr.py
 	-rm $(DEST_Y_SITE)/glade/spydr.glade
 	-rm $(DEST_Y_SITE)/g/spydr*.gs
 	-rm -rf $(DEST_Y_SITE)/share/spydr
 	-rm $(DEST_Y_BINDIR)/spydr
 
-# -------------------------------------------------------- end of Makefile
+# -------------------------------------------- package build rules
 
 
-# for the binary package production (add full path to lib*.a below):
-PKG_DEPLIBS_STATIC=-lm 
-PKG_ARCH = $(OSTYPE)-$(MACHTYPE)
-# or linux or windows
 PKG_VERSION = $(shell (awk '{if ($$1=="Version:") print $$2}' $(PKG_NAME).info))
 # .info might not exist, in which case he line above will exit in error.
 
@@ -104,37 +70,51 @@ PKG_VERSION = $(shell (awk '{if ($$1=="Version:") print $$2}' $(PKG_NAME).info))
 PKG_DEST_URL = packages
 
 package:
-	$(MAKE)
-	$(LD_DLL) -o $(PKG_NAME).so $(OBJS) ywrap.o $(PKG_DEPLIBS_STATIC) $(DLL_DEF)
-	mkdir -p binaries/$(PKG_NAME)/dist/y_home/lib
-	mkdir -p binaries/$(PKG_NAME)/dist/y_home/bin
-	mkdir -p binaries/$(PKG_NAME)/dist/y_home/i-start
-	mkdir -p binaries/$(PKG_NAME)/dist/y_site/i0
-	mkdir -p binaries/$(PKG_NAME)/dist/y_site/i
-	cp -p $(PKG_I) binaries/$(PKG_NAME)/dist/y_site/i0/
-	cp -p $(PKG_I_EXTRA) binaries/$(PKG_NAME)/dist/y_site/i/
-	cp -p $(PKG_NAME).so binaries/$(PKG_NAME)/dist/y_home/lib/
-	cp -p spydr binaries/$(PKG_NAME)/dist/y_home/bin/
-	if test -f "check.i"; then cp -p check.i binaries/$(PKG_NAME)/.; fi
+	mkdir -p pkg/$(PKG_NAME)/dist/y_site/i
+	mkdir -p pkg/$(PKG_NAME)/dist/y_site/python
+	mkdir -p pkg/$(PKG_NAME)/dist/y_site/glade
+	mkdir -p pkg/$(PKG_NAME)/dist/y_site/g
+	mkdir -p pkg/$(PKG_NAME)/dist/y_site/i-start
+	mkdir -p pkg/$(PKG_NAME)/dist/y_site/share/spydr
+	mkdir -p pkg/$(PKG_NAME)/dist/y_home/bin
+
+	cp -p $(PKG_I) pkg/$(PKG_NAME)/dist/y_site/i/
+	cp -p spydr.py pkg/$(PKG_NAME)/dist/y_site/python/
+	cp -p spydr.glade pkg/$(PKG_NAME)/dist/y_site/glade/
+	cp -p *.gs pkg/$(PKG_NAME)/dist/y_site/g/
+	cp -p spydr.conf pkg/$(PKG_NAME)/dist/y_site/share/spydr/
+	cp -p spydr pkg/$(PKG_NAME)/dist/y_home/bin/
+	cd pkg/$(PKG_NAME)/dist/y_site/i/; if test -f "check.i"; then rm check.i; fi
+	if test -f "check.i"; then cp -p check.i pkg/$(PKG_NAME)/.; fi
 	if test -n "$(PKG_I_START)"; then cp -p $(PKG_I_START) \
-	  binaries/$(PKG_NAME)/dist/y_home/i-start/; fi
-	cat $(PKG_NAME).info | sed -e 's/OS:/OS: $(PKG_ARCH)/' > tmp.info
-	mv tmp.info binaries/$(PKG_NAME)/$(PKG_NAME).info
-	cd binaries; tar zcvf $(PKG_NAME)-$(PKG_VERSION)-$(PKG_ARCH).tgz $(PKG_NAME)
+	  pkg/$(PKG_NAME)/dist/y_home/i-start/; fi
+	cp -p $(PKG_NAME).info pkg/$(PKG_NAME)/$(PKG_NAME).info
+	cd pkg; tar zcvf $(PKG_NAME)-$(PKG_VERSION)-pkg.tgz $(PKG_NAME)
 
 distbin:
-	if test -f "binaries/$(PKG_NAME)-$(PKG_VERSION)-$(PKG_ARCH).tgz" ; then \
-	  ncftpput -f $(HOME)/.ncftp/maumae www/yorick/$(PKG_DEST_URL)/$(PKG_ARCH)/tarballs/ \
-	  binaries/$(PKG_NAME)-$(PKG_VERSION)-$(PKG_ARCH).tgz; fi
-	if test -f "binaries/$(PKG_NAME)/$(PKG_NAME).info" ; then \
-	  ncftpput -f $(HOME)/.ncftp/maumae www/yorick/$(PKG_DEST_URL)/$(PKG_ARCH)/info/ \
-	  binaries/$(PKG_NAME)/$(PKG_NAME).info; fi
+	#tarball there
+	if test -f "pkg/$(PKG_NAME)-$(PKG_VERSION)-pkg.tgz" ; then \
+	  ncftpput -f $(HOME)/.ncftp/maumae www/yorick/packages/tarballs/ \
+	  pkg/$(PKG_NAME)-$(PKG_VERSION)-pkg.tgz; fi
+	#info files in each architecture directory
+	if test -f "pkg/$(PKG_NAME)/$(PKG_NAME).info" ; then \
+		ncftpput -f $(HOME)/.ncftp/maumae www/yorick/packages/darwin-ppc/info/ \
+		pkg/$(PKG_NAME)/$(PKG_NAME).info; fi
+	if test -f "pkg/$(PKG_NAME)/$(PKG_NAME).info" ; then \
+		ncftpput -f $(HOME)/.ncftp/maumae www/yorick/packages/darwin-i386/info/ \
+		pkg/$(PKG_NAME)/$(PKG_NAME).info; fi
+	if test -f "pkg/$(PKG_NAME)/$(PKG_NAME).info" ; then \
+		ncftpput -f $(HOME)/.ncftp/maumae www/yorick/packages/linux-ppc/info/ \
+		pkg/$(PKG_NAME)/$(PKG_NAME).info; fi
+	if test -f "pkg/$(PKG_NAME)/$(PKG_NAME).info" ; then \
+		ncftpput -f $(HOME)/.ncftp/maumae www/yorick/packages/linux-x86/info/ \
+		pkg/$(PKG_NAME)/$(PKG_NAME).info; fi
 
 distsrc:
-	make clean; rm -rf binaries
-	cd ..; tar --exclude binaries --exclude .svn -zcvf \
+	make clean; rm -rf pkg
+	cd ..; tar --exclude pkg --exclude .svn -zcvf \
 	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz $(PKG_NAME);\
-	ncftpput -f $(HOME)/.ncftp/maumae www/yorick/$(PKG_DEST_URL)/src/ \
+	ncftpput -f $(HOME)/.ncftp/maumae www/yorick/packages/src/ \
 	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz
 
 
