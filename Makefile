@@ -43,13 +43,18 @@ install::
 	mkdir -p $(DEST_Y_SITE)/python
 	mkdir -p $(DEST_Y_SITE)/glade
 	mkdir -p $(DEST_Y_SITE)/g
+	mkdir -p $(DEST_Y_SITE)/gist
 	mkdir -p $(DEST_Y_SITE)/share/spydr
 	mkdir -p $(DEST_Y_BINDIR)
 	cp -p $(PKG_I) $(DEST_Y_SITE)/i/
 	cp -p spydr.py $(DEST_Y_SITE)/python/
 	cp -p spydr.glade $(DEST_Y_SITE)/glade/
 	cp -p spydr*.gs $(DEST_Y_SITE)/g/
+	cp -p spydr*.gs $(DEST_Y_SITE)/gist/
 	cp -p spydr.conf $(DEST_Y_SITE)/share/spydr/
+	cp -p LICENSE $(DEST_Y_SITE)/share/spydr/
+	cp -p README $(DEST_Y_SITE)/share/spydr/
+	cp -p test3.fits $(DEST_Y_SITE)/share/spydr/
 	cp -p spydr $(DEST_Y_BINDIR)/
 
 uninstall::
@@ -57,6 +62,7 @@ uninstall::
 	-rm $(DEST_Y_SITE)/python/spydr.py
 	-rm $(DEST_Y_SITE)/glade/spydr.glade
 	-rm $(DEST_Y_SITE)/g/spydr*.gs
+	-rm $(DEST_Y_SITE)/gist/spydr*.gs
 	-rm -rf $(DEST_Y_SITE)/share/spydr
 	-rm $(DEST_Y_BINDIR)/spydr
 
@@ -74,6 +80,7 @@ package:
 	mkdir -p pkg/$(PKG_NAME)/dist/y_site/python
 	mkdir -p pkg/$(PKG_NAME)/dist/y_site/glade
 	mkdir -p pkg/$(PKG_NAME)/dist/y_site/g
+	mkdir -p pkg/$(PKG_NAME)/dist/y_site/gist
 	mkdir -p pkg/$(PKG_NAME)/dist/y_site/i-start
 	mkdir -p pkg/$(PKG_NAME)/dist/y_site/share/spydr
 	mkdir -p pkg/$(PKG_NAME)/dist/y_home/bin
@@ -82,7 +89,11 @@ package:
 	cp -p spydr.py pkg/$(PKG_NAME)/dist/y_site/python/
 	cp -p spydr.glade pkg/$(PKG_NAME)/dist/y_site/glade/
 	cp -p *.gs pkg/$(PKG_NAME)/dist/y_site/g/
+	cp -p *.gs pkg/$(PKG_NAME)/dist/y_site/gist/
 	cp -p spydr.conf pkg/$(PKG_NAME)/dist/y_site/share/spydr/
+	cp -p LICENSE pkg/$(PKG_NAME)/dist/y_site/share/spydr/
+	cp -p README pkg/$(PKG_NAME)/dist/y_site/share/spydr/
+	cp -p test3.fits pkg/$(PKG_NAME)/dist/y_site/share/spydr/
 	cp -p spydr pkg/$(PKG_NAME)/dist/y_home/bin/
 	cd pkg/$(PKG_NAME)/dist/y_site/i/; if test -f "check.i"; then rm check.i; fi
 	if test -f "check.i"; then cp -p check.i pkg/$(PKG_NAME)/.; fi
@@ -112,8 +123,8 @@ distbin:
 
 distsrc:
 	make clean; rm -rf pkg
-	cd ..; tar --exclude pkg --exclude .svn -zcvf \
-	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz $(PKG_NAME);\
+	cd ..; tar --exclude pkg --exclude CVS -zcvf \
+	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz $(PKG_NAME)-$(PKG_VERSION);\
 	ncftpput -f $(HOME)/.ncftp/maumae www/yorick/packages/src/ \
 	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz
 
