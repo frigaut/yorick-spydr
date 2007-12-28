@@ -1,9 +1,9 @@
 # these values filled in by    yorick -batch make.i
-Y_MAKEDIR=/usr/lib/yorick/2.1
-Y_EXE=/usr/lib/yorick/2.1/bin/yorick
+Y_MAKEDIR=/usr/lib/yorick
+Y_EXE=/usr/lib/yorick/bin/yorick
 Y_EXE_PKGS=
-Y_EXE_HOME=/usr/lib/yorick/2.1
-Y_EXE_SITE=/usr/share/yorick/2.1
+Y_EXE_HOME=/usr/lib/yorick
+Y_EXE_SITE=/usr/lib/yorick
 
 # 
 # !! THIS IS NOT A PLUGIN !!
@@ -102,7 +102,7 @@ package:
 	cp -p $(PKG_NAME).info pkg/$(PKG_NAME)/$(PKG_NAME).info
 	cd pkg; tar zcvf $(PKG_NAME)-$(PKG_VERSION)-pkg.tgz $(PKG_NAME)
 
-distbin:
+distbin: package
 	#tarball there
 	if test -f "pkg/$(PKG_NAME)-$(PKG_VERSION)-pkg.tgz" ; then \
 	  ncftpput -f $(HOME)/.ncftp/maumae www/yorick/packages/tarballs/ \
@@ -127,6 +127,8 @@ distsrc:
 	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz $(PKG_NAME)-$(PKG_VERSION);\
 	ncftpput -f $(HOME)/.ncftp/maumae www/yorick/packages/src/ \
 	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz
+	ncftpput -f $(HOME)/.ncftp/maumae www/yorick/contrib/ \
+	   ../$(PKG_NAME)-$(PKG_VERSION)-src.tgz
 
 
 # -------------------------------------------------------- end of Makefile
