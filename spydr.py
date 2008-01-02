@@ -3,7 +3,7 @@
 # 
 # This file is part of spydr, an image viewer/data analysis tool
 #
-# $Id: spydr.py,v 1.3 2007-12-17 20:54:47 frigaut Exp $
+# $Id: spydr.py,v 1.4 2008-01-02 14:11:42 frigaut Exp $
 #
 # Copyright (c) 2007, Francois Rigaut
 #
@@ -20,7 +20,11 @@
 # Mass Ave, Cambridge, MA 02139, USA).
 # 
 # $Log: spydr.py,v $
-# Revision 1.3  2007-12-17 20:54:47  frigaut
+# Revision 1.4  2008-01-02 14:11:42  frigaut
+# - better fit of graphical area in GUI
+# - updated spec file
+#
+# Revision 1.3  2007/12/17 20:54:47  frigaut
 # - added set/unset debug of yorick/python communication in GUI help menu
 # - gotten rid of usleep calls and replaced by flush of pipe every seconds
 #   (as for yao)
@@ -133,11 +137,11 @@ class spydr:
 
       # set size of graphic areas:
       dpi = spydr_dpi
-      dsx = int(600.*dpi/100)+5
-      dsy = int(600.*dpi/100)+25
+      dsx = int(595.*dpi/100)+5
+      dsy = int(596.*dpi/100)+25
       self.glade.get_widget('drawingarea1').set_size_request(dsx,dsy)
-      dsx = int(600.*dpi/100)+5
-      dsy = int(310.*dpi/100)+25
+      dsx = int(595.*dpi/100)+5
+      dsy = int(307.*dpi/100)+25
       self.glade.get_widget('drawingarea3').set_size_request(dsx,dsy)
       self.pyk_debug=0
       

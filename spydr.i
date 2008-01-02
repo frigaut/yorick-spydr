@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.7 2007-12-26 21:55:56 frigaut Exp $
+ * $Id: spydr.i,v 1.8 2008-01-02 14:11:42 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  * 
@@ -21,7 +21,11 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: spydr.i,v $
- * Revision 1.7  2007-12-26 21:55:56  frigaut
+ * Revision 1.8  2008-01-02 14:11:42  frigaut
+ * - better fit of graphical area in GUI
+ * - updated spec file
+ *
+ * Revision 1.7  2007/12/26 21:55:56  frigaut
  * - updated Makefile for package use (instead of plugin)
  * - bumped to 0.6.0
  *
@@ -169,14 +173,15 @@ func gui_message(msg) {
 func spydr_win_init(pid1,pid2,pid3)
 {
   window,spydr_wins(1),dpi=spydr_defaultdpi,wait=1,\
-    style="spydr.gs",parent=pid1;
+    xpos=-2,ypos=-2,style="spydr.gs",parent=pid1;
   disp_cpc;
   disp_tv;
   limits,square=1;
-  window,spydr_wins(2),dpi=30,wait=1,style="nobox.gs",parent=pid2,ypos=-25;
+  window,spydr_wins(2),dpi=30,wait=1,style="nobox.gs",parent=pid2,\
+    ypos=-27,xpos=-3;
   limits,square=1;
   window,spydr_wins(3),dpi=spydr_defaultdpi,wait=1,style="spydr2.gs",\
-    parent=pid3,ypos=0;
+    xpos=-2,ypos=-2,parent=pid3;
   window,spydr_wins(3);
   plot_histo;
   window,spydr_wins(1);
