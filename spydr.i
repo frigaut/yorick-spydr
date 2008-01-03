@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.8 2008-01-02 14:11:42 frigaut Exp $
+ * $Id: spydr.i,v 1.9 2008-01-03 17:59:49 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  * 
@@ -21,7 +21,10 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: spydr.i,v $
- * Revision 1.8  2008-01-02 14:11:42  frigaut
+ * Revision 1.9  2008-01-03 17:59:49  frigaut
+ * removed spydr.spec (moved name to yorick-spydr)
+ *
+ * Revision 1.8  2008/01/02 14:11:42  frigaut
  * - better fit of graphical area in GUI
  * - updated spec file
  *
@@ -73,14 +76,14 @@ func which_spydrconf(void) {
   // look for a possible user's spydr.conf:
   require,"pathfun.i";
   local file,path;
-  path1 = pathform(_("/etc/",Y_SITE,Y_USER));
+  path1 = pathform(_(Y_USER,Y_SITE,"/etc/"));
   file = find_in_path("spydr.conf",takefirst=1,path=path1);
   if (file==[]) {
-    path2 = pathform(_(Y_SITE,Y_USER)+"share/");
+    path2 = pathform(_(Y_USER,Y_SITE)+"share/");
     file = find_in_path("spydr.conf",takefirst=1,path=path2);
   }
   if (file==[]) {
-    path3 = pathform(_(Y_SITE,Y_USER)+"share/spydr/");
+    path3 = pathform(_(Y_USER,Y_SITE)+"share/spydr/");
     file = find_in_path("spydr.conf",takefirst=1,path=path3);
   }
   if (file==[]) \
