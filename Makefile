@@ -103,11 +103,11 @@ package:
 	cd pkg; tar zcvf $(PKG_NAME)-$(PKG_VERSION)-pkg.tgz $(PKG_NAME)
 
 distbin: package
-	#tarball there
+#tarball there
 	if test -f "pkg/$(PKG_NAME)-$(PKG_VERSION)-pkg.tgz" ; then \
 	  ncftpput -f $(HOME)/.ncftp/maumae www/yorick/packages/tarballs/ \
 	  pkg/$(PKG_NAME)-$(PKG_VERSION)-pkg.tgz; fi
-	#info files in each architecture directory
+#info files in each architecture directory
 	if test -f "pkg/$(PKG_NAME)/$(PKG_NAME).info" ; then \
 		ncftpput -f $(HOME)/.ncftp/maumae www/yorick/packages/darwin-ppc/info/ \
 		pkg/$(PKG_NAME)/$(PKG_NAME).info; fi
@@ -124,7 +124,7 @@ distbin: package
 distsrc:
 	make clean; rm -rf pkg
 	cd ..; tar --exclude pkg --exclude CVS -zcvf \
-	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz $(PKG_NAME)-$(PKG_VERSION);\
+	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz yorick-$(PKG_NAME)-$(PKG_VERSION);\
 	ncftpput -f $(HOME)/.ncftp/maumae www/yorick/packages/src/ \
 	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz
 	ncftpput -f $(HOME)/.ncftp/maumae www/yorick/contrib/ \
