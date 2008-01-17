@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.10 2008-01-17 13:17:44 frigaut Exp $
+ * $Id: spydr.i,v 1.11 2008-01-17 14:49:49 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  * 
@@ -21,7 +21,11 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: spydr.i,v $
- * Revision 1.10  2008-01-17 13:17:44  frigaut
+ * Revision 1.11  2008-01-17 14:49:49  frigaut
+ * - fixed problem with (pyk) I/O interupt, which was due to calling pyk_flush
+ * prematurely. Now called within first call of spydr()
+ *
+ * Revision 1.10  2008/01/17 13:17:44  frigaut
  * - bumped version to 0.6.1
  *
  * Revision 1.9  2008/01/03 17:59:49  frigaut
@@ -1006,6 +1010,7 @@ func spydr(image)
   extern spydr_wavelength,spydr_pixsize;
   extern spydr_fh;
   extern xcut, ycut;
+  extern flushing;
   
   spydr_cube=[];
   imnum=0;
@@ -1093,15 +1098,18 @@ func spydr(image)
     spydr_disp;
     plot_histo;
   }
-  write,"\rSPYDR ready                                                    ";  
+  write,"\rSPYDR ready                                                    ";
+  if (flushing==0) pyk_flush;
 }
 
 func pyk_flush(void)
 {
+  extern flushing;
+  flushing=1;
   pyk,"yo2py_flush";
   after,1.,pyk_flush;
 }
-
+flushing=0;
 
 // when called from the command line:
 arg     = get_argv();
@@ -1120,4 +1128,3 @@ pyk_cmd=[python_exec,spydrtop,spydr_context,spydr_dpi];
 
 if (numberof(arg)>=4) spydr,arg(4:);
 
-pyk_flush;
