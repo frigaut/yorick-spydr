@@ -1,2 +1,2 @@
 #!/bin/sh
-yorick -i spydr.i $*
+rlwrap yorick -i spydr.i $* || yorick -i spydr.i $*
