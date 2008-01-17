@@ -1,0 +1,81 @@
+.TH SPYDR 1 "2008 January 02"
+.UC 4
+.SH NAME
+spydr \- GUI for Image display and analysis with yorick
+.SH SYNOPSIS
+.TP 2
+Spydr can be invoqued from the command line
+.B spydr
+.I image.fits
+.br
+.B spydr
+.I image1.fits image2.fits ...
+.br
+.B spydr
+.I cube_of_images.fits
+.TP 3
+or within yorick
+.B #include "spydr.i"
+.br
+.B spydr,im1,im2,cube
+.br
+.B spydr,"image1.fits",...
+.SH DESCRIPTION
+.I Spydr
+is a GUI for image visualization and simple analysis (cuts, zoom,
+values, statistics, histogram, sigma filter) with changeable LUT and
+ITT. Spydr has a couple of plugins to measure FWHM and Strehl. Press
+"?" on the main display area to get a popup help:
+
+The following shortcuts are available:
+ x/y: Plot line/column under cursor
+ X/Y: Toggle continuous plot of line/column
+       under cursor
+ c:   Interactive plot of cut across image
+ h:   Plot histogram of visible region
+ r:   Radial plot centered on cursor
+ f:   Fit 1d gaussian to 1d plot
+ e:   Adjust min and max cut to 10% and 99.9% 
+      of distribution
+ E:   Reset min and max cut to min and max 
+      of visible region
+ n/p: Next/prevous image
+ s:   Sigma filter displayed image
+ -/+: Decrease/Increase zoom factor in zoom window
+ ?:   This help
+
+.SH EXAMPLES
+
+ $ spydr 20070730_2*.fits
+ $ spydr 20070730_2[2-3]?.fits 20070730_241.fits
+ > spydr,"~/ascam/2007jun26/20070625T2000*.fits"
+ > spydr,["20070730_1[1-3].fits","20070730_23.fits"]
+ > spydr,image
+ > spydr,[im1,im2]
+
+.SH RESTRICTIONS AND BUGS
+
+ - all images have to be of the same size
+ - only fits images handled to date
+ - the ITT display is not very well handled
+
+.SH AUTHOR
+.PP
+Francois Rigaut, Gemini Observatory
+.PP
+.SH FILES
+.PP
+Input files:
+.TP 12
+spydr.conf
+The spydr configuration file. Needed. It should have come with your
+installation. The routine which_spydrconf() returns the path to the
+used spydr.conf. The following directories are searched for
+spydr.conf, in this order:
+Y_USER, Y_SITE, /etc, Y_USER/share, Y_SITE/share, Y_USER/share/spydr,
+Y_SITE/share/spydr. If you wish to modify the defaults, copy the file
+over to Y_USER and modify at will. 
+.PP
+Output files: none.
+.SH SEE ALSO
+yorick(1), yao(1)
