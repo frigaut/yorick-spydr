@@ -5,7 +5,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr_various.i,v 1.2 2007-12-13 13:43:27 frigaut Exp $
+ * $Id: spydr_various.i,v 1.3 2008-01-17 13:15:17 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,7 +22,13 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: spydr_various.i,v $
- * Revision 1.2  2007-12-13 13:43:27  frigaut
+ * Revision 1.3  2008-01-17 13:15:17  frigaut
+ * - modified the name of lmfit (-> spydr_lmfit) in spydr_psffit to avoid
+ * conflicts with the lmfit of yutils.
+ * - modified all calls of lmfit -> spydr_lmfit (spydr_psffit and spydr_various)
+ * - also default box size is now 51 (was 181)
+ *
+ * Revision 1.2  2007/12/13 13:43:27  frigaut
  * - added license headers in all files
  * - added LICENSE
  * - slightly modified Makefile
@@ -39,7 +45,7 @@ require,"style.i";
    UTIL.I
    A collection of routines for general purpose.
 
-   $Id: spydr_various.i,v 1.2 2007-12-13 13:43:27 frigaut Exp $
+   $Id: spydr_various.i,v 1.3 2008-01-17 13:15:17 frigaut Exp $
 
    last revision/addition: 2003June13
  */
@@ -358,14 +364,14 @@ func mrot(ang)
 
 func clmfit(y,x,&a,function,&yfit)
 /* DOCUMENT clmfit(y,x,&a,function,&yfit)
- * Useful wrapper for the lmfit procedure.
+ * Useful wrapper for the lmfit procedure (here, spydr_lmfit).
  * y = the data to fit vs x
  * a = the output coefficients (may have initial value on input)
  * function = a string containing the function definition where
  * x and a must be used as variable and coefficients name
  * e.g. "a(1)+a(2)*cos(x)"
  * yfit = optional output. Best fit.
- * SEE ALSO: lmfit
+ * SEE ALSO: spydr_lmfit, lmfit
  */
 {
   local fname;
@@ -376,8 +382,8 @@ func clmfit(y,x,&a,function,&yfit)
   write,f,"func foo(x,a) {return "+function+";}";
   close,f;
   include,fname,10;
-  require,"Eric/lmfit.i";
-  r= lmfit(foo,x,a,y);
+  require,"spydr_psffit.i";
+  r= spydr_lmfit(foo,x,a,y);
 
   yfit = foo(x,a);
 
