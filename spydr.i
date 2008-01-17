@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.9 2008-01-03 17:59:49 frigaut Exp $
+ * $Id: spydr.i,v 1.10 2008-01-17 13:17:44 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  * 
@@ -21,7 +21,10 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: spydr.i,v $
- * Revision 1.9  2008-01-03 17:59:49  frigaut
+ * Revision 1.10  2008-01-17 13:17:44  frigaut
+ * - bumped version to 0.6.1
+ *
+ * Revision 1.9  2008/01/03 17:59:49  frigaut
  * removed spydr.spec (moved name to yorick-spydr)
  *
  * Revision 1.8  2008/01/02 14:11:42  frigaut
@@ -61,7 +64,7 @@
  *
  */
 
-spydr_version = "0.6.0";
+spydr_version = "0.6.1";
 
 require,"pyk.i";
 require,"astro_util1.i";
