@@ -1,0 +1,5 @@
+Francois Rigaut, v 0.6.3 (Sat, 19 Jan 2008 17:47:08 -0300)
+- fixed path to find python and glade files
+- fixed path for configuration file
+- added a number of command line flags (update man page)
+- can now handle series of image of different sizes
