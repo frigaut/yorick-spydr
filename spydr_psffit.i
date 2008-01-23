@@ -5,7 +5,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr_psffit.i,v 1.3 2008-01-17 13:15:17 frigaut Exp $
+ * $Id: spydr_psffit.i,v 1.4 2008-01-23 21:11:22 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,7 +22,52 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: spydr_psffit.i,v $
- * Revision 1.3  2008-01-17 13:15:17  frigaut
+ * Revision 1.4  2008-01-23 21:11:22  frigaut
+ * - load of new things:
+ *
+ * New Features:
+ * - added a number of command line flags (see man page or spydr -h)
+ * - can now handle series of image of different sizes
+ * - can mix single image and cube
+ * - cmin and cmax are now set per image (sticky setting)
+ * - image titles are better handled
+ * - updated man page
+ * - new image can be opened from the GUI menu (filechooser, multiple
+ *   selection ok)
+ * - migrated to a spydrs structure, replaced many different variables, cleaner.
+ * - now opens the GUI even with no image argument (can use "open" from menu)
+ * - all errors are now also displayed as popups (critical quits yorick
+ *   when called from shell)
+ * - because some (of the more critical) errors can happen before python is
+ *   started, I had to use zenity for the popup window. New dependency.
+ * - added an "append" keyword to spydr. If set, the new image is appended
+ *   to the list of displayed image. The old ones are kept, and the total
+ *   number of image is ++
+ * - append is also available from the GUI menu
+ * - any action on displayed image can be null by using "help->refresh
+ *   display" (in particular, sigmafilter)
+ * - created "about" dialog.
+ * - added an "image" menu (with names of all images in stack). user can
+ *   select image form there.
+ * - added an "ops" (operation) menu. Can compute median, average, sum and
+ *   rms of cube.
+ * - small gui (without lower panel) form is called with --compact (-c)
+ *
+ * Bug fixes:
+ * - fixed path to find python and glade files
+ * - fixed path for configuration file
+ * - main routine re-written and much more robust and clean
+ * - (kind of) solved a issue where image got displayed several times
+ *   because of echo from setting cmin and cmax
+ * - fixed thibaut bug when closing window.
+ * - fixed "called_from_shell" when no image argument.
+ * - waiting for a doc for the user buttons, set to insivible.
+ * - waiting for a proper implementation of find, pane set to invisible.
+ *
+ *
+ * - bug: sometimes the next/previous image does not register
+ *
+ * Revision 1.3  2008/01/17 13:15:17  frigaut
  * - modified the name of lmfit (-> spydr_lmfit) in spydr_psffit to avoid
  * conflicts with the lmfit of yutils.
  * - modified all calls of lmfit -> spydr_lmfit (spydr_psffit and spydr_various)
@@ -303,7 +348,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
   
   if (!is_set(boxsize)) boxsize = spydr_boxsize;
   if (!is_set(saturation)) saturation = spydr_saturation;
-  if (!is_set(pixsize)) {pixsize = spydr_pixsize(imnum);}
+  if (!is_set(pixsize)) {pixsize = spydrs(imnum).pixsize;}
   if (pixsize!=1.0) pixset=1;
   if (!is_set(funtype)) {funtype = spydr_funtype;} else {funcset=1;};
   if (!is_set(magswitch)) magswitch= output_magnitudes;
@@ -588,7 +633,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
         pyk_error,"Need pixsize set to compute Strehl!";
         return;
       }
-      if (spydr_wavelength(imnum)==0) {
+      if (spydrs(imnum).wavelength==0) {
         pyk_warning,"Need wavelength to compute Strehl!";
         return;
       }
@@ -621,7 +666,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
       window,curw;
       //write,format="a(1) = %f ; sky = %f +/- %f\n",a(1),skyavg,skyrms;
 
-      fwhmStrehl,im-skyavg,pixsize,spydr_wavelength(imnum),spydr_teldiam, \
+      fwhmStrehl,im-skyavg,pixsize,spydrs(imnum).wavelength,spydr_teldiam, \
         spydr_cobs,pstrehl,pfwhm,rmask=rmask,silent=1,source=spydr_sourcediam;
 
       // apply fudge
@@ -641,7 +686,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
       // due to the noise within the aperture.
       msg = swrite(format="FWHM = %.3f | strehl = %.2f",pfwhm,pstrehl);
       write,format="%s wvl=%.3f FWHM=%.3f Strehl=%.2f +/- %.2f (fudge=%.3f)\n",\
-        spydr_imname(imnum),spydr_wavelength(imnum),pfwhm,pstrehl,\
+        spydrs(imnum).name,spydrs(imnum).wavelength,pfwhm,pstrehl, \
         strehl_err,spydr_strehlfudge;
       //yfwhmres.pstrehl = pstrehl;
       //yfwhmres.pfwhm = pfwhm;

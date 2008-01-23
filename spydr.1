@@ -4,15 +4,14 @@
 spydr \- GUI for Image display and analysis with yorick
 .SH SYNOPSIS
 .TP 2
-Spydr can be invoqued from the command line
+Spydr can be invoqued from the shell
 .B spydr
-.I image.fits
+[ options ]
+.I image1.fits
+[ image2.fits ... ]
 .br
-.B spydr
-.I image1.fits image2.fits ...
-.br
-.B spydr
-.I cube_of_images.fits
+where the fits images can contain single images (not necessarily of
+the same size) or data cube. Widlcards are allowed in names.
 .TP 3
 or within yorick
 .B #include "spydr.i"
@@ -20,6 +19,47 @@ or within yorick
 .B spydr,im1,im2,cube
 .br
 .B spydr,"image1.fits",...
+.SH COMMAND LINE OPTIONS
+.TP
+.BI --conf\ file
+configuration file.
+.TP
+.BI --dpi\ value
+Yorick dpi value (yorick default = 75, spydr default = 83). Any value
+between 30 and 150 make sense.
+.TP
+.BI --itt\ value
+Intensity Transfer Table (1=linear, 2=sqrt, 3=square, 4=log)
+.TP
+.BI --pixsize\ value
+Pixel size (or plate scale) in arcsec.
+.TP
+.BI --boxsize\ value
+Radius of box for PSF fitting
+.TP
+.BI --saturation\ value
+Value above which pixels have to be considered as saturated (ADU)
+.TP
+.BI --wavelength\ value
+Force wavelength for all images
+.TP
+.BI --zeropoint\ value
+Photometric zeropoint (magnitude)
+.TP
+.BI --nbins\ value
+Number of bins for histograms
+.TP
+.BI --strehlmask\ value
+Radius of circular mask for Strehl calculations
+.TP
+.BI --debug
+Turn on the verbose mode (debugging mode).
+.TP
+.BI --invert
+Invert LUT
+.TP
+.BI --fullgui
+Make the plugin pane visible when the GUI is realized
 .SH DESCRIPTION
 .I Spydr
 is a GUI for image visualization and simple analysis (cuts, zoom,
@@ -45,17 +85,42 @@ The following shortcuts are available:
  ?:   This help
 
 .SH EXAMPLES
+ From the shell:
+ $ spydr --dpi 74 --fullgui 20070730_2*.fits
+ $ spydr --pixsize 0.127 20070730_2[2-3]?.fits 20070730_241.fits
 
- $ spydr 20070730_2*.fits
- $ spydr 20070730_2[2-3]?.fits 20070730_241.fits
+ Within yorick:
  > spydr,"~/ascam/2007jun26/20070625T2000*.fits"
  > spydr,["20070730_1[1-3].fits","20070730_23.fits"]
  > spydr,image
  > spydr,[im1,im2]
+ > spydr,im1,im2
+
+.SH ENVIRONMENT VARIABLES
+
+.TP
+.BI Y_PYTHON
+Force the path to spydr.py. The default path is
+
+.B ./:Y_USER:Y_USER/python/:Y_SITES/python/:Y_SITE/python/
+.TP
+.BI Y_GLADE
+Force the path to spydr.glade. The default path is
+
+.B ./:Y_USER:Y_USER/glade/:Y_SITES/glade/:Y_SITE/glade/
+.TP
+.BI Y_CONF
+Force the path to spydr.conf. The default path is
+
+.B ./:Y_USER:Y_SITE:/etc/:
+.br
+.B ./share/:Y_USER/share/:Y_SITE/share/:
+.br
+.B ./share/spydr/:Y_USER/share/spydr/:Y_SITE/share/spydr/
+
 
 .SH RESTRICTIONS AND BUGS
 
- - all images have to be of the same size
  - only fits images handled to date
  - the ITT display is not very well handled
 
