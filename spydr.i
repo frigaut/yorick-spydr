@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.12 2008-01-23 21:11:22 frigaut Exp $
+ * $Id: spydr.i,v 1.13 2008-01-23 21:20:40 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  * 
@@ -21,50 +21,8 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: spydr.i,v $
- * Revision 1.12  2008-01-23 21:11:22  frigaut
- * - load of new things:
- *
- * New Features:
- * - added a number of command line flags (see man page or spydr -h)
- * - can now handle series of image of different sizes
- * - can mix single image and cube
- * - cmin and cmax are now set per image (sticky setting)
- * - image titles are better handled
- * - updated man page
- * - new image can be opened from the GUI menu (filechooser, multiple
- *   selection ok)
- * - migrated to a spydrs structure, replaced many different variables, cleaner.
- * - now opens the GUI even with no image argument (can use "open" from menu)
- * - all errors are now also displayed as popups (critical quits yorick
- *   when called from shell)
- * - because some (of the more critical) errors can happen before python is
- *   started, I had to use zenity for the popup window. New dependency.
- * - added an "append" keyword to spydr. If set, the new image is appended
- *   to the list of displayed image. The old ones are kept, and the total
- *   number of image is ++
- * - append is also available from the GUI menu
- * - any action on displayed image can be null by using "help->refresh
- *   display" (in particular, sigmafilter)
- * - created "about" dialog.
- * - added an "image" menu (with names of all images in stack). user can
- *   select image form there.
- * - added an "ops" (operation) menu. Can compute median, average, sum and
- *   rms of cube.
- * - small gui (without lower panel) form is called with --compact (-c)
- *
- * Bug fixes:
- * - fixed path to find python and glade files
- * - fixed path for configuration file
- * - main routine re-written and much more robust and clean
- * - (kind of) solved a issue where image got displayed several times
- *   because of echo from setting cmin and cmax
- * - fixed thibaut bug when closing window.
- * - fixed "called_from_shell" when no image argument.
- * - waiting for a doc for the user buttons, set to insivible.
- * - waiting for a proper implementation of find, pane set to invisible.
- *
- *
- * - bug: sometimes the next/previous image does not register
+ * Revision 1.13  2008-01-23 21:20:40  frigaut
+ * - update doc to add (forgotten) --compact command line option
  *
  * Revision 1.11  2008/01/17 14:49:49  frigaut
  * - fixed problem with (pyk) I/O interupt, which was due to calling pyk_flush
@@ -1282,7 +1240,7 @@ func print_help(field)
   write,format="%s\n","spydr [--conf conffile --dpi value --itt value --azimuth value --elevation value";
   write,format="%s\n","       --pixsize|platescale value --boxsize value --saturation value ";
   write,format="%s\n","       --wavelength value --zeropoint value --nbins value --strehlmask value";
-  write,format="%s\n","       --invert --debug --fullgui] image1.fits [image2.fits ...]";
+  write,format="%s\n","       --invert --debug --fullgui --compact] image1.fits [image2.fits ...]";
   if (spydr_context=="called_from_shell") quit;
 }
 
