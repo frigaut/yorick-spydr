@@ -247,7 +247,7 @@
                 <child>
                   <widget class="GtkFrame" id="zoom">
                     <property name="visible">True</property>
-                    <property name="border_width">3</property>
+                    <property name="border_width">2</property>
                     <property name="label_xalign">0</property>
                     <property name="shadow_type">GTK_SHADOW_OUT</property>
                     <child>
@@ -257,7 +257,7 @@
                         <child>
                           <widget class="GtkVBox" id="vbox5">
                             <property name="visible">True</property>
-                            <property name="border_width">3</property>
+                            <property name="border_width">2</property>
                             <child>
                               <widget class="GtkDrawingArea" id="drawingarea2">
                                 <property name="width_request">176</property>
@@ -272,36 +272,11 @@
                             <child>
                               <widget class="GtkTable" id="table2">
                                 <property name="visible">True</property>
-                                <property name="n_rows">4</property>
+                                <property name="n_rows">3</property>
                                 <property name="n_columns">2</property>
+                                <property name="homogeneous">True</property>
                                 <child>
-                                  <widget class="GtkLabel" id="label20">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="xpad">3</property>
-                                    <property name="label" translatable="yes">X</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label19">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="xpad">3</property>
-                                    <property name="label" translatable="yes">Y</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkEntry" id="xvalue">
+                                  <widget class="GtkEntry" id="localmax">
                                     <property name="visible">True</property>
                                     <property name="editable">False</property>
                                     <property name="width_chars">8</property>
@@ -309,11 +284,27 @@
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
                                     <property name="y_options"></property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkEntry" id="yvalue">
+                                  <widget class="GtkLabel" id="label7">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="xpad">3</property>
+                                    <property name="label" translatable="yes">local maxima</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkEntry" id="zvalue">
                                     <property name="visible">True</property>
                                     <property name="editable">False</property>
                                     <property name="width_chars">8</property>
@@ -334,53 +325,63 @@
                                     <property name="label" translatable="yes">value</property>
                                   </widget>
                                   <packing>
-                                    <property name="top_attach">2</property>
-                                    <property name="bottom_attach">3</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
                                     <property name="x_options">GTK_FILL</property>
                                     <property name="y_options"></property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="label7">
+                                  <widget class="GtkHBox" id="hbox6">
                                     <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="xpad">3</property>
-                                    <property name="label" translatable="yes">local maxima</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="top_attach">3</property>
-                                    <property name="bottom_attach">4</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkEntry" id="zvalue">
-                                    <property name="visible">True</property>
-                                    <property name="editable">False</property>
-                                    <property name="width_chars">8</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                    <property name="top_attach">2</property>
-                                    <property name="bottom_attach">3</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkEntry" id="localmax">
-                                    <property name="visible">True</property>
-                                    <property name="editable">False</property>
-                                    <property name="width_chars">8</property>
+                                    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                    <child>
+                                      <widget class="GtkLabel" id="label19">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">0</property>
+                                        <property name="xpad">3</property>
+                                        <property name="label" translatable="yes">Y</property>
+                                      </widget>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkEntry" id="yvalue">
+                                        <property name="visible">True</property>
+                                        <property name="editable">False</property>
+                                        <property name="width_chars">8</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
-                                    <property name="top_attach">3</property>
-                                    <property name="bottom_attach">4</property>
-                                    <property name="y_options"></property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkHBox" id="hbox5">
+                                    <property name="visible">True</property>
+                                    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                    <child>
+                                      <widget class="GtkLabel" id="label20">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">0</property>
+                                        <property name="xpad">3</property>
+                                        <property name="label" translatable="yes">X</property>
+                                      </widget>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkEntry" id="xvalue">
+                                        <property name="visible">True</property>
+                                        <property name="editable">False</property>
+                                        <property name="width_chars">8</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </widget>
                                 </child>
                               </widget>
                               <packing>
@@ -443,7 +444,7 @@
                 <child>
                   <widget class="GtkFrame" id="frame1">
                     <property name="visible">True</property>
-                    <property name="border_width">3</property>
+                    <property name="border_width">2</property>
                     <property name="label_xalign">0</property>
                     <property name="shadow_type">GTK_SHADOW_OUT</property>
                     <child>
@@ -679,7 +680,7 @@ with low and high values as defined by cmin and cmax</property>
                 <child>
                   <widget class="GtkFrame" id="frame2">
                     <property name="visible">True</property>
-                    <property name="border_width">3</property>
+                    <property name="border_width">2</property>
                     <property name="label_xalign">0</property>
                     <property name="shadow_type">GTK_SHADOW_OUT</property>
                     <child>
