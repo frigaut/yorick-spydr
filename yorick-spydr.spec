@@ -43,6 +43,7 @@ fi;
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/usr/lib/yorick/i
+mkdir -p $RPM_BUILD_ROOT/usr/lib/yorick/i-start
 mkdir -p $RPM_BUILD_ROOT/usr/bin
 mkdir -p $RPM_BUILD_ROOT/usr/lib/yorick/python
 mkdir -p $RPM_BUILD_ROOT/usr/lib/yorick/glade
@@ -53,6 +54,7 @@ mkdir -p $RPM_BUILD_ROOT/usr/share/man/man1
 mkdir -p $RPM_BUILD_ROOT/usr/lib/yorick/packages/installed
 
 install -m 644 *.i $RPM_BUILD_ROOT/usr/lib/yorick/i
+install -m 644 *_start.i $RPM_BUILD_ROOT/usr/lib/yorick/i-start
 install -m 755 spydr $RPM_BUILD_ROOT/usr/bin
 install -m 755 spydr.py $RPM_BUILD_ROOT/usr/lib/yorick/python
 install -m 644 spydr.glade $RPM_BUILD_ROOT/usr/lib/yorick/glade

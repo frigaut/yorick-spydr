@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.13 2008-01-23 21:20:40 frigaut Exp $
+ * $Id: spydr.i,v 1.14 2008-01-24 15:05:17 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  * 
@@ -21,12 +21,60 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: spydr.i,v $
- * Revision 1.13  2008-01-23 21:20:40  frigaut
+ * Revision 1.14  2008-01-24 15:05:17  frigaut
+ * - added "delete from stack" feature
+ * - some bugfix in psffit
+ *
+ * Revision 1.13  2008/01/23 21:20:40  frigaut
  * - update doc to add (forgotten) --compact command line option
  *
+ * Revision 1.12 2008/01/23 21:11:22  frigaut
+ * - load of new things:
+ * 
+ * New Features:
+ * - added a number of command line flags (see man page or spydr -h)
+ * - can now handle series of image of different sizes
+ * - can mix single image and cube
+ * - cmin and cmax are now set per image (sticky setting)
+ * - image titles are better handled
+ * - updated man page
+ * - new image can be opened from the GUI menu (filechooser, multiple
+ *   selection ok)
+ * - migrated to a spydrs structure, replaced many different variables, cleaner.
+ * - now opens the GUI even with no image argument (can use "open" from menu)
+ * - all errors are now also displayed as popups (critical quits yorick
+ *   when called from shell)
+ * - because some (of the more critical) errors can happen before python is
+ *   started, I had to use zenity for the popup window. New dependency.
+ * - added an "append" keyword to spydr. If set, the new image is appended
+ *   to the list of displayed image. The old ones are kept, and the total
+ *   number of image is ++
+ * - append is also available from the GUI menu
+ * - any action on displayed image can be null by using "help->refresh
+ *   display" (in particular, sigmafilter)
+ * - created "about" dialog.
+ * - added an "image" menu (with names of all images in stack). user can
+ *   select image form there.
+ * - added an "ops" (operation) menu. Can compute median, average, sum and
+ *   rms of cube.
+ * - small gui (without lower panel) form is called with --compact (-c)
+ * 
+ * Bug fixes:
+ * - fixed path to find python and glade files
+ * - fixed path for configuration file
+ * - main routine re-written and much more robust and clean
+ * - (kind of) solved a issue where image got displayed several times
+ *   because of echo from setting cmin and cmax
+ * - fixed thibaut bug when closing window.
+ * - fixed "called_from_shell" when no image argument.
+ * - waiting for a doc for the user buttons, set to insivible.
+ * - waiting for a proper implementation of find, pane set to invisible.
+ * 
+ * - bug: sometimes the next/previous image does not register
+ *  
  * Revision 1.11  2008/01/17 14:49:49  frigaut
  * - fixed problem with (pyk) I/O interupt, which was due to calling pyk_flush
- * prematurely. Now called within first call of spydr()
+ *    prematurely. Now called within first call of spydr()
  *
  * Revision 1.10  2008/01/17 13:17:44  frigaut
  * - bumped version to 0.6.1
@@ -648,6 +696,7 @@ func spydr_cubeops(opn)
   spydrs(0).space="results";
   cube=[];
   pyk,"set_cursor_busy(0)";
+  pyk_status_push,"Processing cube operation: Done.";
 }
 
 
@@ -906,6 +955,7 @@ func spydr_shortcut_help(void)
                " e:   Adjust min and max cut to 10% and 99.9% ","      of distribution of <b>visible region</b>",
                " E:   Reset min and max cut to min and max ","      of <b>visible region</b>",
                " n/p: Next/prevous image",
+               " d:   Delete current image from stack",
                " s:   Sigma filter displayed image",
                " -/+: Decrease/Increase zoom factor in zoom window",
                " u:   Unzoom",
@@ -921,7 +971,7 @@ func strehl_convert(sfrom,wfrom,wto)
 }
 
 
-func set_imnum(nn,from_python)
+func set_imnum(nn,from_python,force=)
 {
   extern spydrs,imnum;
   extern spydr_im,cmin,cmax;
@@ -929,7 +979,7 @@ func set_imnum(nn,from_python)
 
   //write,format="YORICK: Request for set_imnum %d\n",nn;
   
-  if (nn==imnum) return;
+  if ((nn==imnum)&&(!force)) return;
   if (nn>spydr_nim) return;
   
   imnum = nn;
@@ -1080,6 +1130,33 @@ func figure_image_pixsize(fh)
   else return pixsize;
 }
 
+func spydr_delete_current_from_stack(void)
+{
+  extern spydrs,imnum,spydr_nim;
+  if ((imnum)&&(spydr_nim)) {
+    if (spydr_nim==1) {
+      spydrs=[];
+      spydr_nim=0;
+      window,spydr_wins(1);
+      fma; redraw;
+    } else {
+      if (imnum==1) {
+        spydrs=spydrs(2:);
+        nn=imnum;
+      } else if (imnum==spydr_nim) {
+        spydrs=spydrs(1:-1);
+        nn=imnum-1;
+      } else {
+        spydrs=_(spydrs(1:imnum-1),spydrs(imnum+1:0));
+        nn=imnum;
+      }
+      spydr_nim--;
+      set_imnum,nn,force=1;
+      spydr_disp;
+    }
+    sync_view_menu;
+  }
+}
 
 func spydr_get_available_windows(void)
 /* DOCUMENT spydr_get_available_windows(void)
@@ -1360,7 +1437,11 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=)
   if (_pyk_proc==[]) append=0; // does not make sense in that case
   
   if (!append) spydr_clean;
-  else orig_nim=spydr_nim;
+  else {
+    orig_nim=spydr_nim;
+    window,spydr_wins(1);
+    unzoom;
+  }
   
   // loop on # of arguments
   do {
@@ -1418,7 +1499,7 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=)
           } else {
             info,image;
             pyk_error,"spydr only works on images and data cubes";
-            if (spydr_context=="called_from_shell") quit;
+            if ((spydr_context=="called_from_shell")&&(spydr_nim==0)) quit;
             error,"spydr only works on images and data cubes";
           }
           spydr_nim += nim;
@@ -1454,7 +1535,7 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=)
       } else {
         info,image;
         pyk_error,"spydr only works on images and data cubes";
-        if (spydr_context=="called_from_shell") quit;
+        if ((spydr_context=="called_from_shell")&&(spydr_nim==0)) quit;
         error,"spydr only works on images and data cubes";
       }
       spydr_nim += nim;
@@ -1462,12 +1543,6 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=)
     }
   } while ((vimage=next_arg())!=[]);
 
-  /*
-  sync_view_menu;
-  if (_pyk_proc) pyk,"reset_image_menu()";
-  if (_pyk_proc) add_view_menu,spydrs(0).name,spydr_nim+1;
-  if (_pyk_proc) add_view_menu,spydrs(0).name,spydr_nim+i;
-  */
   // binsize=1 if image=integers, 0 else.
   // if 0, use nbin in hist calculation
   //if (!spydr_histbinsize) spydr_histbinsize = (max(abs(*(spydrs(1).pim))%1)==0?1:0);
@@ -1476,7 +1551,6 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=)
   if (!_pyk_proc) {
     _pyk_proc = spawn(pyk_cmd, _pyk_callback);
     write,"\r SPYDR ready                                                         ";
-    //    set_imnum,1;
   } else {
     // there's already a GUI around. hence we're not going to receive
     // a signal from python to bring up windows and display. we have

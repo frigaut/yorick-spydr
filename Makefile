@@ -18,7 +18,7 @@ PKG_NAME = spydr
 # include files for this package
 PKG_I=spydr.i spydr_plugins.i spydr_psffit.i spydr_various.i
 # autoload file for this package, if any
-PKG_I_START=
+PKG_I_START=spydr_start.i
 
 # override macros Makepkg sets for rules and other macros
 # Y_HOME and Y_SITE in Make.cfg may not be correct (e.g.- relocatable)
@@ -81,7 +81,7 @@ package:
 	mkdir -p pkg/$(PKG_NAME)/dist/y_site/glade
 	mkdir -p pkg/$(PKG_NAME)/dist/y_site/g
 	mkdir -p pkg/$(PKG_NAME)/dist/y_site/gist
-	mkdir -p pkg/$(PKG_NAME)/dist/y_site/i-start
+	mkdir -p pkg/$(PKG_NAME)/dist/y_home/i-start
 	mkdir -p pkg/$(PKG_NAME)/dist/y_site/share/spydr
 	mkdir -p pkg/$(PKG_NAME)/dist/y_home/bin
 

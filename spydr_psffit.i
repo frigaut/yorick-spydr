@@ -5,7 +5,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr_psffit.i,v 1.4 2008-01-23 21:11:22 frigaut Exp $
+ * $Id: spydr_psffit.i,v 1.5 2008-01-24 15:05:17 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,7 +22,11 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: spydr_psffit.i,v $
- * Revision 1.4  2008-01-23 21:11:22  frigaut
+ * Revision 1.5  2008-01-24 15:05:17  frigaut
+ * - added "delete from stack" feature
+ * - some bugfix in psffit
+ *
+ * Revision 1.4  2008/01/23 21:11:22  frigaut
  * - load of new things:
  *
  * New Features:
@@ -470,9 +474,15 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     pos  = [i1,j1]-1;
     //    im   = sigmaFilter(im,5,iter=2,silent=1);
     if ((saturation > 0) && (max(im) > saturation)) {
+      if (onepass) {
       write,"Some pixels > specified saturation level. Aborting !";
       pyk_status_push,"Some pixels > specified saturation level. Aborting !";
+        exit;
+      } else {
+        write,"Some pixels > specified saturation level. Choose another star";
+        pyk_status_push,"Some pixels > specified saturation level. Choose another star";
       continue;
+      }
     }
     sky2 = sky(im,dev2);
     im   = im - sky2;

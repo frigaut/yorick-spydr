@@ -3,7 +3,7 @@
 # 
 # This file is part of spydr, an image viewer/data analysis tool
 #
-# $Id: spydr.py,v 1.5 2008-01-23 21:11:22 frigaut Exp $
+# $Id: spydr.py,v 1.6 2008-01-24 15:05:17 frigaut Exp $
 #
 # Copyright (c) 2007, Francois Rigaut
 #
@@ -20,7 +20,11 @@
 # Mass Ave, Cambridge, MA 02139, USA).
 # 
 # $Log: spydr.py,v $
-# Revision 1.5  2008-01-23 21:11:22  frigaut
+# Revision 1.6  2008-01-24 15:05:17  frigaut
+# - added "delete from stack" feature
+# - some bugfix in psffit
+#
+# Revision 1.5  2008/01/23 21:11:22  frigaut
 # - load of new things:
 #
 # New Features:
@@ -730,6 +734,8 @@ class spydr:
       if (event.string=='p'):
          n = self.glade.get_widget('imnum').get_value()
          self.glade.get_widget('imnum').set_value(n-1)
+      if (event.string=='d'):
+         self.py2yo('spydr_delete_current_from_stack')
       if (event.string=='s'):
          self.py2yo('spydr_sigmafilter')
       if (event.string=='-'):
