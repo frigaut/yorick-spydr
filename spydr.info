@@ -3,7 +3,7 @@ Kind: package
 Version: 0.7.0
 Revision: 1
 Description: Image display and analysis GUI
-License: GPLv2
+License: GPLv3
 Author: Francois Rigaut
 Maintainer: Francois Rigaut <frigaut@users.sourceforge.net>
 OS: all
