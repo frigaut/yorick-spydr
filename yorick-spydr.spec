@@ -7,7 +7,7 @@ Name: %{name}
 Version: %{version}
 Release: %{release}
 Source0: %{name}-%{version}.tar.bz2
-License: BSD
+License: GPLv3
 Group: Applications/Engineering
 Packager: Francois Rigaut <frigaut@gemini.edu>
 Url: http://www.maumae.net/yorick/doc/plugins.php

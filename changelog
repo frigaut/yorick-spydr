@@ -27,7 +27,8 @@ New Features:
 - added an "ops" (operation) menu. Can compute median, average, sum and
   rms of cube.
 - small gui (without lower panel) form is called with --compact (-c)
-
+- switched to GPLv3
+	
 Bug fixes:
 - fixed path to find python and glade files
 - fixed path for configuration file
