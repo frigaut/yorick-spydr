@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.14 2008-01-24 15:05:17 frigaut Exp $
+ * $Id: spydr.i,v 1.15 2008-01-25 02:55:11 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  * 
@@ -21,7 +21,10 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: spydr.i,v $
- * Revision 1.14  2008-01-24 15:05:17  frigaut
+ * Revision 1.15  2008-01-25 02:55:11  frigaut
+ * - updated DOCUMENT section of spydr
+ *
+ * Revision 1.14  2008/01/24 15:05:17  frigaut
  * - added "delete from stack" feature
  * - some bugfix in psffit
  *
@@ -1377,26 +1380,33 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=)
    Software Package in Yorick for Data Reduction
    
    From the command line:
+   $ spydr [options] image*.fits cube.fits
    $ yorick -i path_to_spydr/spydr.i image1 image2 ...
-   where image can contain wild cards
+   where image can contain wild cards.
+   For options, see man page.
 
    or, within yorick:
-   spydr,"image1",...
-   where image1 is a filename (can contain widl cards)
-   or
-   spydr,images
-   where images can be a single image or a datacube.
+   spydr,"image1.fits",im2
+   where "image1.fits" is a filename (can contain widl cards)
+   arguments can mix strings (filenames, possibly with widlcards),
+   and images or data cube.
 
    EXAMPLES:
-   $ spydr 20070730_2*.fits
-   $ spydr 20070730_2[2-3]?.fits 20070730_241.fits
+   $ spydr --dpi 80 20070730_2*.fits
+   $ spydr -c 20070730_2[2-3]?.fits 20070730_241.fits
    > spydr,"~/ascam/2007jun26/20070625T2000*.fits"
    > spydr,["20070730_1[1-3].fits","20070730_23.fits"]
-   > spydr,image
-   > spydr,[im1,im2]
+   > spydr,"20070730_1[1-3].fits","20070730_23.fits"
+   > spydr,image,append=1
+   > spydr,im1,"cube45.fits"
+
+   KEYWORDS:
+   wavelength=: set wavelength for the image/cube arguments
+   pixsize=: set pixel size (plate scale) for the image/cube arguments
+   name=: set name 9for display) for the image/cube arguments
+   append=append image/cube argument to existing image stack
 
    RESTRICTIONS:
-   - all images have to be of the same size
    - only fits images handled to date
    - the ITT display is not very well handled
    
@@ -1407,12 +1417,13 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=)
    when the cursor is in the main graphic window.
 
    INSTALLATION:
-   - You can define an alias or write a wrapper to conveniently
-     call spydr from the command line without having to write the
-     yorick -i ...
+   - Linux packages normally install an executable and man page. With other
+     installers, or other OSes, you can define an alias or write a wrapper
+     to conveniently call spydr from the command line without having to write
+     the "yorick -i ..."
      Example of a spydr wrapper:
      #!/bin/sh
-     yorick -i spydr/spydr.i $*
+     rlwrap yorick -i spydr/spydr.i $* || yorick -i spydr/spydr.i $*
 
    SEE ALSO:
  */
@@ -1648,14 +1659,3 @@ pyk_cmd=[python_exec,path2glade,swrite(format="%d",spydr_showlower),swrite(forma
 
 
 if (spydr_context=="called_from_shell") spydr,targets;
-/*  if (numberof(targets)>=1) spydr,targets;
-  else {
-    // called without argument. Start nevertheles (user may open
-    // files with the "open" menu)
-    if (!_pyk_proc) {
-      _pyk_proc = spawn(pyk_cmd, _pyk_callback);
-      write,"\r SPYDR ready";
-    }
-  }
- }
-*/
