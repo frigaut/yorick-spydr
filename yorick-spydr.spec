@@ -1,5 +1,5 @@
 %define name yorick-spydr
-%define version 0.7.0
+%define version 0.7.1
 %define release gemini2008jan09
 
 Summary: GUI for image display in yorick

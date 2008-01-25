@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.16 2008-01-25 03:03:49 frigaut Exp $
+ * $Id: spydr.i,v 1.17 2008-01-25 15:41:40 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,7 +22,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr.i,v $
- * Revision 1.16  2008-01-25 03:03:49  frigaut
+ * Revision 1.17  2008-01-25 15:41:40  frigaut
+ * bumped version to 0.7.1
+ *
+ * Revision 1.16  2008/01/25 03:03:49  frigaut
  * - updated license or license text to GPLv3 in all files
  *
  * Revision 1.15  2008/01/25 02:55:11  frigaut
@@ -126,7 +129,7 @@
  *
  */
 
-spydr_version = "0.7.0";
+spydr_version = "0.7.1";
 
 require,"pyk.i";
 require,"astro_util1.i";
