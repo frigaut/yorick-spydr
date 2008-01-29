@@ -3,7 +3,7 @@
 # 
 # This file is part of spydr, an image viewer/data analysis tool
 #
-# $Id: spydr.py,v 1.7 2008-01-25 03:03:49 frigaut Exp $
+# $Id: spydr.py,v 1.8 2008-01-29 21:23:46 frigaut Exp $
 #
 # Copyright (c) 2007, Francois Rigaut
 #
@@ -21,7 +21,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # $Log: spydr.py,v $
-# Revision 1.7  2008-01-25 03:03:49  frigaut
+# Revision 1.8  2008-01-29 21:23:46  frigaut
+# - upgraded version 0.7.2
+# - added "save as", "save" and export to jpeg and png menus/actions
+#
+# Revision 1.7  2008/01/25 03:03:49  frigaut
 # - updated license or license text to GPLv3 in all files
 #
 # Revision 1.6  2008/01/24 15:05:17  frigaut
@@ -173,6 +177,10 @@ class spydr:
          'on_cubeavg_activate': self.on_cubeavg_activate,
          'on_cubesum_activate': self.on_cubesum_activate,
          'on_cuberms_activate': self.on_cuberms_activate,
+         'on_save_activate': self.on_save_activate,
+         'on_saveas_activate': self.on_saveas_activate,
+         'on_exportjpeg_activate': self.on_exportjpeg_activate,
+         'on_exportpng_activate': self.on_exportpng_activate,
          }
       
       self.glade = gtk.glade.XML(os.path.join(self.spydrtop,'spydr.glade')) 
@@ -207,8 +215,10 @@ class spydr:
       self.glade.get_widget('drawingarea3').set_size_request(dsx,dsy)
       self.pyk_debug=0
       self.currentdir=os.getcwd()
+      self.currentsavedir=os.getcwd()
       self.imgroup=None
       self.current_image_menu=0
+      self.current_image_saveas_name=None
       self.just_done_range=0
       
       if (spydr_showlower==0):
@@ -364,6 +374,54 @@ class spydr:
          self.py2yo('spydr %s' % fs)
       chooser.destroy()
          
+   def on_saveas_activate(self,wdg):
+      chooser = gtk.FileChooserDialog(title='Save as...',action=gtk.FILE_CHOOSER_ACTION_SAVE,buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE,gtk.RESPONSE_OK))
+      filter = gtk.FileFilter()
+      filter.add_pattern('*.fits')
+      filter.set_name('Fits files')
+      chooser.add_filter(filter)
+      chooser.set_current_folder(os.path.abspath(self.currentsavedir))
+      chooser.set_current_name(self.current_image_saveas_name)
+      res = chooser.run()
+      if res == gtk.RESPONSE_OK:
+         file=chooser.get_filename()
+         self.currentsavedir = chooser.get_current_folder()
+         self.py2yo('spydr_saveas \"%s\"' % file)
+      chooser.destroy()
+
+   def on_save_activate(self,wdg):
+      self.py2yo('spydr_save')
+      
+   def on_exportjpeg_activate(self,wdg):
+      chooser = gtk.FileChooserDialog(title='Export as jpeg',action=gtk.FILE_CHOOSER_ACTION_SAVE,buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE,gtk.RESPONSE_OK))
+      filter = gtk.FileFilter()
+      filter.add_pattern('*.jpg')
+      filter.set_name('JPEG files')
+      chooser.add_filter(filter)
+      chooser.set_current_folder(os.path.abspath(self.currentsavedir))
+      chooser.set_current_name(self.current_image_saveas_name+'.jpg')
+      res = chooser.run()
+      if res == gtk.RESPONSE_OK:
+         file=chooser.get_filename()
+         self.currentsavedir = chooser.get_current_folder()
+         self.py2yo('spydr_exportjpeg \"%s\"' % file)
+      chooser.destroy()
+      
+   def on_exportpng_activate(self,wdg):
+      chooser = gtk.FileChooserDialog(title='Export as png',action=gtk.FILE_CHOOSER_ACTION_SAVE,buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE,gtk.RESPONSE_OK))
+      filter = gtk.FileFilter()
+      filter.add_pattern('*.png')
+      filter.set_name('PNG files')
+      chooser.add_filter(filter)
+      chooser.set_current_folder(os.path.abspath(self.currentsavedir))
+      chooser.set_current_name(self.current_image_saveas_name+'.png')
+      res = chooser.run()
+      if res == gtk.RESPONSE_OK:
+         file=chooser.get_filename()
+         self.currentsavedir = chooser.get_current_folder()
+         self.py2yo('spydr_exportpng \"%s\"' % file)
+      chooser.destroy()
+      
    def on_cubemed_activate(self,wdg):
       self.py2yo('spydr_cubeops 1')
 

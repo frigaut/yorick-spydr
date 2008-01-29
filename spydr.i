@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.17 2008-01-25 15:41:40 frigaut Exp $
+ * $Id: spydr.i,v 1.18 2008-01-29 21:23:46 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,7 +22,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr.i,v $
- * Revision 1.17  2008-01-25 15:41:40  frigaut
+ * Revision 1.18  2008-01-29 21:23:46  frigaut
+ * - upgraded version 0.7.2
+ * - added "save as", "save" and export to jpeg and png menus/actions
+ *
+ * Revision 1.17  2008/01/25 15:41:40  frigaut
  * bumped version to 0.7.1
  *
  * Revision 1.16  2008/01/25 03:03:49  frigaut
@@ -129,7 +133,7 @@
  *
  */
 
-spydr_version = "0.7.1";
+spydr_version = "0.7.2";
 
 require,"pyk.i";
 require,"astro_util1.i";
@@ -147,6 +151,7 @@ struct spydr_struct{
   double  pixsize;
   double  wavelength;
   string  name;
+  string  saveasname;
   float   cmin;
   float   cmax;
   string  space;
@@ -676,6 +681,68 @@ func do_limits(void)
 // Convenience Functions
 //============================
 
+func spydr_exportjpeg(name)
+{
+  extern spydr_savedir;
+
+  if ((strpart(name,-3:0)!=".jpg")&&(strpart(name,-4:0)!=".jpeg")) name+=".jpg";
+  
+  spydrs(imnum).saveasname = basename(name);
+  spydr_savedir = dirname(name);
+  
+  jpeg,name;
+  write,format="Image exported to %s\n",name;
+  pyk_status_push,swrite(format="Image exported to %s",name);
+}
+
+func spydr_exportpng(name)
+{
+  extern spydr_savedir;
+
+  if (strpart(name,-3:0)!=".png") name+=".png";
+  
+  spydrs(imnum).saveasname = basename(name);
+  spydr_savedir = dirname(name);
+  
+  png,name;
+  write,format="Image exported to %s\n",name;
+  pyk_status_push,swrite(format="Image exported to %s",name);
+}
+
+
+func spydr_save(void)
+{
+  extern spydr_savedir;
+  name = spydr_savedir+"/"+escapechar2save(spydrs(imnum).saveasname);
+  if (strpart(name,-4:0) != ".fits") name+=".fits";
+  fits_write,name,*spydrs(imnum).pim,overwrite=1;
+  write,format="Image saved in %s\n",name;
+  pyk_status_push,swrite(format="Image saved in %s",name);
+}
+
+func spydr_saveas(name)
+{
+  extern spydr_savedir;
+
+  if (strpart(name,-4:0) != ".fits") name+=".fits";
+  
+  spydrs(imnum).saveasname = basename(name);
+  spydr_savedir = dirname(name);
+  fits_write,name,*spydrs(imnum).pim,overwrite=1;
+  write,format="Image saved in %s\n",name;
+  pyk_status_push,swrite(format="Image saved in %s",name);
+}
+
+func escapechar2save(s)
+{
+  s=streplace(s,strfind(".fits",s,n=20),"");
+  s=streplace(s,strfind("/",s,n=20),":");
+  s=streplace(s,strfind(" ",s,n=20),"_");
+  return s;
+}
+
+//===============================
+
 func spydr_cubeops(opn)
 {
   local cube;
@@ -780,10 +847,12 @@ func toggle_animate(state)
 func gui_update(void)
 {
   extern spydrs,imnum,spydr_lut;
+  extern first_update;
 
   if (imnum==[]) return; // GUI open but no image
   
   pyk,swrite(format="window.set_title('spydr - %s')",spydrs(imnum).name); 
+  pyk,swrite(format="current_image_saveas_name = '%s'",escapechar2save(spydrs(imnum).saveasname)); 
   pyk,swrite(format="y_parm_update('binsize',%f)",float(spydr_histbinsize));
   pyk,swrite(format="y_parm_update('nlevs',%d)",long(spydr_nlevs));
   pyk,swrite(format="y_parm_update('pixsize',%f)",float(spydrs(imnum).pixsize));
@@ -801,9 +870,16 @@ func gui_update(void)
   pyk,swrite(format="y_set_cmincmax(%f,%f,%f,0)",float(cmin),float(cmax),float(cmax-cmin)/100.);
   pyk,swrite(format="y_set_lut(%d)",spydr_lut);
   pyk,swrite(format="y_set_invertlut(%d)",spydr_invertlut);
-  pyk,swrite(format="y_set_itt(%d)",clip(long(spydr_itt-1),0,3));  
-  pyk,"glade.get_widget('menubar_images').set_sensitive(1)";
-  pyk,"glade.get_widget('menubar_ops').set_sensitive(1)";
+  pyk,swrite(format="y_set_itt(%d)",clip(long(spydr_itt-1),0,3));
+  if (first_update==[]) {
+    pyk,swrite(format="currentsavedir = '%s'",spydr_savedir); 
+    pyk,"glade.get_widget('menubar_images').set_sensitive(1)";
+    pyk,"glade.get_widget('menubar_ops').set_sensitive(1)";
+    pyk,"glade.get_widget('save').set_sensitive(1)";
+    pyk,"glade.get_widget('export').set_sensitive(1)";
+    pyk,"glade.get_widget('saveas').set_sensitive(1)";
+    first_update=1;
+  }
   sync_view_menu;
 }
 
@@ -1004,8 +1080,10 @@ func set_imnum(nn,from_python,force=)
   if ((from_python==[])&&(gui_realized)) {
     pyk,swrite(format="set_imnum(%d,%d,%d)",nn,spydr_nim,(spydr_nim>1));
   }
-  if (gui_realized) \
+  if (gui_realized) {
     pyk,swrite(format="window.set_title('spydr - %s')",spydrs(nn).name); 
+    pyk,swrite(format="current_image_saveas_name = '%s'",escapechar2save(spydrs(imnum).saveasname));
+  }
 }
 
 func spydr_redisp(void)
@@ -1500,7 +1578,7 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=)
             spydrs(0).pim = &im;
             spydrs(0).pixsize = pixsize;
             spydrs(0).wavelength = wavelength;
-            spydrs(0).name = basename(imname(mm));
+            spydrs(0).name = spydrs(0).saveasname = basename(imname(mm));
             spydrs(0).dims = dimsof(im);
           } else if (dimsof(im)(1)==3) { // data cube.
             nim = dimsof(im)(4);
@@ -1512,6 +1590,7 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=)
               spydrs(0).wavelength = wavelength;
               spydrs(0).name = basename(imname(mm));
               spydrs(0).name += swrite(format=" %d/%d",i,nim);
+              spydrs(0).saveasname = spydrs(0).name;
               spydrs(0).dims = dimsof(im(,,i));
             }
           } else {
@@ -1535,7 +1614,7 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=)
         grow,spydrs,spydr_struct();
         spydrs(0).pim = &image;
         default_imname = (name?name:"image")+swrite(format="%d",++imnamen);
-        spydrs(0).name = default_imname;
+        spydrs(0).name = spydrs(0).saveasname = default_imname;
         spydrs(0).dims = dimsof(image);
       } else if (dimsof(image)(1)==3) { // data cube
         nim = dimsof(image)(4);
@@ -1548,6 +1627,7 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=)
           spydrs(0).wavelength = default_wavelength;
           spydrs(0).name = default_imname;
           spydrs(0).name += swrite(format=" %d/%d",i,nim);
+          spydrs(0).saveasname = spydrs(0).name;
           spydrs(0).dims = dimsof(image(,,i));
         }
       } else {
@@ -1568,7 +1648,7 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=)
   // span the python process, and hook to existing _pyk_proc (see pyk.i)
   if (!_pyk_proc) {
     _pyk_proc = spawn(pyk_cmd, _pyk_callback);
-    write,"\r SPYDR ready                                                         ";
+    write,"\r SPYDR v"+spydr_version+" ready                                                         ";
   } else {
     // there's already a GUI around. hence we're not going to receive
     // a signal from python to bring up windows and display. we have
