@@ -5,7 +5,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr_psffit.i,v 1.6 2008-01-25 03:03:49 frigaut Exp $
+ * $Id: spydr_psffit.i,v 1.7 2008-01-30 05:28:19 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -23,7 +23,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr_psffit.i,v $
- * Revision 1.6  2008-01-25 03:03:49  frigaut
+ * Revision 1.7  2008-01-30 05:28:19  frigaut
+ * - added spydr_pyk to avoid conflicts with other calls of pyk, and modify
+ * spydr_pyk for our purpose. I know this means we will not benefit from
+ * future pyk code improvements, but I can deal with that.
+ * - added check of yorick main version to avoid use with V<2.1.05 (in which
+ * current_mouse does not exist)
+ *
+ * Revision 1.6  2008/01/25 03:03:49  frigaut
  * - updated license or license text to GPLv3 in all files
  *
  * Revision 1.5  2008/01/24 15:05:17  frigaut
@@ -416,8 +423,8 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     write,"Middle click to remove last entry.";
   }
   
-  if (onepass) pyk_status_push,"Click on star";
-  else pyk_status_push,"BUTTONS: Left:Select Star / Middle:Remove last entry / Right:Exit.";
+  if (onepass) spydr_pyk_status_push,"Click on star";
+  else spydr_pyk_status_push,"BUTTONS: Left:Select Star / Middle:Remove last entry / Right:Exit.";
 
   if (!compute_strehl) {
     if (pixset) {
@@ -444,14 +451,14 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
       if (nloop==n_to_do) but=3; else but=1;  // but=3 will exit main loop
     } else { // interactive mode
       res  = mouse(1,0,"");
-      pyk_status_push,"Processing...";
+      spydr_pyk_status_push,"Processing...";
       c    = long(res(1:2));
       but  = res(10);
       if (but == 3) break;
       if (but == 2) {
         if (numberof(el) == 1) {
           write,"You can only unbuffer after having buffered at least one star!";
-          pyk_warning,"You can only unbuffer after having buffered at least one star!";
+          spydr_pyk_warning,"You can only unbuffer after having buffered at least one star!";
           continue;
         }
         f    = f(,:-1);
@@ -460,7 +467,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
         eler = eler(:-1);
         an   = an(:-1);
         write,"Last measurement taken out of star list";
-        pyk_warning,"Last measurement taken out of star list";
+        spydr_pyk_warning,"Last measurement taken out of star list";
         continue;
       }
     }
@@ -480,11 +487,11 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     if ((saturation > 0) && (max(im) > saturation)) {
       if (onepass) {
       write,"Some pixels > specified saturation level. Aborting !";
-      pyk_status_push,"Some pixels > specified saturation level. Aborting !";
+      spydr_pyk_status_push,"Some pixels > specified saturation level. Aborting !";
         exit;
       } else {
         write,"Some pixels > specified saturation level. Choose another star";
-        pyk_status_push,"Some pixels > specified saturation level. Choose another star";
+        spydr_pyk_status_push,"Some pixels > specified saturation level. Choose another star";
       continue;
       }
     }
@@ -644,11 +651,11 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     } else if (compute_strehl) {
 
       if (pixset==0) {
-        pyk_error,"Need pixsize set to compute Strehl!";
+        spydr_pyk_error,"Need pixsize set to compute Strehl!";
         return;
       }
       if (spydrs(imnum).wavelength==0) {
-        pyk_warning,"Need wavelength to compute Strehl!";
+        spydr_pyk_warning,"Need wavelength to compute Strehl!";
         return;
       }
       
@@ -706,7 +713,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
       //yfwhmres.pfwhm = pfwhm;
     }
 
-    pyk_status_push,msg;
+    spydr_pyk_status_push,msg;
 
     if (onepass) break;
     //    typeReturn;
@@ -733,7 +740,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
                  median(f(1,)),median(f(2,)),avg([median(f(1,)),median(f(2,))]));
     }
     write,format="\n%s\n",msg;
-    if (!onepass) pyk_status_push,msg;
+    if (!onepass) spydr_pyk_status_push,msg;
     // in pixels:
     spydr_fit_fwhm_estimate = avg([median(f(1,)),median(f(2,))])/pixsize;
     spydr_fit_background_estimate = avg(allres.background);
@@ -742,7 +749,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     spydr_fit_background_estimate = skyavg;
   }
     
-  pyk,swrite(format="y_text_parm_update('find_fwhm','%.3f')",spydr_fit_fwhm_estimate);
+  spydr_pyk,swrite(format="y_text_parm_update('find_fwhm','%.3f')",spydr_fit_fwhm_estimate);
 
   if (compute_strehl) return _(pfwhm,pstrehl);
   else return allres;
