@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.22 2008-02-02 05:12:05 frigaut Exp $
+ * $Id: spydr.i,v 1.23 2008-02-02 05:18:08 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,9 +22,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr.i,v $
- * Revision 1.22  2008-02-02 05:12:05  frigaut
+ * Revision 1.23  2008-02-02 05:18:08  frigaut
+ * fixed log header in spydr.i
+ *
+ * Revision 1.22  2008/02/02 05:12:05  frigaut
  * fixed bug when picking star for fitting while being in "graphical axis
  * in arcsec" mode.
+ *
+ * Revision 1.21  2008/02/02 04:59:54  frigaut
+ * saved fits is displayed fits, not stack image
+ *
+ * revision 1.20  2008/02/02 04:49:21  frigaut
+ * many changes once more:
+ * - can now display graphes with X/Y axis in arcsec
+ * - cleaned up mode switching (tv/contours/surface). Now more reliable.
+ * - contour filled and tv switch survive a mode switching (before, were
+ *   reset)
+ * - limits are sticky between switch of mode (especially when switching
+ *   to contours)
+ * - when axis in arcsec is selected, gaussian fit is expresed in arcsec too.
+ * - added export to pdf, postscript, encapsulated postscript
+ * - added menu to pick color of contour lines
+ * - added menu to pick color of contour marks
+ * - implemented contour legends on plots
+ * - added menu to select position of contour legends
+ * - new functionality to compute distance between 2 points (see shortcut
+ *   "M" and "m").
+ * - rebin now works both ways (increasing and decreasing number of pixels)
+ * - added "hdu" command line keyword, and updated manpage.
+ * - added hist-equalize option to LUT
+ * this is version 0.7.3
  *
  * Revision 1.19  2008/01/30 05:28:19  frigaut
  * - added spydr_pyk to avoid conflicts with other calls of pyk, and modify
