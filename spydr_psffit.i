@@ -5,7 +5,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr_psffit.i,v 1.7 2008-01-30 05:28:19 frigaut Exp $
+ * $Id: spydr_psffit.i,v 1.8 2008-02-02 05:12:05 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -23,7 +23,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr_psffit.i,v $
- * Revision 1.7  2008-01-30 05:28:19  frigaut
+ * Revision 1.8  2008-02-02 05:12:05  frigaut
+ * fixed bug when picking star for fitting while being in "graphical axis
+ * in arcsec" mode.
+ *
+ * Revision 1.7  2008/01/30 05:28:19  frigaut
  * - added spydr_pyk to avoid conflicts with other calls of pyk, and modify
  * spydr_pyk for our purpose. I know this means we will not benefit from
  * future pyk code improvements, but I can deal with that.
@@ -451,6 +455,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
       if (nloop==n_to_do) but=3; else but=1;  // but=3 will exit main loop
     } else { // interactive mode
       res  = mouse(1,0,"");
+      if (spydr_plot_in_arcsec) res(1:4) = spydr_arcsec_to_pixels(res(1:4));
       spydr_pyk_status_push,"Processing...";
       c    = long(res(1:2));
       but  = res(10);
@@ -506,9 +511,11 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     if (catch(0x11)) {
       if (onepass) {
         write,"Error detected, exiting.";
+        spydr_pyk_status_push,"Error detected, exiting.";
         return;
       }
       write,"Error detected, skipping source";
+      spydr_pyk_status_push,"Error detected, skipping source";
       nloop++;
       continue;
     }

@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.21 2008-02-02 04:59:54 frigaut Exp $
+ * $Id: spydr.i,v 1.22 2008-02-02 05:12:05 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,8 +22,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr.i,v $
- * Revision 1.21  2008-02-02 04:59:54  frigaut
- * saved fits is displayed fits, not stack image
+ * Revision 1.22  2008-02-02 05:12:05  frigaut
+ * fixed bug when picking star for fitting while being in "graphical axis
+ * in arcsec" mode.
  *
  * Revision 1.19  2008/01/30 05:28:19  frigaut
  * - added spydr_pyk to avoid conflicts with other calls of pyk, and modify
