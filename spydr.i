@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.23 2008-02-02 05:18:08 frigaut Exp $
+ * $Id: spydr.i,v 1.24 2008-02-02 20:16:08 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,7 +22,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr.i,v $
- * Revision 1.23  2008-02-02 05:18:08  frigaut
+ * Revision 1.24  2008-02-02 20:16:08  frigaut
+ * - gotten rid of clmfit in favor of direct lmfit call.
+ * - added batch mode
+ * - changed spydr startup script
+ * - now fitted vector is displayed vector (before was fitting
+ *   the whole e.g. cut, and not only the displayed part).
+ * - fitting is slightly more robust (better starting values)
+ * - fixed an issue with pick-up of star in psffit when in graph
+ *   axis are in arcsec
+ * - fixed an error when picking x or y cuts outside of image
+ * - moved some error messages from popups to status bar
+ * - bumped to version 0.7.4
+ *
+ * Revision 1.23  2008/02/02 05:18:08  frigaut
  * fixed log header in spydr.i
  *
  * Revision 1.22  2008/02/02 05:12:05  frigaut
@@ -171,7 +184,7 @@
  *
  */
 
-spydr_version = "0.7.2";
+spydr_version = "0.7.4";
 
 
 require,"spydr_pyk.i";
@@ -397,7 +410,7 @@ func disp_contours(void,nofma=)
   }
   
   xy = indices(spydrs(imnum).dims)-0.5;
-  levs = span(cmin,cmax,spydr_nlevs)(2:-1);
+  levs = span(cmin,cmax,spydr_nlevs);//(2:-1);
   if (spydr_filled) {
     plfc,spydr_im,xy(,,2)*fact,xy(,,1)*fact,levs=levs;
     colorbar,adjust=-0.024,levs=10;
@@ -450,7 +463,14 @@ func spydr_clegends(levs)
     just="RT";
   }
   for (i=1;i<=nlevs;i++) {
-    s = string(&char(64+i))+swrite(format=" %+.2e",levs(i));
+    if ((abs(levs(i))>=1e-3)&&(abs(levs(i)<1e-2))) fmt=" %+.6f";
+    else if ((abs(levs(i))>=1e-2)&&(abs(levs(i)<1e-1))) fmt=" %+.5f";
+    else if ((abs(levs(i))>=1e-1)&&(abs(levs(i)<1e1))) fmt=" %+.4f";
+    else if ((abs(levs(i))>=1e1)&&(abs(levs(i)<1e2))) fmt=" %+.3f";
+    else if ((abs(levs(i))>=1e2)&&(abs(levs(i)<1e3))) fmt=" %+.2f";
+    else if ((abs(levs(i))>=1e3)&&(abs(levs(i)<1e5))) fmt=" %+.1f";
+    else fmt=" %+.2e"
+    s = string(&char(64+i))+swrite(format=fmt,levs(i));
     plt,s,x,y,tosys=0,justify=just,font="courier",height=10,color=spydr_mcolor;
     y-=spacing;
   }
@@ -770,6 +790,9 @@ func plot_xcut(j)
     if (cur==[]) return;
     j = cur(2)
   }
+  
+  if ((j<1)||(j>spydrs(imnum).dims(3))) return;
+
   get_subim,i1,i2,j1,j2;
   curw = current_window();
 
@@ -784,8 +807,8 @@ func plot_xcut(j)
   spydr_pltitle,swrite(format="line# %d",j);
   limits,i1*fact,i2*fact;
   window,curw;
-  onedx=cut_x;
-  onedy=cut_y;
+  onedx=cut_x(long(i1):long(i2));
+  onedy=cut_y(long(i1):long(i2));
 }
 
 
@@ -809,6 +832,9 @@ func plot_ycut(i)
     if (cur==[]) return;
     i = cur(1)
   }
+
+  if ((i<1)||(i>spydrs(imnum).dims(2))) return;
+  
   get_subim,i1,i2,j1,j2;
   curw = current_window();
   
@@ -823,22 +849,37 @@ func plot_ycut(i)
   spydr_pltitle,swrite(format="column# %d",i);
   limits,j1*fact,j2*fact;
   window,curw;
-  onedx=cut_x;
-  onedy=cut_y;
+  onedx=cut_x(long(j1):long(j2));
+  onedy=cut_y(long(j1):long(j2));
 }
 
+
+func spydr_gauss_foo(x,aa)
+{
+  aa(1,);
+  return aa(1)+aa(2)*exp(-0.5*((x-aa(3))/(sign(aa(4))*(abs(aa(4))+1e-12)))^2.);
+}
 
 func fit_gaussian_1d(void)
 {
   extern onedx,onedy;
   local units;
 
-  if (noneof(onedy)) spydr_pyk_status_push,"Nothing to fit";
-  if (numberof(onedy)!=numberof(onedx)) \
+  if (onedy==[]) {
+    spydr_pyk_status_push,"Nothing to fit";
+    return;
+  }
+  if (numberof(onedy)!=numberof(onedx)) {
     spydr_pyk_status_push,"onedy and onedx do not have the same dimensions!";
-  
-  a = [0.,max(onedy),onedx(wheremax(onedy)),3.];
-  clmfit,onedy,onedx,a,"a(1)+a(2)*exp(-0.5*((x-a(3))/a(4))^2.)",yfit;
+    return;
+  }
+
+  bkgrd = median(onedy);
+  sigestimate = sum(onedy>max(onedy/2.))*(onedx(2)-onedx(1))/2.35;
+  a = [bkgrd,max(onedy)-bkgrd,onedx(wheremax(onedy)),sigestimate];
+  r= lmfit(spydr_gauss_foo,onedx,a,onedy);
+  yfit = spydr_gauss_foo(onedx,a);
+
   a(4)=abs(a(4));
   curw = current_window();
   window,spydr_wins(3);
@@ -1119,8 +1160,9 @@ func get_subim(&x1,&x2,&y1,&y2)
   y1=round(clip(lim(3),1,spydrs(imnum).dims(3)));
   y2=round(clip(lim(4),1,spydrs(imnum).dims(3)));
   if ( (x1==x2) || (y1==y2) ) {
-    spydr_pyk_error,"Nothing to show";
-    error,"Nothing to show";
+    spydr_pyk_status_push,"WARNING: (get_subim) Nothing to show";
+    write,"WARNING: (get_subim) Nothing to show";
+    exit;
   }
   window,curw;
   return spydr_im(x1:x2,y1:y2)
@@ -1659,6 +1701,10 @@ func parse_flags(args)
   nflags = numberof(flags);
   valid = array(0,nflags);
   for (i=1;i<=nflags;i++) {
+    if (flags(i)=="--batch") {
+      batch,1;
+      valid(i)=1;
+    }
     if ((flags(i)=="--debug")|(flags(i)=="-d")) {
       pyk_debug=1;
       valid(i)=1;
@@ -1773,7 +1819,7 @@ func print_help(field)
   write,format="%s\n","spydr [--conf conffile --dpi value --itt value --azimuth value --elevation value";
   write,format="%s\n","       --hdu value --pixsize|platescale value --boxsize value --saturation value ";
   write,format="%s\n","       --wavelength value --zeropoint value --nbins value --strehlmask value";
-  write,format="%s\n","       --invert --debug --fullgui --compact] image1.fits [image2.fits ...]";
+  write,format="%s\n","       --invert --debug --fullgui --compact --batch] image1.fits [image2.fits ...]";
   if (spydr_context=="called_from_shell") quit;
 }
 
@@ -1928,7 +1974,7 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=,hdu=)
         imname = findfiles(image);
         if (imname==[]) {
           spydr_pyk_error,swrite(format="Can not find %s\n",image);
-          if (spydr_context=="called_from_shell") quit;
+          //          if (spydr_context=="called_from_shell") quit;
           error,swrite(format="Can not find %s\n",image);
         }
         

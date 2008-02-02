@@ -1,3 +1,16 @@
+Francois Rigaut, v 0.7.4 (Sat, 02 Feb 2008 17:14:07 -0300)
+
+- gotten rid of clmfit in favor of direct lmfit call.
+- added batch mode
+- changed spydr startup script
+- now fitted vector is displayed vector (before was fitting
+  the whole e.g. cut, and not only the displayed part).
+- fitting is slightly more robust (better starting values)
+- fixed an issue with pick-up of star in psffit when in graph
+  axis are in arcsec
+- fixed an error when picking x or y cuts outside of image
+- moved some error messages from popups to status bar
+	
 Francois Rigaut, v 0.7.3 (Thu, 31 Jan 2008 12:35:01 -0300)
 	
 - can now display graphes with X/Y axis in arcsec
