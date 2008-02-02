@@ -3,7 +3,7 @@
 # 
 # This file is part of spydr, an image viewer/data analysis tool
 #
-# $Id: spydr.py,v 1.8 2008-01-29 21:23:46 frigaut Exp $
+# $Id: spydr.py,v 1.9 2008-02-02 04:49:21 frigaut Exp $
 #
 # Copyright (c) 2007, Francois Rigaut
 #
@@ -21,7 +21,29 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # $Log: spydr.py,v $
-# Revision 1.8  2008-01-29 21:23:46  frigaut
+# Revision 1.9  2008-02-02 04:49:21  frigaut
+# many changes once more:
+# - can now display graphes with X/Y axis in arcsec
+# - cleaned up mode switching (tv/contours/surface). Now more reliable.
+# - contour filled and tv switch survive a mode switching (before, were
+#   reset)
+# - limits are sticky between switch of mode (especially when switching
+#   to contours)
+# - when axis in arcsec is selected, gaussian fit is expresed in arcsec too.
+# - added export to pdf, postscript, encapsulated postscript
+# - added menu to pick color of contour lines
+# - added menu to pick color of contour marks
+# - implemented contour legends on plots
+# - added menu to select position of contour legends
+# - new functionality to compute distance between 2 points (see shortcut
+#   "M" and "m").
+# - rebin now works both ways (increasing and decreasing number of pixels)
+# - added "hdu" command line keyword, and updated manpage.
+# - added hist-equalize option to LUT
+#
+# this is version 0.7.3
+#
+# Revision 1.8  2008/01/29 21:23:46  frigaut
 # - upgraded version 0.7.2
 # - added "save as", "save" and export to jpeg and png menus/actions
 #
@@ -127,6 +149,7 @@ class spydr:
          'on_window1_map_event': self.on_window1_map,
          'on_drawingarea1_enter_notify_event': self.on_drawingarea1_enter_notify_event,
          'on_drawingarea1_leave_notify_event': self.on_drawingarea1_leave_notify_event,
+#         'on_eventbox2_scroll_event': self.on_eventbox2_scroll_event,
          'on_cmin_value_changed': self.on_cmin_value_changed,
          'on_cmax_value_changed': self.on_cmax_value_changed,
          'on_cmincmax_toggled': self.on_cmincmax_toggled,
@@ -181,6 +204,13 @@ class spydr:
          'on_saveas_activate': self.on_saveas_activate,
          'on_exportjpeg_activate': self.on_exportjpeg_activate,
          'on_exportpng_activate': self.on_exportpng_activate,
+         'on_exportpdf_activate': self.on_exportpdf_activate,
+         'on_exportps_activate': self.on_exportps_activate,
+         'on_exporteps_activate': self.on_exporteps_activate,
+         'on_plot_in_arcsec_toggled': self.on_plot_in_arcsec_toggled,
+         'on_ccolor_toggled': self.on_ccolor_toggled,
+         'on_mcolor_toggled': self.on_mcolor_toggled,
+         'on_clabel_toggled': self.on_clabel_toggled,
          }
       
       self.glade = gtk.glade.XML(os.path.join(self.spydrtop,'spydr.glade')) 
@@ -204,13 +234,14 @@ class spydr:
       #self.glade.get_widget('wfs_and_dms').hide()
       ebox = self.glade.get_widget('vbox3')
       ebox.connect('key-press-event',self.on_vbox3_key_press)
+#      ebox.connect('scroll-event',self.on_eventbox2_scroll_event)
 
       # set size of graphic areas:
       dpi = spydr_dpi
-      dsx = int(595.*dpi/100)+5
+      dsx = int(595.*dpi/100)+4
       dsy = int(596.*dpi/100)+25
       self.glade.get_widget('drawingarea1').set_size_request(dsx,dsy)
-      dsx = int(595.*dpi/100)+5
+      dsx = int(595.*dpi/100)+4
       dsy = int(307.*dpi/100)+25
       self.glade.get_widget('drawingarea3').set_size_request(dsx,dsy)
       self.pyk_debug=0
@@ -222,7 +253,8 @@ class spydr:
       self.just_done_range=0
       
       if (spydr_showlower==0):
-         self.glade.get_widget('frame2').hide()
+         if (spydr_dpi < 85):
+            self.glade.get_widget('frame2').hide()
          self.glade.get_widget('table1').hide()
          self.glade.get_widget('drawingarea3').hide()
          self.glade.get_widget('togglelower').set_active(0)
@@ -421,6 +453,67 @@ class spydr:
          self.currentsavedir = chooser.get_current_folder()
          self.py2yo('spydr_exportpng \"%s\"' % file)
       chooser.destroy()
+
+   def on_exportpdf_activate(self,wdg):
+      chooser = gtk.FileChooserDialog(title='Export as pdf',action=gtk.FILE_CHOOSER_ACTION_SAVE,buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE,gtk.RESPONSE_OK))
+      filter = gtk.FileFilter()
+      filter.add_pattern('*.pdf')
+      filter.set_name('PDF files')
+      chooser.add_filter(filter)
+      chooser.set_current_folder(os.path.abspath(self.currentsavedir))
+      chooser.set_current_name(self.current_image_saveas_name+'.pdf')
+      res = chooser.run()
+      if res == gtk.RESPONSE_OK:
+         file=chooser.get_filename()
+         self.currentsavedir = chooser.get_current_folder()
+         self.py2yo('spydr_exportpdf \"%s\"' % file)
+      chooser.destroy()
+
+   def on_exportps_activate(self,wdg):
+      chooser = gtk.FileChooserDialog(title='Export as ps',action=gtk.FILE_CHOOSER_ACTION_SAVE,buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE,gtk.RESPONSE_OK))
+      filter = gtk.FileFilter()
+      filter.add_pattern('*.ps')
+      filter.set_name('PS files')
+      chooser.add_filter(filter)
+      chooser.set_current_folder(os.path.abspath(self.currentsavedir))
+      chooser.set_current_name(self.current_image_saveas_name+'.ps')
+      res = chooser.run()
+      if res == gtk.RESPONSE_OK:
+         file=chooser.get_filename()
+         self.currentsavedir = chooser.get_current_folder()
+         self.py2yo('spydr_exportps \"%s\"' % file)
+      chooser.destroy()
+
+   def on_exporteps_activate(self,wdg):
+      chooser = gtk.FileChooserDialog(title='Export as eps',action=gtk.FILE_CHOOSER_ACTION_SAVE,buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE,gtk.RESPONSE_OK))
+      filter = gtk.FileFilter()
+      filter.add_pattern('*.eps')
+      filter.set_name('EPS files')
+      chooser.add_filter(filter)
+      chooser.set_current_folder(os.path.abspath(self.currentsavedir))
+      chooser.set_current_name(self.current_image_saveas_name+'.eps')
+      res = chooser.run()
+      if res == gtk.RESPONSE_OK:
+         file=chooser.get_filename()
+         self.currentsavedir = chooser.get_current_folder()
+         self.py2yo('spydr_exporteps \"%s\"' % file)
+      chooser.destroy()
+
+   def on_plot_in_arcsec_toggled(self,wdg):
+      self.py2yo('spydr_set_plot_in_arcsec %d' % self.glade.get_widget('plot_in_arcsec').get_active())
+
+   def on_ccolor_toggled(self,wdg):
+      data = self.glade.get_widget('ccolor').get_active()
+      #sys.stderr.write("PYTHON: color = %s \n" % data.get_name())
+      self.py2yo('set_spydr_ccolor \"%s\"' % data.get_name())
+      
+   def on_mcolor_toggled(self,wdg):
+      data = self.glade.get_widget('mcolor').get_active()
+      self.py2yo('set_spydr_mcolor \"%s\"' % data.get_name()[1:])
+      
+   def on_clabel_toggled(self,wdg):
+      data = self.glade.get_widget('clabel').get_active()
+      self.py2yo('set_spydr_clabel \"%s\"' % data.get_name())
       
    def on_cubemed_activate(self,wdg):
       self.py2yo('spydr_cubeops 1')
@@ -444,6 +537,8 @@ class spydr:
          self.py2yo('pyk_set spydr_itt 3')
       elif (itt=="log"):
          self.py2yo('pyk_set spydr_itt 4')
+      elif (itt=="histeq"):
+         self.py2yo('pyk_set spydr_itt 5')
       self.py2yo('spydr_set_lut')
       self.py2yo('spydr_disp')
 
@@ -458,7 +553,6 @@ class spydr:
          
    def on_plugins_toggled(self,wdg):
       show_state = self.glade.get_widget('plugins').get_active()
-#      self.py2yo('write show_state=%d' % show_state)
       if (show_state):
          try:
             s = self.size
@@ -518,6 +612,9 @@ class spydr:
    def on_binsize_value_changed(self,wdg):
       if (self.done_init):
          self.py2yo('pyk_set spydr_histbinsize %f' % self.glade.get_widget('binsize').get_value())
+         isup=self.glade.get_widget('togglelower').get_active()
+         if (isup):
+            self.py2yo('plot_histo')
 
    def on_pixsize_value_changed(self,wdg):
       if (self.done_init):
@@ -572,6 +669,7 @@ class spydr:
       
    def on_unzoom_clicked(self,wdg):
       self.py2yo('unzoom')
+      self.py2yo('limits')
       
    def on_histogram_clicked(self,wdg):
       self.py2yo('plot_histo')
@@ -609,10 +707,9 @@ class spydr:
       self.glade.get_widget('nlevs_label').hide()
       self.glade.get_widget('nlevs').hide()
       if (self.done_init):
-         self.glade.get_widget('contours_plus_tv').set_active(0)
-         self.glade.get_widget('contours_filled').set_active(0)
+         #self.glade.get_widget('contours_plus_tv').set_active(0)
+         #self.glade.get_widget('contours_filled').set_active(0)
          self.py2yo('switch_disp 1') # 1 is tv
-         self.py2yo('spydr_disp')
          
    def on_contours_pressed(self,wdg):
       self.glade.get_widget('contours_plus_tv').set_sensitive(1)
@@ -624,16 +721,19 @@ class spydr:
       self.glade.get_widget('elevation').hide()
       self.glade.get_widget('nlevs_label').show()
       self.glade.get_widget('nlevs').show()
+      self.py2yo('pyk_set spydr_filled %d' % self.glade.get_widget('contours_filled').get_active())
       if (self.done_init):
-         self.py2yo('switch_disp 2') # 2 is contour
-         self.py2yo('spydr_disp')
+         if (self.glade.get_widget('contours_plus_tv').get_active()):
+            self.py2yo('switch_disp 4') # 4 is contour+tv
+         else:
+            self.py2yo('switch_disp 2') # 2 is contour
 
    def on_surface_pressed(self,wdg):
       self.glade.get_widget('contours_plus_tv').set_sensitive(0)
       self.glade.get_widget('contours_filled').set_sensitive(0)
       self.glade.get_widget('shades').set_sensitive(1)
-      self.glade.get_widget('contours_plus_tv').set_active(0)
-      self.glade.get_widget('contours_filled').set_active(0)
+      #self.glade.get_widget('contours_plus_tv').set_active(0)
+      #self.glade.get_widget('contours_filled').set_active(0)
       self.glade.get_widget('azimuth_label').show()
       self.glade.get_widget('azimuth').show()
       self.glade.get_widget('elevation_label').show()
@@ -642,23 +742,23 @@ class spydr:
       self.glade.get_widget('nlevs').hide()
       if (self.done_init):
          self.py2yo('switch_disp 3') # 3 is surface
-         self.py2yo('spydr_disp')
 
    def on_contours_filled_toggled(self,wdg):
       if (self.done_init):
+         if (wdg.get_active()):
+            if (self.glade.get_widget('contours_plus_tv').get_active()):
+               self.glade.get_widget('contours_plus_tv').set_active(0)
          self.py2yo('pyk_set spydr_filled %d' % wdg.get_active())
          self.py2yo('spydr_disp')
-         if (wdg.get_active()):
-            self.glade.get_widget('contours_plus_tv').set_active(0)
       
    def on_contours_plus_tv_toggled(self,wdg):
       if (self.done_init):
          if (wdg.get_active()):
+            if (self.glade.get_widget('contours_filled').get_active()):
+               self.glade.get_widget('contours_filled').set_active(0)
             self.py2yo('switch_disp 4') # 4 is contour+tv
-            self.glade.get_widget('contours_filled').set_active(0)
          else:
             self.py2yo('switch_disp 2') # 2 is contour
-         self.py2yo('spydr_disp')
 
    def on_shades_toggled(self,wdg):
       if (self.done_init):
@@ -687,6 +787,7 @@ class spydr:
          self.py2yo('set_imnum %d 1' % imnum)
          self.py2yo('imchange_update')
          self.py2yo('spydr_disp')
+         self.glade.get_widget('rebin').set_value(0)
          
    def set_imnum(self,imnum,numim,vis):
       #sys.stderr.write("PYTHON: entering set_imnum with request %d\n" % imnum)
@@ -720,13 +821,19 @@ class spydr:
       if (self.doing_zoom==0):
          self.py2yo('disp_zoom')
          self.doing_zoom=1
-      #self.set_cursor_busy(0)
 
-   def on_drawingarea1_leave_notify_event(self,wdg,*args):
+   def on_drawingarea1_leave_notify_event(self,wdg,event):
+#      sys.stderr.write("%s\n" % event.type)
+#      if (event.type==GDK_SCROLL):
+#         sys.stderr.write("SCROLL!\n")
       if (self.doing_zoom==1):
          self.py2yo('pyk_set stop_zoom 1')
          self.doing_zoom=0
-#      self.set_cursor_busy(1)
+
+#   def on_eventbox2_scroll_event(self,wdg,event):
+#      sys.stderr.write("SCROLL\n")
+#      sys.stderr.write("%s\n" % event)
+
 
    def on_spydr_help_activate(self,wdg):
       self.py2yo('spydr_shortcut_help')
@@ -744,7 +851,8 @@ class spydr:
          self.glade.get_widget('table1').show()
          self.glade.get_widget('drawingarea3').show()
       else:
-         self.glade.get_widget('frame2').hide()
+         if (self.spydr_dpi < 85):
+            self.glade.get_widget('frame2').hide()
          self.glade.get_widget('table1').hide()
          self.glade.get_widget('drawingarea3').hide()
 
@@ -800,6 +908,10 @@ class spydr:
          self.py2yo('spydr_delete_current_from_stack')
       if (event.string=='s'):
          self.py2yo('spydr_sigmafilter')
+      if (event.string=='M'):
+         self.py2yo('spydr_compute_distance 1')
+      if (event.string=='m'):
+         self.py2yo('spydr_compute_distance')
       if (event.string=='-'):
          self.py2yo('rad4zoom_incr')
       if (event.string=='=') or (event.string=='+'):

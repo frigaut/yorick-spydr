@@ -1,3 +1,23 @@
+Francois Rigaut, v 0.7.3 (Thu, 31 Jan 2008 12:35:01 -0300)
+	
+- can now display graphes with X/Y axis in arcsec
+- cleaned up mode switching (tv/contours/surface). Now more reliable.
+- contour filled and tv switch survive a mode switching (before, were
+  reset)
+- limits are sticky between switch of mode (especially when switching
+  to contours)
+- when axis in arcsec is selected, gaussian fit is expresed in arcsec too.
+- added export to pdf, postscript, encapsulated postscript
+- added menu to pick color of contour lines
+- added menu to pick color of contour marks
+- implemented contour legends on plots
+- added menu to select position of contour legends
+- new functionality to compute distance between 2 points (see shortcut
+  "M" and "m").
+- rebin now works both ways (increasing and decreasing number of pixels)
+- added "hdu" command line keyword, and updated manpage.
+- added hist-equalize option to LUT
+	
 Francois Rigaut, v 0.7.2 (Tue, 29 Jan 2008 18:20:46 -0300)
 
 - Added "save as","save", and export to jpeg and png menus/actions
