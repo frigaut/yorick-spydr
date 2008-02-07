@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.24 2008-02-02 20:16:08 frigaut Exp $
+ * $Id: spydr.i,v 1.25 2008-02-07 14:51:35 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,7 +22,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr.i,v $
- * Revision 1.24  2008-02-02 20:16:08  frigaut
+ * Revision 1.25  2008-02-07 14:51:35  frigaut
+ * correct typos in document section.
+ *
+ * Revision 1.24  2008/02/02 20:16:08  frigaut
  * - gotten rid of clmfit in favor of direct lmfit call.
  * - added batch mode
  * - changed spydr startup script
@@ -1875,13 +1878,14 @@ func sync_view_menu(void)
 // MAIN ROUTINE
 //=======================
 func spydr(vimage,..,wavelength=,pixsize=,name=,append=,hdu=)
-/* DOCUMENT spydr,image
+/* DOCUMENT spydr,image,..,wavelength=,pixsize=,name=,append=,hdu=
+   
    Software Package in Yorick for Data Reduction
    
-   From the command line:
+   From the command line
    $ spydr [options] image*.fits cube.fits
    $ yorick -i path_to_spydr/spydr.i image1 image2 ...
-   where image can contain wild cards.
+   where image can contain wildcards.
    For options, see man page.
 
    or, within yorick:
@@ -1911,9 +1915,9 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=,hdu=)
    
    USE:
    Once loaded, number of possibilities are offered by the GUI.
-   There is a number of shortcuts. Type "?" or og to the help
-   menu to list them all. Shortcuts are events are received only
-   when the cursor is in the main graphic window.
+   There is a number of shortcuts. Type "?" or go to the help
+   menu to list them all. Shortcuts events are received only
+   when the cursor is in the GUI main graphic window.
 
    INSTALLATION:
    - Linux packages normally install an executable and man page. With other
