@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.25 2008-02-07 14:51:35 frigaut Exp $
+ * $Id: spydr.i,v 1.26 2008-02-08 09:53:42 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,7 +22,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr.i,v $
- * Revision 1.25  2008-02-07 14:51:35  frigaut
+ * Revision 1.26  2008-02-08 09:53:42  frigaut
+ * - applied patch from thibaut to fix regression (error when calling spydr
+ * from within yorick)
+ *
+ * Revision 1.25  2008/02/07 14:51:35  frigaut
  * correct typos in document section.
  *
  * Revision 1.24  2008/02/02 20:16:08  frigaut
@@ -2027,6 +2031,8 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=,hdu=)
       //=========================================
       
       image = vimage;
+      pixsize = default_pixsize;
+      wavelength = default_wavelength;
       if (dimsof(image)(1)==2) { // single image
         nim = 1;
         grow,spydrs,spydr_struct();
