@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.26 2008-02-08 09:53:42 frigaut Exp $
+ * $Id: spydr.i,v 1.27 2008-02-08 10:19:30 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,7 +22,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr.i,v $
- * Revision 1.26  2008-02-08 09:53:42  frigaut
+ * Revision 1.27  2008-02-08 10:19:30  frigaut
+ * - set larger values for the cmin and cmax min/max allowed values
+ * - fixed a bug in set_cmax (spydr.i)
+ *
+ * Revision 1.26  2008/02/08 09:53:42  frigaut
  * - applied patch from thibaut to fix regression (error when calling spydr
  * from within yorick)
  *
@@ -1513,7 +1517,7 @@ func set_cmax(pycmax)
   //  write,format="pycmax=%f, cmax=%f\n",pycmax,cmax;
   // because the precision was cut by the yorick -> python -> yoric
   // transfer, we have to allow for some slack
-  if ((cmax-cmin)==0) if ((abs(pycmax-cmax)/(cmax-cmin))<1e-3) return;
+  if ((cmax-cmin)!=0) if ((abs(pycmax-cmax)/(cmax-cmin))<1e-3) return;
   if (pycmax<cmin) {
     spydr_pyk_status_push,"cmax < cmin, ignoring";
     return;

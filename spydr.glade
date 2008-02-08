@@ -1387,7 +1387,7 @@ histeq
                         <property name="can_focus">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                         <property name="tooltip" translatable="yes">Low threshold for displayed image</property>
-                        <property name="adjustment">0 -10000000 10000000 1 10 10</property>
+                        <property name="adjustment">0 -1e+21 1e+21 1 10 10</property>
                         <property name="climb_rate">1</property>
                         <property name="digits">1</property>
                         <signal name="value_changed" handler="on_cmin_value_changed"/>
@@ -1404,7 +1404,7 @@ histeq
                         <property name="can_focus">True</property>
                         <property name="events">GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                         <property name="tooltip" translatable="yes">High threshold for displayed image</property>
-                        <property name="adjustment">0 -10000000 10000000 1 10 10</property>
+                        <property name="adjustment">0 -1e+21 1e+21 1 10 10</property>
                         <property name="climb_rate">1</property>
                         <property name="digits">1</property>
                         <signal name="value_changed" handler="on_cmax_value_changed"/>
