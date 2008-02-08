@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.27 2008-02-08 10:19:30 frigaut Exp $
+ * $Id: spydr.i,v 1.28 2008-02-08 10:21:09 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,7 +22,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr.i,v $
- * Revision 1.27  2008-02-08 10:19:30  frigaut
+ * Revision 1.28  2008-02-08 10:21:09  frigaut
+ * - bumped to version 0.7.5
+ *
+ * Revision 1.27  2008/02/08 10:19:30  frigaut
  * - set larger values for the cmin and cmax min/max allowed values
  * - fixed a bug in set_cmax (spydr.i)
  *
@@ -195,7 +198,7 @@
  *
  */
 
-spydr_version = "0.7.4";
+spydr_version = "0.7.5";
 
 
 require,"spydr_pyk.i";
