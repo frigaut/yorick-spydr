@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.28 2008-02-08 10:21:09 frigaut Exp $
+ * $Id: spydr.i,v 1.29 2008-02-10 15:08:07 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,7 +22,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr.i,v $
- * Revision 1.28  2008-02-08 10:21:09  frigaut
+ * Revision 1.29  2008-02-10 15:08:07  frigaut
+ * Version 0.7.6:
+ * - can now change the dpi on the fly. ctrl++ and ctrl+- will enlarge
+ *   or shrink the graphical areas. long time missing in yorick.
+ *   I have tried to make the window resizable, but it's a mess. Not
+ *   only in the management of events, but also in the policy: really,
+ *   only enlarging proportionally makes sense.
+ * - changed a bit the zoom behavior: now zoom is started once (the first
+ *   time the mouse enter drawingarea1), and does not stop from that point.
+ *   This is not ideal/economical (although disp_zoom returns immediately
+ *   if the mouse is not in the image window), but it has the advantage
+ *   of being sure the disp_zoom process does not spawn multiple instances
+ *   (recurrent issue with "after").
+ * - The menu items in the left menu bar are hidden/shown according to the
+ *   window size.
+ * - gotten rid of a few (unused) functions in spydr.i (the progressbar
+ *   and message functions) that were conflicting with other pyk instances.
+ * - there's now focus in and out functions that will reset the current
+ *   window to what it was before the focus was given to spydr. This is
+ *   convenient when one just want to popup a spydr window to look at an
+ *   image, and then come back to whatever one was doing without having to
+ *   execute a window,n command.
+ * - fixed a bug in disp_cpc. Now, when a "e"/"E" command is executed
+ *   while a subimage is displayed, the "e"/"E" applies to the displayed
+ *   subimage, not the whole image.
+ * - changed a bit the behavior of the lower graphical area: not the y
+ *   range is the same as the image zcuts (cmin/cmax).
+ * - fixed a small bug in get_subim (using floor/ceil instead of round
+ *   for the indices determination).
+ * - added "compact" keyword to the spydr function (when called from
+ *   within yorick).
+ * - clipping dpi values to [30,400].
+ * - spydr.py: went for a self autodic instead of an explicit
+ *   declaration of all functions.
+ * - implemented smoothing by x2
+ * - implemented 1d linear fitting
+ *
+ * Revision 1.28  2008/02/08 10:21:09  frigaut
  * - bumped to version 0.7.5
  *
  * Revision 1.27  2008/02/08 10:19:30  frigaut
@@ -198,7 +235,7 @@
  *
  */
 
-spydr_version = "0.7.5";
+spydr_version = "0.7.6";
 
 
 require,"spydr_pyk.i";
@@ -284,47 +321,82 @@ func spydr_pyk_warning(msg)
 }
 
 
-func gui_progressbar_frac(frac) {
-  spydr_pyk,swrite(format="progressbar.set_fraction(%f)",float(frac));
-}
-
-
-func gui_progressbar_text(text) {
-  spydr_pyk,swrite(format="progressbar.set_text('%s')",text);
-}
-
-
-func gui_message(msg) {
-  spydr_pyk,swrite(format="statusbar.push(1,'%s')",msg);
-}
-
 
 //=============================
 // Window management functions
 // and basic display operations
 //=============================
 
+func spydr_focus_in(void)
+{
+  extern spydr_win_had_focus;
 
-func spydr_win_init(pid1,pid2,pid3)
+  cw=current_window();
+  if (noneof(cw==spydr_wins)) {
+      if (cw>-1) spydr_win_had_focus = cw;
+  }
+  //  write,format="spydr focus in, old = %d\n",spydr_win_had_focus;
+}
+
+func spydr_focus_out(void)
+{
+  extern spydr_win_had_focus;
+  if (spydr_win_had_focus>-1) {
+    window,spydr_win_had_focus;
+    //    write,format="spydr focus out, restored focus to %d\n",spydr_win_had_focus;
+  }
+}
+
+func spydr_change_dpi(dpi)
+{
+  extern spydr_dpi;
+  extern xid1,xid2,xid3;
+  
+  spydr_dpi=dpi;
+  window,spydr_wins(1);
+  lims = limits();
+  winkill,spydr_wins(1);
+  //  winkill,spydr_wins(2);
+  winkill,spydr_wins(3);
+  spydr_win_init,xid1,xid2,xid3,redisp=1;
+  explimits,lims;
+}
+
+func spydr_win_init(pid1,pid2,pid3,redisp=)
 {
   extern gui_realized;
-  gui_realized=1;
+  extern xid1,xid2,xid3;
+
+  xid1=pid1; xid2=pid2; xid3=pid3;
+
   
-  window,spydr_wins(1),dpi=spydr_dpi,wait=1,\
+  window,spydr_wins(1),dpi=spydr_dpi,wait=(!redisp),width=0,height=0,  \
     xpos=-2,ypos=-2,style="spydr.gs",parent=pid1;
-  if (imnum) {
-    disp_cpc;
-    disp_tv;
+  limits,square=1;
+  /*  if (imnum) {
+    if (!redisp) { 
+      disp_cpc;
+      disp_tv;
+    }
+    }*/
+
+  if (!gui_realized) {
+    window,spydr_wins(2),dpi=31,wait=1,style="nobox.gs",parent=pid2,    \
+      ypos=-27,xpos=-4;
+    limits,square=1;
   }
-  limits,square=1;
-  window,spydr_wins(2),dpi=31,wait=1,style="nobox.gs",parent=pid2,\
-    ypos=-27,xpos=-4;
-  limits,square=1;
-  window,spydr_wins(3),dpi=spydr_dpi,wait=spydr_showlower,style="spydr2.gs",\
-    xpos=-2,ypos=-2,parent=pid3;
+  
+  window,spydr_wins(3),dpi=spydr_dpi,wait=((!redisp)&(spydr_showlower)),\
+    style="spydr2.gs",xpos=-2,ypos=-2,parent=pid3;
+
   window,spydr_wins(1);
   spydr_pyk,"done_init = 1";
+
   spydr_set_lut,spydr_lut;
+  if (redisp) return;
+  
+  gui_realized=1;
+  
   if (spydr_nim>0) {
     set_imnum,1;
     gui_update;
@@ -457,7 +529,7 @@ func spydr_clegends(levs)
 
   nlevs = numberof(levs);
   vp = viewport();
-  spacing = (vp(4)-vp(3))/30.;
+  spacing = (vp(4)-vp(3))/40.;
 
   if (spydr_clabel=="clabeltopleft") {
     x = vp(1)+(vp(2)-vp(1))/40.;
@@ -588,6 +660,7 @@ func disp_surface(void)
   
   if (surface_init) {
     surf_subim = get_subim();
+    if (surf_subim==[]) return;
     if (anyof(dimsof(surf_subim)(2:3)>max_dim)) {
       maxfact = max(dimsof(surf_subim)(2:3)/float(max_dim));
       final_dim = long(dimsof(surf_subim)(2:3)/maxfact);
@@ -649,6 +722,8 @@ func spydr_set_lut(lut)
   extern rlut,glut,blut,spydr_lut;
   local r,g,b;
 
+  //  if ((!lut)||(lut==spydr_lut)) return; // nothing to do.
+
   window,spydr_wins(1);
   if (lut) spydr_lut = lut;
   
@@ -697,8 +772,8 @@ func disp_cpc(e)
 
   if (spydr_nim<1) return;
 
-  if (x2==x1) subim = spydr_im; // init, not defined
-  else subim=get_subim(x1,x2,y1,y2);
+  subim=get_subim(x1,x2,y1,y2);
+  if (subim==[]) subim = spydr_im; // init, not defined
   
   if (e==0) {
     cmin = min(subim);
@@ -777,6 +852,7 @@ func plot_cut(void)
   spydr_xytitles,xtit,"value";
   spydr_pltitle,swrite(format="[%.1f,%.1f] to [%.1f,%.1f]",x1,y1,x2,y2);
   limits;
+  range,cmin-0.1*(cmax-cmin),cmax;
   //  plmargin,0.02;
   window,curw;
   onedx=cut_x;
@@ -819,7 +895,7 @@ func plot_xcut(j)
   plh,cut_y,cut_x;
   spydr_xytitles,xtit,"value";
   spydr_pltitle,swrite(format="line# %d",j);
-  limits,i1*fact,i2*fact;
+  limits,i1*fact,i2*fact,cmin-0.1*(cmax-cmin),cmax;
   window,curw;
   onedx=cut_x(long(i1):long(i2));
   onedy=cut_y(long(i1):long(i2));
@@ -861,7 +937,7 @@ func plot_ycut(i)
   plh,cut_y,cut_x;
   spydr_xytitles,xtit,"value";
   spydr_pltitle,swrite(format="column# %d",i);
-  limits,j1*fact,j2*fact;
+  limits,j1*fact,j2*fact,cmin-0.1*(cmax-cmin),cmax;
   window,curw;
   onedx=cut_x(long(j1):long(j2));
   onedy=cut_y(long(j1):long(j2));
@@ -870,11 +946,21 @@ func plot_ycut(i)
 
 func spydr_gauss_foo(x,aa)
 {
-  aa(1,);
   return aa(1)+aa(2)*exp(-0.5*((x-aa(3))/(sign(aa(4))*(abs(aa(4))+1e-12)))^2.);
 }
 
-func fit_gaussian_1d(void)
+func spydr_line_foo(x,aa)
+{
+  return aa(1)+aa(2)*x;
+}
+
+func fit_1d(type)
+/* DOCUMENT fit_1d(type)
+   fit a function to the 1D display
+   type: 0=line
+         1=gaussian
+   SEE ALSO:
+ */
 {
   extern onedx,onedy;
   local units;
@@ -883,26 +969,36 @@ func fit_gaussian_1d(void)
     spydr_pyk_status_push,"Nothing to fit";
     return;
   }
+  
   if (numberof(onedy)!=numberof(onedx)) {
     spydr_pyk_status_push,"onedy and onedx do not have the same dimensions!";
     return;
   }
 
   bkgrd = median(onedy);
-  sigestimate = sum(onedy>max(onedy/2.))*(onedx(2)-onedx(1))/2.35;
-  a = [bkgrd,max(onedy)-bkgrd,onedx(wheremax(onedy)),sigestimate];
-  r= lmfit(spydr_gauss_foo,onedx,a,onedy);
-  yfit = spydr_gauss_foo(onedx,a);
-
-  a(4)=abs(a(4));
+  if (type==1) {
+    sigestimate = sum(onedy>max(onedy/2.))*(onedx(2)-onedx(1))/2.35;
+    a = [bkgrd,max(onedy)-bkgrd,onedx(wheremax(onedy)),sigestimate];
+    r= lmfit(spydr_gauss_foo,onedx,a,onedy);
+    yfit = spydr_gauss_foo(onedx,a);
+    a(4)=abs(a(4));
+    //  if (spydr_plot_in_arcsec) units="arcsec"; else units="pixels";
+    units = "";
+    spydr_pyk_status_push,swrite(format=\
+      "gaussian, max=%f @ x=%.3f, sig=%.3f%s (fwhm=%.3f), background=%f", \
+      a(2),a(3),a(4),units,a(4)*2.355,a(1));
+  } else if (type==0) {
+    a = [bkgrd,0.];
+    r= lmfit(spydr_line_foo,onedx,a,onedy,stdev=1);
+    yfit = spydr_line_foo(onedx,a);
+    std = *r.stdev;
+    spydr_pyk_status_push,swrite(format= \
+       "linear fit, constant=%.5g+/-%.5g, slope=%.5g+/-%.5g",a(1),std(1),a(2),std(2));
+  }
   curw = current_window();
   window,spydr_wins(3);
   plh,yfit,onedx,color="red";
   window,curw;
-  //  if (spydr_plot_in_arcsec) units="arcsec"; else units="pixels";
-  units = "";
-  spydr_pyk_status_push,swrite(format="gaussian, max=%f @ x=%.3f, sig=%.3f%s (fwhm=%.3f), background=%f",\
-                               a(2),a(3),a(4),units,a(4)*2.355,a(1));
 }
 
 
@@ -912,6 +1008,8 @@ func plot_radial(void)
   
   cur=get_cursor();
   subim=get_subim(i1,i2,j1,j2);
+  if (subim==[]) return;
+  
   curw = current_window();
   
   show_lower_gui,1;
@@ -943,6 +1041,7 @@ func plot_histo(void)
   if (spydr_nim<1) return;
 
   subim=get_subim(x1,x2,y1,y2);  //must be in window,1 when doing that.
+  if (subim==[]) return;
   
   if (!spydr_histnbins) spydr_histnbins=100;
   if (spydr_histbinsize==0) binsize=(cmax-cmin)/spydr_histnbins;
@@ -1169,14 +1268,14 @@ func get_subim(&x1,&x2,&y1,&y2)
   window,spydr_wins(1);
   lim=limits();
   if (spydr_plot_in_arcsec) lim(1:4) = spydr_arcsec_to_pixels(lim(1:4));
-  x1=round(clip(lim(1),1,spydrs(imnum).dims(2)));
-  x2=round(clip(lim(2),1,spydrs(imnum).dims(2)));
-  y1=round(clip(lim(3),1,spydrs(imnum).dims(3)));
-  y2=round(clip(lim(4),1,spydrs(imnum).dims(3)));
+  x1=long(floor(clip(lim(1),1,spydrs(imnum).dims(2))));
+  x2=long(ceil(clip(lim(2),1,spydrs(imnum).dims(2))));
+  y1=long(floor(clip(lim(3),1,spydrs(imnum).dims(3))));
+  y2=long(ceil(clip(lim(4),1,spydrs(imnum).dims(3))));
   if ( (x1==x2) || (y1==y2) ) {
-    spydr_pyk_status_push,"WARNING: (get_subim) Nothing to show";
-    write,"WARNING: (get_subim) Nothing to show";
-    exit;
+    //    spydr_pyk_status_push,"WARNING: (get_subim) Nothing to show";
+    //    write,"WARNING: (get_subim) Nothing to show";
+    return;
   }
   window,curw;
   return spydr_im(x1:x2,y1:y2)
@@ -1334,6 +1433,15 @@ func spydr_arcsec_to_pixels(arcsec)
   return long(arcsec/spydrs(imnum).pixsize)+1;
 }
 
+zoom_started=0;
+func start_zoom(void)
+{
+  extern stop_zoom,zoom_started;
+  if (zoom_started) return; // already running.
+  zoom_started=1;
+  disp_zoom;
+}
+  
 func disp_zoom(once=)
 {
   extern from_disp,stop_zoom,from_imnum;
@@ -1342,7 +1450,8 @@ func disp_zoom(once=)
     stop_zoom=0;
     return;
   }
-
+  //  write,format="%s ","+";
+  
   cur = get_cursor();
   
   if ( (cur==[]) || (from_disp==3) ) { // not in correct window
@@ -1363,7 +1472,7 @@ func disp_zoom(once=)
     
     i = clip(cur(1),1,spydrs(imnum).dims(2));
     j = clip(cur(2),1,spydrs(imnum).dims(3));
-    spydr_pyk,swrite(format="y_set_xyz('%d','%d','%4.7g')",\
+    spydr_pyk,swrite(format="y_set_xyz('%d','%d','%4.5g')",\
                i,j,float(spydr_im(i,j)));
 
     local_rad=min([5,rad4zoom]);
@@ -1371,7 +1480,7 @@ func disp_zoom(once=)
     x2 = clip(i+local_rad,1,spydrs(imnum).dims(2));
     y1 = clip(j-local_rad,1,spydrs(imnum).dims(3));
     y2 = clip(j+local_rad,1,spydrs(imnum).dims(3));
-    spydr_pyk,swrite(format="y_text_parm_update('localmax','%4.7g')",\
+    spydr_pyk,swrite(format="y_text_parm_update('localmax','%4.5g')",\
                float(max(spydr_im(x1:x2,y1:y2))));
     sim=spydr_im(x1:x2,y1:y2);
     wm = where2(sim==max(sim))(,1)-local_rad-1;
@@ -1438,12 +1547,14 @@ func spydr_shortcut_help(void)
                " c:   Interactive plot of cut across image",
                " h:   Plot histogram of <b>visible region</b>",
                " r:   Radial plot centered on cursor",
-               " f:   Fit 1d gaussian to 1d plot",
+               " f:   Gaussian fit to 1d plot",
+               " F:   Linear fit to 1d plot",
                " e:   Adjust min and max cut to 10% and 99.9% ","      of distribution of <b>visible region</b>",
                " E:   Reset min and max cut to min and max ","      of <b>visible region</b>",
                " n/p: Next/prevous image",
                " d:   Delete current image from stack",
-               " s:   Sigma filter displayed image",
+               " s:   Sigma filter visible image region",
+               " S:   2x2 smooth visible image region",
                " M:   Mark coordinate zero point (see m)",
                " m:   Compute distance to coordinate zero point",
                " -/+: Decrease/Increase zoom factor in zoom window",
@@ -1533,10 +1644,20 @@ func spydr_sigmafilter(void)
 {
   if (spydr_nim<1) return;
   subim = get_subim(x1,x2,y1,y2);
+  if (subim==[]) return;
   subim = sigmaFilter(subim,spydr_sigmafilter_nsig,iter=3,silent=1);
   spydr_im(x1:x2,y1:y2) = subim;
   spydr_disp;
 }
+
+func spydr_smooth_function(void)
+{
+  subim = get_subim(x1,x2,y1,y2);
+  if (subim==[]) return;
+  subim = smooth(subim,2);
+  spydr_im(x1:x2,y1:y2) = subim;
+  spydr_disp;
+}  
 
 //=========================
 // Initial I/O
@@ -1862,12 +1983,15 @@ func which_spydrconf(void) {
 
 func spydr_quit(void)
 {
-  extern spydr_context,stop_zoom;
+  extern spydr_context,stop_zoom,spydr_win_had_focus;
   if (spydr_context=="called_from_shell") {
     quit;
   } else {
     spydr_clean;
     stop_zoom=1;
+    gui_realized=0;
+    _spydr_pyk_proc=[];
+    if (spydr_win_had_focus>-1) window,spydr_win_had_focus;
   } 
 }
 
@@ -1888,8 +2012,8 @@ func sync_view_menu(void)
 //=======================
 // MAIN ROUTINE
 //=======================
-func spydr(vimage,..,wavelength=,pixsize=,name=,append=,hdu=)
-/* DOCUMENT spydr,image,..,wavelength=,pixsize=,name=,append=,hdu=
+func spydr(vimage,..,wavelength=,pixsize=,name=,append=,hdu=,compact=)
+/* DOCUMENT spydr,image,..,wavelength=,pixsize=,name=,append=,hdu=,compact=
    
    Software Package in Yorick for Data Reduction
    
@@ -1917,7 +2041,7 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=,hdu=)
    KEYWORDS:
    wavelength=: set wavelength for the image/cube arguments
    pixsize=: set pixel size (plate scale) for the image/cube arguments
-   name=: set name 9for display) for the image/cube arguments
+   name=: set name (for display) for the image/cube arguments
    append=append image/cube argument to existing image stack
 
    RESTRICTIONS:
@@ -1943,16 +2067,27 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=,hdu=)
  */
 {
   extern spydrs,imnum;
+  extern spydr_win_had_focus;
   extern spydr_im,cmin,cmax;
   extern spydr_fh, spydr_nim;
   extern xcut, ycut, imnamen;
-  extern flushing;
+  extern flushing,spydr_showlower;
   local  imname,im,nim,wavelength,pixsize,im;
 
   default_wavelength = (wavelength?wavelength:spydr_wavelength);
   default_pixsize = (pixsize?pixsize:spydr_pixsize);
   default_imname = (name?name:"image");
 
+  if (compact) spydr_showlower=0;
+  pyk_cmd=[python_exec,path2glade,swrite(format="%d",spydr_showlower),  \
+           swrite(format="%d",spydr_dpi),                               \
+           swrite(format="%d",spydr_showplugins)];
+  
+  if (noneof(current_window()==spydr_wins) ){
+    spydr_win_had_focus = current_window();
+  }
+  //  write,format="to spydr window, old = %d\n",spydr_win_had_focus;
+  
   if (spydr_append) {
     // ugly hack to circumvent funcdef inability to deal with keywords
     append=1;
@@ -2185,11 +2320,11 @@ pldefault,maxcolors=spydr_ncolors;
 // parse arguments a second time (to override conffile defaults)
 targets = parse_flags(arg);
 
+spydr_dpi = clip(spydr_dpi,30,400);
+
 // spawned gtk interface
 python_exec = path2py+"/spydr.py";
 pyk_cmd=[python_exec,path2glade,swrite(format="%d",spydr_showlower),swrite(format="%d",spydr_dpi), \
          swrite(format="%d",spydr_showplugins)];
-
-
 
 if (spydr_context=="called_from_shell") spydr,targets;

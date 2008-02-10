@@ -5,7 +5,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr_psffit.i,v 1.8 2008-02-02 05:12:05 frigaut Exp $
+ * $Id: spydr_psffit.i,v 1.9 2008-02-10 15:08:07 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -23,7 +23,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr_psffit.i,v $
- * Revision 1.8  2008-02-02 05:12:05  frigaut
+ * Revision 1.9  2008-02-10 15:08:07  frigaut
+ * Version 0.7.6:
+ * - can now change the dpi on the fly. ctrl++ and ctrl+- will enlarge
+ *   or shrink the graphical areas. long time missing in yorick.
+ *   I have tried to make the window resizable, but it's a mess. Not
+ *   only in the management of events, but also in the policy: really,
+ *   only enlarging proportionally makes sense.
+ * - changed a bit the zoom behavior: now zoom is started once (the first
+ *   time the mouse enter drawingarea1), and does not stop from that point.
+ *   This is not ideal/economical (although disp_zoom returns immediately
+ *   if the mouse is not in the image window), but it has the advantage
+ *   of being sure the disp_zoom process does not spawn multiple instances
+ *   (recurrent issue with "after").
+ * - The menu items in the left menu bar are hidden/shown according to the
+ *   window size.
+ * - gotten rid of a few (unused) functions in spydr.i (the progressbar
+ *   and message functions) that were conflicting with other pyk instances.
+ * - there's now focus in and out functions that will reset the current
+ *   window to what it was before the focus was given to spydr. This is
+ *   convenient when one just want to popup a spydr window to look at an
+ *   image, and then come back to whatever one was doing without having to
+ *   execute a window,n command.
+ * - fixed a bug in disp_cpc. Now, when a "e"/"E" command is executed
+ *   while a subimage is displayed, the "e"/"E" applies to the displayed
+ *   subimage, not the whole image.
+ * - changed a bit the behavior of the lower graphical area: not the y
+ *   range is the same as the image zcuts (cmin/cmax).
+ * - fixed a small bug in get_subim (using floor/ceil instead of round
+ *   for the indices determination).
+ * - added "compact" keyword to the spydr function (when called from
+ *   within yorick).
+ * - clipping dpi values to [30,400].
+ * - spydr.py: went for a self autodic instead of an explicit
+ *   declaration of all functions.
+ * - implemented smoothing by x2
+ * - implemented 1d linear fitting
+ *
+ * Revision 1.8  2008/02/02 05:12:05  frigaut
  * fixed bug when picking star for fitting while being in "graphical axis
  * in arcsec" mode.
  *
@@ -380,6 +417,8 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     if (funtype == "special") {write,"Using Special fit";}
     if (funtype == "moffat") {write,"Using Moffat fit";}
   }
+
+  show_lower_gui,1;
   
   batch_mode = (xstar!=[]);
 

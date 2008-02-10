@@ -39,7 +39,7 @@ func spydr_pyk(py_command)
  */
 {
   require,"pathfun.i";
-  
+
   if (is_void(_spydr_pyk_proc)) {
     error,"_spydr_pyk_proc should not be emtpy on spydr_pyk call within spydr";
   }

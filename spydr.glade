@@ -4,10 +4,13 @@
 <glade-interface>
   <widget class="GtkWindow" id="window1">
     <property name="visible">True</property>
-    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK</property>
     <property name="title" translatable="yes">spydr</property>
     <property name="resizable">False</property>
     <signal name="map_event" handler="on_window1_map_event"/>
+    <signal name="focus_out_event" handler="on_window1_focus_out_event"/>
+    <signal name="focus_in_event" handler="on_window1_focus_in_event"/>
+    <signal name="size_request" handler="on_window1_size_request"/>
     <child>
       <widget class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
@@ -181,11 +184,56 @@ in default save directory (or previously defined directory)</property>
                         <property name="label" translatable="yes">Refresh display</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_redisp_activate"/>
+                        <accelerator key="R" modifiers="GDK_CONTROL_MASK" signal="activate"/>
                         <child internal-child="image">
                           <widget class="GtkImage" id="image2">
                             <property name="visible">True</property>
                             <property name="stock">gtk-refresh</property>
                             <property name="icon_size">1</property>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="dpiset">
+                        <property name="visible">True</property>
+                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                        <property name="label" translatable="yes">Set dpi</property>
+                        <property name="use_underline">True</property>
+                        <child>
+                          <widget class="GtkMenu" id="menu4">
+                            <property name="visible">True</property>
+                            <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                            <child>
+                              <widget class="GtkMenuItem" id="dpi_increase">
+                                <property name="visible">True</property>
+                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                <property name="label" translatable="yes">Increase</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_dpi_change_activate"/>
+                                <accelerator key="plus" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="dpi_decrease">
+                                <property name="visible">True</property>
+                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                <property name="label" translatable="yes">Decrease</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_dpi_change_activate"/>
+                                <accelerator key="minus" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="dpi_default">
+                                <property name="visible">True</property>
+                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                <property name="label" translatable="yes">Default</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_dpi_change_activate"/>
+                                <accelerator key="equal" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+                              </widget>
+                            </child>
                           </widget>
                         </child>
                       </widget>
@@ -845,6 +893,7 @@ for the main image display. </property>
                   </widget>
                   <packing>
                     <property name="expand">False</property>
+                    <property name="fill">False</property>
                   </packing>
                 </child>
                 <child>
@@ -1189,6 +1238,7 @@ histeq
                   </widget>
                   <packing>
                     <property name="expand">False</property>
+                    <property name="fill">False</property>
                     <property name="position">2</property>
                   </packing>
                 </child>
@@ -1214,6 +1264,7 @@ histeq
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                        <property name="width_chars">10</property>
                         <property name="adjustment">1 0 100000 0.10000000000000001 10 10</property>
                         <property name="climb_rate">1</property>
                         <property name="digits">4</property>
@@ -1228,22 +1279,10 @@ histeq
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="histbinsize_label">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="xpad">3</property>
-                        <property name="label" translatable="yes">hist binsize</property>
-                      </widget>
-                      <packing>
-                        <property name="top_attach">7</property>
-                        <property name="bottom_attach">8</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
                       <widget class="GtkSpinButton" id="elevation">
                         <property name="can_focus">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                        <property name="width_chars">10</property>
                         <property name="adjustment">25 -90 90 5 10 10</property>
                         <property name="climb_rate">1</property>
                         <signal name="value_changed" handler="on_elevation_value_changed"/>
@@ -1260,6 +1299,7 @@ histeq
                       <widget class="GtkSpinButton" id="azimuth">
                         <property name="can_focus">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                        <property name="width_chars">10</property>
                         <property name="adjustment">75 -360 360 5 10 10</property>
                         <property name="climb_rate">1</property>
                         <signal name="value_changed" handler="on_azimuth_value_changed"/>
@@ -1273,34 +1313,11 @@ histeq
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="elevation_label">
-                        <property name="xalign">0</property>
-                        <property name="xpad">3</property>
-                        <property name="label" translatable="yes">elevation</property>
-                      </widget>
-                      <packing>
-                        <property name="top_attach">5</property>
-                        <property name="bottom_attach">6</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="GtkLabel" id="azimuth_label">
-                        <property name="xalign">0</property>
-                        <property name="xpad">3</property>
-                        <property name="label" translatable="yes">azimuth</property>
-                      </widget>
-                      <packing>
-                        <property name="top_attach">4</property>
-                        <property name="bottom_attach">5</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
                       <widget class="GtkSpinButton" id="rebin">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                        <property name="width_chars">10</property>
                         <property name="adjustment">0 -10 10 1 1 1</property>
                         <property name="climb_rate">1</property>
                         <signal name="value_changed" handler="on_rebin_value_changed"/>
@@ -1314,23 +1331,11 @@ histeq
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="label8">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="xpad">3</property>
-                        <property name="label" translatable="yes">rebin by 2^</property>
-                      </widget>
-                      <packing>
-                        <property name="top_attach">3</property>
-                        <property name="bottom_attach">4</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
                       <widget class="GtkSpinButton" id="nlevs">
                         <property name="can_focus">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                         <property name="tooltip" translatable="yes">Number of contours in contour plot</property>
+                        <property name="width_chars">10</property>
                         <property name="adjustment">8 0 50 1 10 10</property>
                         <property name="climb_rate">1</property>
                         <signal name="value_changed" handler="on_nlevs_value_changed"/>
@@ -1344,26 +1349,69 @@ histeq
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="nlevs_label">
+                      <widget class="GtkSpinButton" id="cmin">
+                        <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="xalign">0</property>
-                        <property name="xpad">3</property>
-                        <property name="label" translatable="yes">n_levels</property>
+                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                        <property name="tooltip" translatable="yes">Low threshold for displayed image</property>
+                        <property name="width_chars">10</property>
+                        <property name="adjustment">0 -1e+21 1e+21 1 10 10</property>
+                        <property name="climb_rate">1</property>
+                        <property name="digits">1</property>
+                        <signal name="value_changed" handler="on_cmin_value_changed"/>
                       </widget>
                       <packing>
-                        <property name="top_attach">2</property>
-                        <property name="bottom_attach">3</property>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
                         <property name="y_options"></property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="label1">
+                      <widget class="GtkSpinButton" id="cmax">
                         <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="xpad">3</property>
-                        <property name="label" translatable="yes">cmin</property>
+                        <property name="can_focus">True</property>
+                        <property name="events">GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                        <property name="tooltip" translatable="yes">High threshold for displayed image</property>
+                        <property name="width_chars">10</property>
+                        <property name="adjustment">0 -1e+21 1e+21 1 10 10</property>
+                        <property name="climb_rate">1</property>
+                        <property name="digits">1</property>
+                        <signal name="value_changed" handler="on_cmax_value_changed"/>
                       </widget>
                       <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                        <property name="y_options"></property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="GtkSpinButton" id="imnum">
+                        <property name="can_focus">True</property>
+                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                        <property name="width_chars">10</property>
+                        <property name="adjustment">1 1 1 1 10 10</property>
+                        <property name="climb_rate">1</property>
+                        <signal name="value_changed" handler="on_imnum_value_changed"/>
+                      </widget>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">6</property>
+                        <property name="bottom_attach">7</property>
+                        <property name="y_options"></property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="GtkLabel" id="imnum_label">
+                        <property name="xalign">0</property>
+                        <property name="xpad">3</property>
+                        <property name="label" translatable="yes">image#</property>
+                      </widget>
+                      <packing>
+                        <property name="top_attach">6</property>
+                        <property name="bottom_attach">7</property>
                         <property name="y_options"></property>
                       </packing>
                     </child>
@@ -1382,71 +1430,84 @@ histeq
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkSpinButton" id="cmin">
+                      <widget class="GtkLabel" id="label1">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="tooltip" translatable="yes">Low threshold for displayed image</property>
-                        <property name="adjustment">0 -1e+21 1e+21 1 10 10</property>
-                        <property name="climb_rate">1</property>
-                        <property name="digits">1</property>
-                        <signal name="value_changed" handler="on_cmin_value_changed"/>
-                      </widget>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="GtkSpinButton" id="cmax">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="events">GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="tooltip" translatable="yes">High threshold for displayed image</property>
-                        <property name="adjustment">0 -1e+21 1e+21 1 10 10</property>
-                        <property name="climb_rate">1</property>
-                        <property name="digits">1</property>
-                        <signal name="value_changed" handler="on_cmax_value_changed"/>
-                      </widget>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="GtkLabel" id="imnum_label">
                         <property name="xalign">0</property>
                         <property name="xpad">3</property>
-                        <property name="label" translatable="yes">image#</property>
+                        <property name="label" translatable="yes">cmin</property>
                       </widget>
                       <packing>
-                        <property name="top_attach">6</property>
-                        <property name="bottom_attach">7</property>
                         <property name="y_options"></property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkSpinButton" id="imnum">
+                      <widget class="GtkLabel" id="nlevs_label">
                         <property name="can_focus">True</property>
-                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="adjustment">1 1 1 1 10 10</property>
-                        <property name="climb_rate">1</property>
-                        <signal name="value_changed" handler="on_imnum_value_changed"/>
+                        <property name="xalign">0</property>
+                        <property name="xpad">3</property>
+                        <property name="label" translatable="yes">n_levels</property>
                       </widget>
                       <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">6</property>
-                        <property name="bottom_attach">7</property>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                        <property name="y_options"></property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="GtkLabel" id="label8">
+                        <property name="visible">True</property>
+                        <property name="xalign">0</property>
+                        <property name="xpad">3</property>
+                        <property name="label" translatable="yes">rebin: 2^</property>
+                      </widget>
+                      <packing>
+                        <property name="top_attach">3</property>
+                        <property name="bottom_attach">4</property>
+                        <property name="y_options"></property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="GtkLabel" id="azimuth_label">
+                        <property name="xalign">0</property>
+                        <property name="xpad">3</property>
+                        <property name="label" translatable="yes">azimuth</property>
+                      </widget>
+                      <packing>
+                        <property name="top_attach">4</property>
+                        <property name="bottom_attach">5</property>
+                        <property name="y_options"></property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="GtkLabel" id="elevation_label">
+                        <property name="xalign">0</property>
+                        <property name="xpad">3</property>
+                        <property name="label" translatable="yes">elevation</property>
+                      </widget>
+                      <packing>
+                        <property name="top_attach">5</property>
+                        <property name="bottom_attach">6</property>
+                        <property name="y_options"></property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="GtkLabel" id="histbinsize_label">
+                        <property name="visible">True</property>
+                        <property name="tooltip" translatable="yes">histogram bin size</property>
+                        <property name="xalign">0</property>
+                        <property name="xpad">3</property>
+                        <property name="label" translatable="yes">histbinsize</property>
+                      </widget>
+                      <packing>
+                        <property name="top_attach">7</property>
+                        <property name="bottom_attach">8</property>
                         <property name="y_options"></property>
                       </packing>
                     </child>
                   </widget>
                   <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
                     <property name="position">3</property>
                   </packing>
                 </child>
@@ -1456,6 +1517,7 @@ histeq
               </widget>
               <packing>
                 <property name="expand">False</property>
+                <property name="fill">False</property>
               </packing>
             </child>
             <child>
@@ -2248,7 +2310,7 @@ gaussian
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
     <property name="has_separator">False</property>
     <property name="program_name">Spydr</property>
-    <property name="version">0.7.5</property>
+    <property name="version">0.7.6</property>
     <property name="copyright" translatable="yes">Francois Rigaut, 2007</property>
     <property name="comments" translatable="yes">Display and Analysis of fits images and data cube</property>
     <property name="website">http://www.maumae.net/yorick/plugins.html</property>

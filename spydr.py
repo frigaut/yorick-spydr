@@ -3,7 +3,7 @@
 # 
 # This file is part of spydr, an image viewer/data analysis tool
 #
-# $Id: spydr.py,v 1.9 2008-02-02 04:49:21 frigaut Exp $
+# $Id: spydr.py,v 1.10 2008-02-10 15:08:07 frigaut Exp $
 #
 # Copyright (c) 2007, Francois Rigaut
 #
@@ -21,7 +21,44 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # $Log: spydr.py,v $
-# Revision 1.9  2008-02-02 04:49:21  frigaut
+# Revision 1.10  2008-02-10 15:08:07  frigaut
+# Version 0.7.6:
+# - can now change the dpi on the fly. ctrl++ and ctrl+- will enlarge
+#   or shrink the graphical areas. long time missing in yorick.
+#   I have tried to make the window resizable, but it's a mess. Not
+#   only in the management of events, but also in the policy: really,
+#   only enlarging proportionally makes sense.
+# - changed a bit the zoom behavior: now zoom is started once (the first
+#   time the mouse enter drawingarea1), and does not stop from that point.
+#   This is not ideal/economical (although disp_zoom returns immediately
+#   if the mouse is not in the image window), but it has the advantage
+#   of being sure the disp_zoom process does not spawn multiple instances
+#   (recurrent issue with "after").
+# - The menu items in the left menu bar are hidden/shown according to the
+#   window size.
+# - gotten rid of a few (unused) functions in spydr.i (the progressbar
+#   and message functions) that were conflicting with other pyk instances.
+# - there's now focus in and out functions that will reset the current
+#   window to what it was before the focus was given to spydr. This is
+#   convenient when one just want to popup a spydr window to look at an
+#   image, and then come back to whatever one was doing without having to
+#   execute a window,n command.
+# - fixed a bug in disp_cpc. Now, when a "e"/"E" command is executed
+#   while a subimage is displayed, the "e"/"E" applies to the displayed
+#   subimage, not the whole image.
+# - changed a bit the behavior of the lower graphical area: not the y
+#   range is the same as the image zcuts (cmin/cmax).
+# - fixed a small bug in get_subim (using floor/ceil instead of round
+#   for the indices determination).
+# - added "compact" keyword to the spydr function (when called from
+#   within yorick).
+# - clipping dpi values to [30,400].
+# - spydr.py: went for a self autodic instead of an explicit
+#   declaration of all functions.
+# - implemented smoothing by x2
+# - implemented 1d linear fitting
+#
+# Revision 1.9  2008/02/02 04:49:21  frigaut
 # many changes once more:
 # - can now display graphes with X/Y axis in arcsec
 # - cleaned up mode switching (tv/contours/surface). Now more reliable.
@@ -135,90 +172,19 @@ class spydr:
    def __init__(self,spydrtop,spydr_showlower,spydr_dpi,spydr_showplugins):
       self.spydrtop = spydrtop
       self.spydr_showlower = spydr_showlower
+      self.spydr_defaultdpi = spydr_dpi
       self.spydr_dpi = spydr_dpi
       self.spydr_showplugins = spydr_showplugins
       self.usercmd = 'STOP'
       
       # callbacks and glade UI
-      dic = {
-         'on_about_activate': self.on_about_activate,
-         'on_debug_toggled': self.on_debug_toggled,
-         'on_quit_activate' : self.on_quit_activate,
-         'on_open_activate' : self.on_open_activate,
-         'on_append_activate' : self.on_append_activate,
-         'on_window1_map_event': self.on_window1_map,
-         'on_drawingarea1_enter_notify_event': self.on_drawingarea1_enter_notify_event,
-         'on_drawingarea1_leave_notify_event': self.on_drawingarea1_leave_notify_event,
-#         'on_eventbox2_scroll_event': self.on_eventbox2_scroll_event,
-         'on_cmin_value_changed': self.on_cmin_value_changed,
-         'on_cmax_value_changed': self.on_cmax_value_changed,
-         'on_cmincmax_toggled': self.on_cmincmax_toggled,
-         'on_colors_value_changed': self.on_colors_value_changed,
-         'on_tv_pressed': self.on_tv_pressed,
-         'on_contours_pressed': self.on_contours_pressed,
-         'on_surface_pressed': self.on_surface_pressed,
-         'on_nlevs_value_changed': self.on_nlevs_value_changed,
-         'on_contours_plus_tv_toggled': self.on_contours_plus_tv_toggled,
-         'on_contours_filled_toggled': self.on_contours_filled_toggled,
-         'on_shades_toggled': self.on_shades_toggled,
-         'on_rebin_value_changed': self.on_rebin_value_changed,
-         'on_histogram_clicked': self.on_histogram_clicked,
-         'on_unzoom_clicked': self.on_unzoom_clicked,
-         'on_limits_clicked': self.on_limits_clicked,
-         'on_cut_clicked': self.on_cut_clicked,
-         'on_azimuth_value_changed': self.on_azimuth_value_changed,
-         'on_elevation_value_changed': self.on_elevation_value_changed,
-         'on_plugins_toggled' : self.on_plugins_toggled,
-         'on_do_psf_fit_clicked': self.on_do_psf_fit_clicked,
-         'on_do_psf_fit2_clicked': self.on_do_psf_fit2_clicked,
-         'on_pixsize_value_changed': self.on_pixsize_value_changed,
-         'on_boxsize_value_changed': self.on_boxsize_value_changed,
-         'on_saturation_value_changed': self.on_saturation_value_changed,
-         'on_airmass_value_changed': self.on_airmass_value_changed,
-         'on_wavelength_value_changed': self.on_wavelength_value_changed,
-         'on_zero_point_value_changed': self.on_zero_point_value_changed,
-         'on_teldiam_value_changed': self.on_teldiam_value_changed,
-         'on_cobs_value_changed': self.on_cobs_value_changed,
-         'on_compute_strehl_toggled': self.on_compute_strehl_toggled,
-         'on_output_magnitudes_toggled': self.on_output_magnitudes_toggled,
-         'on_invert_toggled': self.on_invert_toggled,
-         'on_itt_changed': self.on_itt_changed,
-         'on_comboboxentry2_changed': self.on_comboboxentry2_changed,
-         'on_find_clicked': self.on_find_clicked,
-         'on_spydr_help_activate': self.on_spydr_help_activate,
-         'on_redisp_activate': self.on_redisp_activate,
-         'on_rezoom_activate': self.on_rezoom_activate,
-         'on_strehl_map_clicked': self.on_strehl_map_clicked,
-         'on_imnum_value_changed': self.on_imnum_value_changed,
-         'on_sigmafilter_clicked': self.on_sigmafilter_clicked,
-         'on_strehl_aper_radius_value_changed': self.on_strehl_aper_radius_value_changed,
-         'on_user_function1_clicked': self.on_user_function1_clicked,
-         'on_user_function2_clicked': self.on_user_function2_clicked,
-         'on_binsize_value_changed': self.on_binsize_value_changed,
-         'on_togglelower_toggled': self.on_togglelower_toggled,
-         'on_cubemed_activate': self.on_cubemed_activate,
-         'on_cubeavg_activate': self.on_cubeavg_activate,
-         'on_cubesum_activate': self.on_cubesum_activate,
-         'on_cuberms_activate': self.on_cuberms_activate,
-         'on_save_activate': self.on_save_activate,
-         'on_saveas_activate': self.on_saveas_activate,
-         'on_exportjpeg_activate': self.on_exportjpeg_activate,
-         'on_exportpng_activate': self.on_exportpng_activate,
-         'on_exportpdf_activate': self.on_exportpdf_activate,
-         'on_exportps_activate': self.on_exportps_activate,
-         'on_exporteps_activate': self.on_exporteps_activate,
-         'on_plot_in_arcsec_toggled': self.on_plot_in_arcsec_toggled,
-         'on_ccolor_toggled': self.on_ccolor_toggled,
-         'on_mcolor_toggled': self.on_mcolor_toggled,
-         'on_clabel_toggled': self.on_clabel_toggled,
-         }
       
       self.glade = gtk.glade.XML(os.path.join(self.spydrtop,'spydr.glade')) 
       self.window = self.glade.get_widget('window1')
       # handle destroy event
       if (self.window):
          self.window.connect('destroy', self.destroy)
-      self.glade.signal_autoconnect(dic)
+      self.glade.signal_autoconnect(self)
 
       # set stdin non blocking, this will prevent readline to block
       fd = sys.stdin.fileno()
@@ -231,19 +197,12 @@ class spydr:
       # update parameters from yorick:
       #self.py2yo('gui_update')
 
-      #self.glade.get_widget('wfs_and_dms').hide()
       ebox = self.glade.get_widget('vbox3')
       ebox.connect('key-press-event',self.on_vbox3_key_press)
-#      ebox.connect('scroll-event',self.on_eventbox2_scroll_event)
 
       # set size of graphic areas:
-      dpi = spydr_dpi
-      dsx = int(595.*dpi/100)+4
-      dsy = int(596.*dpi/100)+25
-      self.glade.get_widget('drawingarea1').set_size_request(dsx,dsy)
-      dsx = int(595.*dpi/100)+4
-      dsy = int(307.*dpi/100)+25
-      self.glade.get_widget('drawingarea3').set_size_request(dsx,dsy)
+      self.drawingareas_size_allocate(spydr_dpi)
+      
       self.pyk_debug=0
       self.currentdir=os.getcwd()
       self.currentsavedir=os.getcwd()
@@ -253,6 +212,8 @@ class spydr:
       self.just_done_range=0
       
       if (spydr_showlower==0):
+         if (spydr_dpi < 70):
+            self.glade.get_widget('frame1').hide()
          if (spydr_dpi < 85):
             self.glade.get_widget('frame2').hide()
          self.glade.get_widget('table1').hide()
@@ -273,6 +234,47 @@ class spydr:
       dialog.run()
       dialog.hide()
 
+   def on_window1_size_request(self,wdg,*arg):
+      #  sys.stderr.write("PYTHON: window1 size = %d x %d\n" % wdg.get_size())
+#      sys.stderr.write("PYTHON: vbox2 height = %s\n" % self.glade.get_widget('vbox2').get_allocation().height)
+#      sys.stderr.write("PYTHON: zoom height = %s\n" % self.glade.get_widget('zoom').get_allocation().height)
+#      sys.stderr.write("PYTHON: actions height = %s\n" % self.glade.get_widget('frame1').get_allocation().height)
+#      sys.stderr.write("PYTHON: LUT height = %s\n" % self.glade.get_widget('frame2').get_allocation().height)
+#      sys.stderr.write("PYTHON: table1 height = %s\n\n" % self.glade.get_widget('table1').get_allocation().height)
+      
+#      avail = self.glade.get_widget('vbox2').get_allocation().height
+      tb = self.glade.get_widget('menubar1').get_allocation().height
+      tb = tb+self.glade.get_widget('statusbar').get_allocation().height+10
+#      sys.stderr.write("PYTHON: menuabar1+statusbar = %d\n\n" % tb)
+      avail = wdg.get_size()[1]-tb
+      h = self.glade.get_widget('zoom').get_allocation().height
+      h = h + self.glade.get_widget('frame1').get_allocation().height
+      if (h<avail):
+         self.glade.get_widget('frame1').show()
+      else:
+         self.glade.get_widget('frame1').hide()
+      h = h + self.glade.get_widget('frame2').get_allocation().height
+      if (h<(avail)):
+         self.glade.get_widget('frame2').show()
+      else:
+         self.glade.get_widget('frame2').hide()
+      h = h + self.glade.get_widget('table1').get_allocation().height
+      if (h<(avail)):
+         self.glade.get_widget('table1').show()
+      else:
+         self.glade.get_widget('table1').hide()
+      
+#      sys.stderr.write("PYTHON: available = %d, sum = %d\n\n" % (avail,h))
+      
+   def drawingareas_size_allocate(self,dpi):
+#      sys.stderr.write("PYTHON: new dpi = %d \n" % dpi)
+      dsx = int(595.*dpi/100)+4
+      dsy = int(596.*dpi/100)+25
+      self.glade.get_widget('drawingarea1').set_size_request(dsx,dsy)
+      dsx = int(595.*dpi/100)+4
+      dsy = int(307.*dpi/100)+25
+      self.glade.get_widget('drawingarea3').set_size_request(dsx,dsy)
+      
    #
    # Yorick to Python Wrapper Functions
    #
@@ -807,7 +809,7 @@ class spydr:
          if (current1!=imnum):
             self.glade.get_widget('imnum').set_value(imnum)
          
-   def on_window1_map(self,wdg,*args):
+   def on_window1_map_event(self,wdg,*args):
       drawingarea = self.glade.get_widget('drawingarea1')
       mwid1 = drawingarea.window.xid;
       drawingarea = self.glade.get_widget('drawingarea2')
@@ -816,19 +818,29 @@ class spydr:
       mwid3 = drawingarea.window.xid;
       self.py2yo('spydr_win_init %d %d %d' % (mwid1,mwid2,mwid3))
 
+   def on_window1_focus_in_event(self,wdg,*args):
+#      sys.stderr.write("PYTHON: focus in\n")
+      self.py2yo('spydr_focus_in')
+      
+   def on_window1_focus_out_event(self,wdg,*args):
+#      sys.stderr.write("PYTHON: focus out\n")
+      self.py2yo('spydr_focus_out')
+      
    def on_drawingarea1_enter_notify_event(self,wdg,*args):
       self.glade.get_widget('eventbox2').grab_focus()
-      if (self.doing_zoom==0):
-         self.py2yo('disp_zoom')
-         self.doing_zoom=1
+      self.py2yo('start_zoom')
+#      if (self.doing_zoom==0):
+#         self.py2yo('disp_zoom')
+#         self.doing_zoom=1
 
    def on_drawingarea1_leave_notify_event(self,wdg,event):
+      pass
 #      sys.stderr.write("%s\n" % event.type)
 #      if (event.type==GDK_SCROLL):
 #         sys.stderr.write("SCROLL!\n")
-      if (self.doing_zoom==1):
-         self.py2yo('pyk_set stop_zoom 1')
-         self.doing_zoom=0
+#      if (self.doing_zoom==1):
+#         self.py2yo('pyk_set stop_zoom 1')
+#         self.doing_zoom=0
 
 #   def on_eventbox2_scroll_event(self,wdg,event):
 #      sys.stderr.write("SCROLL\n")
@@ -847,14 +859,32 @@ class spydr:
    def on_togglelower_toggled(self,wdg):
       isup=self.glade.get_widget('togglelower').get_active()
       if (isup):
+         self.glade.get_widget('frame1').show()
          self.glade.get_widget('frame2').show()
          self.glade.get_widget('table1').show()
          self.glade.get_widget('drawingarea3').show()
       else:
+         if (self.spydr_dpi < 70):
+            self.glade.get_widget('frame1').hide()
          if (self.spydr_dpi < 85):
             self.glade.get_widget('frame2').hide()
          self.glade.get_widget('table1').hide()
          self.glade.get_widget('drawingarea3').hide()
+
+   def on_dpi_change_activate(self,wdg):
+#      sys.stderr.write("%s\n" % wdg.get_name())
+      if (wdg.get_name()=='dpi_decrease'):
+         self.spydr_dpi = self.spydr_dpi * 0.9
+      if (wdg.get_name()=='dpi_increase'):
+         self.spydr_dpi = self.spydr_dpi * 1.1
+      if (wdg.get_name()=='dpi_default'):
+         self.spydr_dpi = self.spydr_defaultdpi
+      # new size request for drawingareas:
+      self.drawingareas_size_allocate(self.spydr_dpi)
+      # queue request for parent:
+      self.glade.get_widget('drawingarea1').queue_resize()
+      # redisplay:
+      self.py2yo('spydr_change_dpi %d' % self.spydr_dpi)
 
    def on_image_menu_selection_done(self,wdg,data):
       # I've tried every signal, and this keeps being called at the
@@ -875,11 +905,14 @@ class spydr:
       if (event.string=='?'):
          self.py2yo('spydr_shortcut_help')
       if (event.string=='f'):
-         self.py2yo('fit_gaussian_1d')
+         self.py2yo('fit_1d 1')
+      if (event.string=='F'):
+         self.py2yo('fit_1d 0')
       if (event.string=='c'):
          self.py2yo('plot_cut')
       if (event.string=='u'):
          self.py2yo('unzoom')
+         self.py2yo('limits')
       if (event.string=='r'):
          self.py2yo('plot_radial')
       if (event.string=='X'):
@@ -908,6 +941,8 @@ class spydr:
          self.py2yo('spydr_delete_current_from_stack')
       if (event.string=='s'):
          self.py2yo('spydr_sigmafilter')
+      if (event.string=='S'):
+         self.py2yo('spydr_smooth_function')
       if (event.string=='M'):
          self.py2yo('spydr_compute_distance 1')
       if (event.string=='m'):
