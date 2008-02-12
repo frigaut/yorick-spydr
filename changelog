@@ -5,9 +5,6 @@ Francois Rigaut, v 0.7.7 (Tue, 12 Feb 2008 14:54:30 +0100)
 - other minor bug fixes.
 - updated spydr man page
 - written and published web doc on maumae.
-	
-Francois Rigaut, v 0.7.6 (Sun, 10 Feb 2008 12:39:10 +0100)
-	
 - changed API for the strehl aperture mask. Now called spydr_strehl_aper,
   and is expressed in pixels (to be homogeneous with boxsize). both
   boxsize and strehlaper are diameters (or side length=size for boxsize).
