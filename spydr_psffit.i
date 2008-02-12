@@ -5,7 +5,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr_psffit.i,v 1.9 2008-02-10 15:08:07 frigaut Exp $
+ * $Id: spydr_psffit.i,v 1.10 2008-02-12 13:58:43 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -23,7 +23,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr_psffit.i,v $
- * Revision 1.9  2008-02-10 15:08:07  frigaut
+ * Revision 1.10  2008-02-12 13:58:43  frigaut
+ * changelog to version 0.7.7:
+ *
+ * - fixed a bug when spydr_lut is not 0 and one creates a new
+ *   window.
+ * - other minor bug fixes.
+ * - updated spydr man page
+ * - written and published web doc on maumae.
+ *
+ * Revision 1.9  2008/02/10 15:08:07  frigaut
  * Version 0.7.6:
  * - can now change the dpi on the fly. ctrl++ and ctrl+- will enlarge
  *   or shrink the graphical areas. long time missing in yorick.
@@ -707,7 +716,12 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
       
       // determination of background
       sdim = dimsof(im)(2);
-      rmask = spydr_strehlmask/pixsize;
+      rmask = spydr_strehlaper/2.;
+      //      write,format="rmask=%f, boxsize=%f\n",rmask*1.,boxsize*1.;
+      if ((2*rmask)>boxsize) {
+        spydr_pyk_error,"boxsize smaller than aperture for Strehl. Increase boxsize or decrease aperture.";
+        return;  
+      }        
       smask = (dist(sdim)>rmask);
       psky = im(where(smask)); // outside of disk
       nsig=4.;
@@ -740,10 +754,19 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
       pstrehl *= spydr_strehlfudge;
       
       // plot boxes
-      plg,[j2,j2,j1,j1,j2],[i1,i2,i2,i1,i1],color="red";
-      plt,"Sky",i1+1,j2-1,justify="LT",tosys=1,color="red";
+
+      if (spydr_plot_in_arcsec) {
+        fact = spydrs(imnum).pixsize;
+        axtit = "arcsec";
+      } else {
+        fact = 1.0f;
+        axtit = "pixels";
+      }  
+
+      plg,([j2+1,j2+1,j1,j1,j2+1])*fact,([i1,i2+1,i2+1,i1,i1])*fact,color="red";
+      plt,"Sky",(i1)*fact,(j2+1)*fact,justify="LT",tosys=1,color="red",opaque=0;
       tmp = span(0.,2*pi,100);
-      plg,(j2+j1)/2.+1+rmask*sin(tmp),(i2+i1)/2.+1+rmask*cos(tmp),color="red";
+      plg,((j2+j1)/2.+0.5+rmask*sin(tmp))*fact,((i2+i1)/2.+0.5+rmask*cos(tmp))*fact,color="red";
       // print results
       nptvalid = pi*rmask^2.;
       nptsky = numberof(w);

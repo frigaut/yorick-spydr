@@ -32,13 +32,13 @@ Yorick dpi value (yorick default = 75, spydr default = 83). Any value
 between 30 and 150 make sense.
 .TP
 .BI --itt\ value
-Intensity Transfer Table (1=linear, 2=sqrt, 3=square, 4=log)
+Intensity Transfer Table (1=linear, 2=sqrt, 3=square, 4=log, 5=hist equalized)
 .TP
 .BI --pixsize\ value
 Pixel size (or plate scale) in arcsec.
 .TP
 .BI --boxsize\ value
-Radius of box for PSF fitting
+Size of box for PSF fitting and Strehl calculation (pixels)
 .TP
 .BI --saturation\ value
 Value above which pixels have to be considered as saturated (ADU)
@@ -52,8 +52,10 @@ Photometric zeropoint (magnitude)
 .BI --nbins\ value
 Number of bins for histograms
 .TP
-.BI --strehlmask\ value
-Radius of circular mask for Strehl calculations
+.BI --strehlaper\ value
+Diameter of circular mask for Strehl calculations (pixels). The flux
+is integrated in a circle of this diameter, while the sky is estimated
+from the remaining pixels within the box of size "boxsize"
 .TP
 .BI --batch
 Turn on yorick batch mode (yorick quits when encountering an

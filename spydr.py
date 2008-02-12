@@ -3,7 +3,7 @@
 # 
 # This file is part of spydr, an image viewer/data analysis tool
 #
-# $Id: spydr.py,v 1.10 2008-02-10 15:08:07 frigaut Exp $
+# $Id: spydr.py,v 1.11 2008-02-12 13:58:43 frigaut Exp $
 #
 # Copyright (c) 2007, Francois Rigaut
 #
@@ -21,7 +21,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # $Log: spydr.py,v $
-# Revision 1.10  2008-02-10 15:08:07  frigaut
+# Revision 1.11  2008-02-12 13:58:43  frigaut
+# changelog to version 0.7.7:
+#
+# - fixed a bug when spydr_lut is not 0 and one creates a new
+#   window.
+# - other minor bug fixes.
+# - updated spydr man page
+# - written and published web doc on maumae.
+#
+# Revision 1.10  2008/02/10 15:08:07  frigaut
 # Version 0.7.6:
 # - can now change the dpi on the fly. ctrl++ and ctrl+- will enlarge
 #   or shrink the graphical areas. long time missing in yorick.
@@ -650,9 +659,9 @@ class spydr:
       if (self.done_init):
          self.py2yo('pyk_set spydr_cobs %f' % self.glade.get_widget('cobs').get_value())
 
-   def on_strehl_aper_radius_value_changed(self,wdg):
+   def on_strehl_aper_diameter_value_changed(self,wdg):
       if (self.done_init):
-         self.py2yo('pyk_set spydr_strehlmask %f' % self.glade.get_widget('strehl_aper_radius').get_value())
+         self.py2yo('pyk_set spydr_strehlaper %f' % self.glade.get_widget('strehl_aper_diameter').get_value())
          
    def on_compute_strehl_toggled(self,wdg):
       self.py2yo('pyk_set compute_strehl %d' % wdg.get_active())
@@ -662,8 +671,8 @@ class spydr:
       self.glade.get_widget('teldiam').set_sensitive(wdg.get_active())
       self.glade.get_widget('cobs_label').set_sensitive(wdg.get_active())
       self.glade.get_widget('cobs').set_sensitive(wdg.get_active())
-      self.glade.get_widget('strehl_aper_radius_label').set_sensitive(wdg.get_active())
-      self.glade.get_widget('strehl_aper_radius').set_sensitive(wdg.get_active())
+      self.glade.get_widget('strehl_aper_diameter_label').set_sensitive(wdg.get_active())
+      self.glade.get_widget('strehl_aper_diameter').set_sensitive(wdg.get_active())
          
    def on_output_magnitudes_toggled(self,wdg):
       self.glade.get_widget('zero_point_label').set_sensitive(wdg.get_active())
@@ -937,7 +946,9 @@ class spydr:
       if (event.string=='p'):
          n = self.glade.get_widget('imnum').get_value()
          self.glade.get_widget('imnum').set_value(n-1)
-      if (event.string=='d'):
+      if (event.string=='R'):
+         self.py2yo('spydr_replace_current_from_stack')
+      if (event.string=='D'):
          self.py2yo('spydr_delete_current_from_stack')
       if (event.string=='s'):
          self.py2yo('spydr_sigmafilter')

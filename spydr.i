@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.29 2008-02-10 15:08:07 frigaut Exp $
+ * $Id: spydr.i,v 1.30 2008-02-12 13:58:43 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,7 +22,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr.i,v $
- * Revision 1.29  2008-02-10 15:08:07  frigaut
+ * Revision 1.30  2008-02-12 13:58:43  frigaut
+ * changelog to version 0.7.7:
+ *
+ * - fixed a bug when spydr_lut is not 0 and one creates a new
+ *   window.
+ * - other minor bug fixes.
+ * - updated spydr man page
+ * - written and published web doc on maumae.
+ *
+ * Revision 1.29  2008/02/10 15:08:07  frigaut
  * Version 0.7.6:
  * - can now change the dpi on the fly. ctrl++ and ctrl+- will enlarge
  *   or shrink the graphical areas. long time missing in yorick.
@@ -235,7 +244,7 @@
  *
  */
 
-spydr_version = "0.7.6";
+spydr_version = "0.7.7";
 
 
 require,"spydr_pyk.i";
@@ -370,9 +379,11 @@ func spydr_win_init(pid1,pid2,pid3,redisp=)
   xid1=pid1; xid2=pid2; xid3=pid3;
 
   
-  window,spydr_wins(1),dpi=spydr_dpi,wait=(!redisp),width=0,height=0,  \
+  window,spydr_wins(1),dpi=spydr_dpi,wait=(!redisp),width=0,height=0,   \
     xpos=-2,ypos=-2,style="spydr.gs",parent=pid1;
   limits,square=1;
+  palette,"gray.gp"; // need this if loadct is used!?
+  
   /*  if (imnum) {
     if (!redisp) { 
       disp_cpc;
@@ -386,15 +397,15 @@ func spydr_win_init(pid1,pid2,pid3,redisp=)
     limits,square=1;
   }
   
-  window,spydr_wins(3),dpi=spydr_dpi,wait=((!redisp)&(spydr_showlower)),\
+  window,spydr_wins(3),dpi=spydr_dpi,wait=((!redisp)&(spydr_showlower)), \
     style="spydr2.gs",xpos=-2,ypos=-2,parent=pid3;
 
   window,spydr_wins(1);
-  spydr_pyk,"done_init = 1";
 
   spydr_set_lut,spydr_lut;
   if (redisp) return;
   
+  spydr_pyk,"done_init = 1";  
   gui_realized=1;
   
   if (spydr_nim>0) {
@@ -715,7 +726,7 @@ func spydr_xytitles(xtitle,ytitle,adjust)
 }
 
 
-func spydr_set_lut(lut)
+func spydr_set_lut(_lut)
 // change the LookUp Table and Intensity Transfer Table
 {
   require,"idl-colors.i";
@@ -725,11 +736,11 @@ func spydr_set_lut(lut)
   //  if ((!lut)||(lut==spydr_lut)) return; // nothing to do.
 
   window,spydr_wins(1);
-  if (lut) spydr_lut = lut;
+  if (_lut!=[]) spydr_lut = _lut;
   
-  if (lut!=[]) {  // then read and set new lut
-    if (lut==0) palette,"earth.gp";
-    else loadct,lut;
+  if (_lut!=[]) {  // then read and set new lut
+    if (_lut==0) palette,"earth.gp";
+    else loadct,_lut;
     palette,query=1,rlut,glut,blut;  // store
   }
 
@@ -766,13 +777,15 @@ func spydr_set_lut(lut)
 }
 
 
-func disp_cpc(e)
+func disp_cpc(e,all=)
 {
   extern cmin,cmax,imnum,spydrs,gui_realized;
 
   if (spydr_nim<1) return;
 
-  subim=get_subim(x1,x2,y1,y2);
+  if (all) eq_nocopy,subim,spydr_im;
+  else subim=get_subim(x1,x2,y1,y2);
+
   if (subim==[]) subim = spydr_im; // init, not defined
   
   if (e==0) {
@@ -978,7 +991,7 @@ func fit_1d(type)
   bkgrd = median(onedy);
   if (type==1) {
     sigestimate = sum(onedy>max(onedy/2.))*(onedx(2)-onedx(1))/2.35;
-    a = [bkgrd,max(onedy)-bkgrd,onedx(wheremax(onedy)),sigestimate];
+    a = [bkgrd,max(onedy)-bkgrd,onedx(wheremax(onedy))(1),sigestimate];
     r= lmfit(spydr_gauss_foo,onedx,a,onedy);
     yfit = spydr_gauss_foo(onedx,a);
     a(4)=abs(a(4));
@@ -1004,6 +1017,7 @@ func fit_1d(type)
 
 func plot_radial(void)
 {
+  extern onedx,onedy;
   if (spydr_nim<1) return;
   
   cur=get_cursor();
@@ -1026,7 +1040,17 @@ func plot_radial(void)
     fact = 1.0f;
     xtit="pixels";
   }
-  plp,subim,d*fact,symbol=default_symbol,size=0.3;
+  
+  onedx = d(*)*fact;
+  onedy = subim(*);
+  onedx = _(-onedx(::-1),onedx);
+  onedy = _(onedy(::-1),onedy);
+  w = sort(onedx);
+  onedx = onedx(w);
+  onedy = onedy(w);
+  
+  //  plp,subim,d*fact,symbol=default_symbol,size=0.3;
+  plp,onedy,onedx,symbol=default_symbol,size=0.3;
   spydr_xytitles,xtit,"value";
   limits;
   plmargin,0.02;
@@ -1329,7 +1353,7 @@ func gui_update(void)
   spydr_pyk,swrite(format="y_parm_update('teldiam',%f)",float(spydr_teldiam));
   spydr_pyk,swrite(format="y_parm_update('zero_point',%f)",float(spydr_zero_point));
   spydr_pyk,swrite(format="y_parm_update('cobs',%f)",float(spydr_cobs));
-  spydr_pyk,swrite(format="y_parm_update('strehl_aper_radius',%f)",float(spydr_strehlmask));
+  spydr_pyk,swrite(format="y_parm_update('strehl_aper_diameter',%f)",float(spydr_strehlaper));
   spydr_pyk,swrite(format="y_set_checkbutton('compute_strehl',%d)",long(compute_strehl));
   spydr_pyk,swrite(format="glade.get_widget('plugins').set_active(%d)",spydr_showplugins);
   spydr_pyk,swrite(format="y_set_checkbutton('output_magnitudes',%d)",long(output_magnitudes));
@@ -1552,7 +1576,8 @@ func spydr_shortcut_help(void)
                " e:   Adjust min and max cut to 10% and 99.9% ","      of distribution of <b>visible region</b>",
                " E:   Reset min and max cut to min and max ","      of <b>visible region</b>",
                " n/p: Next/prevous image",
-               " d:   Delete current image from stack",
+               " D:   Delete current image from stack",
+               " R:   Replace stack image by displayed image",
                " s:   Sigma filter visible image region",
                " S:   2x2 smooth visible image region",
                " M:   Mark coordinate zero point (see m)",
@@ -1588,7 +1613,7 @@ func set_imnum(nn,from_python,force=)
   spydrs(imnum).pixsize = spydrs(imnum).opixsize;
   rebin_fact=1;
   
-  if ((spydrs(imnum).cmin==0)&(spydrs(imnum).cmax==0)) disp_cpc,1;
+  if ((spydrs(imnum).cmin==0)&(spydrs(imnum).cmax==0)) disp_cpc,1,all=1;
   else {
     cmin = spydrs(imnum).cmin;
     cmax = spydrs(imnum).cmax;
@@ -1645,16 +1670,22 @@ func spydr_sigmafilter(void)
   if (spydr_nim<1) return;
   subim = get_subim(x1,x2,y1,y2);
   if (subim==[]) return;
+  spydr_pyk_status_push,"Sigma Filtering...";
+  spydr_pyk,"set_cursor_busy(1)";
+  spydr_pyk_status_push,"Sigma Filtering...";
   subim = sigmaFilter(subim,spydr_sigmafilter_nsig,iter=3,silent=1);
   spydr_im(x1:x2,y1:y2) = subim;
   spydr_disp;
+  spydr_pyk,"set_cursor_busy(0)";
+  spydr_pyk_status_push,"Sigma Filtering...DONE";
 }
 
 func spydr_smooth_function(void)
 {
+  require,"utils.i";
   subim = get_subim(x1,x2,y1,y2);
   if (subim==[]) return;
-  subim = smooth(subim,2);
+  subim = smooth(subim);
   spydr_im(x1:x2,y1:y2) = subim;
   spydr_disp;
 }  
@@ -1757,6 +1788,14 @@ func figure_image_pixsize(fh)
   else return pixsize;
 }
 
+func spydr_replace_current_from_stack(void)
+{
+  spydrs(imnum).pim = &spydr_im;
+  spydrs(imnum).dims = dimsof(spydr_im);
+  spydrs(imnum).opixsize = spydrs(imnum).pixsize;
+  spydr_pyk,"glade.get_widget('rebin').set_value(0)";
+}
+
 func spydr_delete_current_from_stack(void)
 {
   extern spydrs,imnum,spydr_nim;
@@ -1818,7 +1857,7 @@ func parse_flags(args)
   extern spydr_invertlut, spydr_azimuth, spydr_elevation;
   extern spydr_pixsize, spydr_boxsize, spydr_showplugins;
   extern spydr_saturation, spydr_wavelength, spydr_zero_point;
-  extern spydr_histnbins,spydr_strehlmask,spydr_showlower;
+  extern spydr_histnbins,spydr_strehlaper,spydr_showlower;
   local args,flags;
 
   if (numberof(args)<4) return;
@@ -1932,10 +1971,10 @@ func parse_flags(args)
       sread,flags(i+1),spydr_histnbins;
       valid(i:i+1)=1;
     }
-    if ((flags(i)=="--strehlmask")|(flags(i)=="-m")) {
+    if ((flags(i)=="--strehlaper")|(flags(i)=="-m")) {
       if (i==nflags) print_help,flags(i);
-      spydr_strehlmask=0.;
-      sread,flags(i+1),spydr_strehlmask;
+      spydr_strehlaper=0.;
+      sread,flags(i+1),spydr_strehlaper;
       valid(i:i+1)=1;
     }
   }
@@ -1953,7 +1992,7 @@ func print_help(field)
   else write,format="%s\n","Syntax error:";
   write,format="%s\n","spydr [--conf conffile --dpi value --itt value --azimuth value --elevation value";
   write,format="%s\n","       --hdu value --pixsize|platescale value --boxsize value --saturation value ";
-  write,format="%s\n","       --wavelength value --zeropoint value --nbins value --strehlmask value";
+  write,format="%s\n","       --wavelength value --zeropoint value --nbins value --strehlaper value";
   write,format="%s\n","       --invert --debug --fullgui --compact --batch] image1.fits [image2.fits ...]";
   if (spydr_context=="called_from_shell") quit;
 }
@@ -1984,12 +2023,17 @@ func which_spydrconf(void) {
 func spydr_quit(void)
 {
   extern spydr_context,stop_zoom,spydr_win_had_focus;
+  extern gui_realized,zoom_started,spydr_disp;
+  extern first_update;
   if (spydr_context=="called_from_shell") {
     quit;
   } else {
     spydr_clean;
     stop_zoom=1;
     gui_realized=0;
+    zoom_started=0;
+    first_update=[];
+    spydr_disp=disp_tv;
     _spydr_pyk_proc=[];
     if (spydr_win_had_focus>-1) window,spydr_win_had_focus;
   } 
@@ -2078,7 +2122,8 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=,hdu=,compact=)
   default_pixsize = (pixsize?pixsize:spydr_pixsize);
   default_imname = (name?name:"image");
 
-  if (compact) spydr_showlower=0;
+  if (compact==1) spydr_showlower=0;
+  if (compact==0) spydr_showlower=1;
   pyk_cmd=[python_exec,path2glade,swrite(format="%d",spydr_showlower),  \
            swrite(format="%d",spydr_dpi),                               \
            swrite(format="%d",spydr_showplugins)];

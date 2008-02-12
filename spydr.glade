@@ -685,6 +685,7 @@ for the main image display. </property>
                         <property name="label" translatable="yes">Restart zoom</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_rezoom_activate"/>
+                        <accelerator key="z" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK" signal="activate"/>
                         <child internal-child="image">
                           <widget class="GtkImage" id="image3">
                             <property name="visible">True</property>
@@ -1625,42 +1626,13 @@ histeq
                         <child>
                           <widget class="GtkTable" id="table4">
                             <property name="visible">True</property>
-                            <property name="n_rows">10</property>
+                            <property name="n_rows">11</property>
                             <property name="n_columns">2</property>
                             <child>
-                              <widget class="GtkSpinButton" id="strehl_aper_radius">
-                                <property name="visible">True</property>
-                                <property name="sensitive">False</property>
-                                <property name="can_focus">True</property>
-                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                <property name="tooltip" translatable="yes">Radius of aperture in which star flux is to be integrated for Strehl 
-calculations (should include all the star flux but no more) [arcsec]</property>
-                                <property name="adjustment">0.10000000000000001 0.01 20 1 10 10</property>
-                                <property name="climb_rate">1</property>
-                                <property name="digits">3</property>
-                                <signal name="value_changed" handler="on_strehl_aper_radius_value_changed"/>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="top_attach">9</property>
-                                <property name="bottom_attach">10</property>
-                                <property name="y_options"></property>
-                              </packing>
+                              <placeholder/>
                             </child>
                             <child>
-                              <widget class="GtkLabel" id="strehl_aper_radius_label">
-                                <property name="visible">True</property>
-                                <property name="sensitive">False</property>
-                                <property name="xalign">0</property>
-                                <property name="xpad">3</property>
-                                <property name="label" translatable="yes">aper. rad.</property>
-                              </widget>
-                              <packing>
-                                <property name="top_attach">9</property>
-                                <property name="bottom_attach">10</property>
-                                <property name="y_options"></property>
-                              </packing>
+                              <placeholder/>
                             </child>
                             <child>
                               <widget class="GtkComboBoxEntry" id="comboboxentry2">
@@ -1682,8 +1654,8 @@ gaussian
                               <packing>
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
-                                <property name="top_attach">3</property>
-                                <property name="bottom_attach">4</property>
+                                <property name="top_attach">4</property>
+                                <property name="bottom_attach">5</property>
                                 <property name="y_options"></property>
                               </packing>
                             </child>
@@ -1695,8 +1667,8 @@ gaussian
                                 <property name="label" translatable="yes">function</property>
                               </widget>
                               <packing>
-                                <property name="top_attach">3</property>
-                                <property name="bottom_attach">4</property>
+                                <property name="top_attach">4</property>
+                                <property name="bottom_attach">5</property>
                                 <property name="y_options"></property>
                               </packing>
                             </child>
@@ -1715,8 +1687,8 @@ gaussian
                               <packing>
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
-                                <property name="top_attach">5</property>
-                                <property name="bottom_attach">6</property>
+                                <property name="top_attach">6</property>
+                                <property name="bottom_attach">7</property>
                                 <property name="y_options"></property>
                               </packing>
                             </child>
@@ -1729,8 +1701,8 @@ gaussian
                                 <property name="label" translatable="yes">zero point</property>
                               </widget>
                               <packing>
-                                <property name="top_attach">5</property>
-                                <property name="bottom_attach">6</property>
+                                <property name="top_attach">6</property>
+                                <property name="bottom_attach">7</property>
                                 <property name="y_options"></property>
                               </packing>
                             </child>
@@ -1749,8 +1721,8 @@ gaussian
                               <packing>
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
-                                <property name="top_attach">8</property>
-                                <property name="bottom_attach">9</property>
+                                <property name="top_attach">9</property>
+                                <property name="bottom_attach">10</property>
                                 <property name="y_options"></property>
                               </packing>
                             </child>
@@ -1763,8 +1735,8 @@ gaussian
                                 <property name="label" translatable="yes">central obs</property>
                               </widget>
                               <packing>
-                                <property name="top_attach">8</property>
-                                <property name="bottom_attach">9</property>
+                                <property name="top_attach">9</property>
+                                <property name="bottom_attach">10</property>
                                 <property name="y_options"></property>
                               </packing>
                             </child>
@@ -1783,8 +1755,8 @@ gaussian
                               <packing>
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
-                                <property name="top_attach">7</property>
-                                <property name="bottom_attach">8</property>
+                                <property name="top_attach">8</property>
+                                <property name="bottom_attach">9</property>
                                 <property name="y_options"></property>
                               </packing>
                             </child>
@@ -1797,8 +1769,8 @@ gaussian
                                 <property name="label" translatable="yes">tel diam</property>
                               </widget>
                               <packing>
-                                <property name="top_attach">7</property>
-                                <property name="bottom_attach">8</property>
+                                <property name="top_attach">8</property>
+                                <property name="bottom_attach">9</property>
                                 <property name="y_options"></property>
                               </packing>
                             </child>
@@ -1851,8 +1823,8 @@ gaussian
                                 <property name="label" translatable="yes">saturation</property>
                               </widget>
                               <packing>
-                                <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
+                                <property name="top_attach">3</property>
+                                <property name="bottom_attach">4</property>
                                 <property name="y_options"></property>
                               </packing>
                             </child>
@@ -1861,8 +1833,8 @@ gaussian
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                <property name="tooltip" translatable="yes">Boxsize for fit [pixel]</property>
-                                <property name="adjustment">11 11 255 2 10 10</property>
+                                <property name="tooltip" translatable="yes">Box size for fit [pixels] and FWHM/Strehl calculation</property>
+                                <property name="adjustment">11 3 255 2 10 10</property>
                                 <property name="climb_rate">1</property>
                                 <property name="snap_to_ticks">True</property>
                                 <signal name="value_changed" handler="on_boxsize_value_changed"/>
@@ -1888,8 +1860,8 @@ gaussian
                               <packing>
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
-                                <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
+                                <property name="top_attach">3</property>
+                                <property name="bottom_attach">4</property>
                                 <property name="y_options"></property>
                               </packing>
                             </child>
@@ -1902,8 +1874,8 @@ gaussian
                                 <property name="label" translatable="yes">wavelength</property>
                               </widget>
                               <packing>
-                                <property name="top_attach">6</property>
-                                <property name="bottom_attach">7</property>
+                                <property name="top_attach">7</property>
+                                <property name="bottom_attach">8</property>
                                 <property name="y_options"></property>
                               </packing>
                             </child>
@@ -1915,8 +1887,8 @@ gaussian
                                 <property name="label" translatable="yes">airmass</property>
                               </widget>
                               <packing>
-                                <property name="top_attach">4</property>
-                                <property name="bottom_attach">5</property>
+                                <property name="top_attach">5</property>
+                                <property name="bottom_attach">6</property>
                                 <property name="y_options"></property>
                               </packing>
                             </child>
@@ -1935,8 +1907,8 @@ gaussian
                               <packing>
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
-                                <property name="top_attach">6</property>
-                                <property name="bottom_attach">7</property>
+                                <property name="top_attach">7</property>
+                                <property name="bottom_attach">8</property>
                                 <property name="y_options"></property>
                               </packing>
                             </child>
@@ -1953,8 +1925,42 @@ gaussian
                               <packing>
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
-                                <property name="top_attach">4</property>
-                                <property name="bottom_attach">5</property>
+                                <property name="top_attach">5</property>
+                                <property name="bottom_attach">6</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="strehl_aper_diameter_label">
+                                <property name="visible">True</property>
+                                <property name="sensitive">False</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">3</property>
+                                <property name="label" translatable="yes">aper. diam.</property>
+                              </widget>
+                              <packing>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkSpinButton" id="strehl_aper_diameter">
+                                <property name="visible">True</property>
+                                <property name="sensitive">False</property>
+                                <property name="can_focus">True</property>
+                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                <property name="tooltip" translatable="yes">Diameter of aperture in which star flux is to be integrated for Strehl 
+calculations (should include all the star flux but no more) [pixels]</property>
+                                <property name="adjustment">45 3 1023 1 10 10</property>
+                                <property name="climb_rate">1</property>
+                                <signal name="value_changed" handler="on_strehl_aper_diameter_value_changed"/>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
                                 <property name="y_options"></property>
                               </packing>
                             </child>
@@ -2310,7 +2316,7 @@ gaussian
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
     <property name="has_separator">False</property>
     <property name="program_name">Spydr</property>
-    <property name="version">0.7.6</property>
+    <property name="version">0.7.7</property>
     <property name="copyright" translatable="yes">Francois Rigaut, 2007</property>
     <property name="comments" translatable="yes">Display and Analysis of fits images and data cube</property>
     <property name="website">http://www.maumae.net/yorick/plugins.html</property>
