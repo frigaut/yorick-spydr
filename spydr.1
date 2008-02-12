@@ -21,57 +21,57 @@ or within yorick
 .B spydr,"image1.fits",...
 .SH COMMAND LINE OPTIONS
 .TP
-.BI --conf\ file
+.BI \-\-conf\ file
 configuration file.
 .TP
-.BI --hdu\ value
+.BI \-\-hdu\ value
 Specify a fits HDU to read
 .TP
-.BI --dpi\ value
+.BI \-\-dpi\ value
 Yorick dpi value (yorick default = 75, spydr default = 83). Any value
 between 30 and 150 make sense.
 .TP
-.BI --itt\ value
+.BI \-\-itt\ value
 Intensity Transfer Table (1=linear, 2=sqrt, 3=square, 4=log, 5=hist equalized)
 .TP
-.BI --pixsize\ value
+.BI \-\-pixsize\ value
 Pixel size (or plate scale) in arcsec.
 .TP
-.BI --boxsize\ value
+.BI \-\-boxsize\ value
 Size of box for PSF fitting and Strehl calculation (pixels)
 .TP
-.BI --saturation\ value
+.BI \-\-saturation\ value
 Value above which pixels have to be considered as saturated (ADU)
 .TP
-.BI --wavelength\ value
+.BI \-\-wavelength\ value
 Force wavelength for all images
 .TP
-.BI --zeropoint\ value
+.BI \-\-zeropoint\ value
 Photometric zeropoint (magnitude)
 .TP
-.BI --nbins\ value
+.BI \-\-nbins\ value
 Number of bins for histograms
 .TP
-.BI --strehlaper\ value
+.BI \-\-strehlaper\ value
 Diameter of circular mask for Strehl calculations (pixels). The flux
 is integrated in a circle of this diameter, while the sky is estimated
 from the remaining pixels within the box of size "boxsize"
 .TP
-.BI --batch
+.BI \-\-batch
 Turn on yorick batch mode (yorick quits when encountering an
 error). This flag is recommended when starting spydr from a
-non-interactive session (e.g. from a gnome applet).
+non\-interactive session (e.g. from a gnome applet).
 .TP
-.BI --debug
+.BI \-\-debug
 Turn on the verbose mode (debugging mode).
 .TP
-.BI --invert
+.BI \-\-invert
 Invert LUT
 .TP
-.BI --fullgui
+.BI \-\-fullgui
 Show the plugin pane when the GUI is realized
 .TP
-.BI --compact
+.BI \-\-compact
 Hide the lower part of the GUI at startup
 .SH DESCRIPTION
 .I Spydr
@@ -94,17 +94,17 @@ The following shortcuts are available:
       of visible region
  n/p: Next/prevous image
  s:   Sigma filter displayed image
- -/+: Decrease/Increase zoom factor in zoom window
+ \-/+: Decrease/Increase zoom factor in zoom window
  ?:   This help
 
 .SH EXAMPLES
  From the shell:
- $ spydr --dpi 74 --fullgui 20070730_2*.fits
- $ spydr --pixsize 0.127 20070730_2[2-3]?.fits 20070730_241.fits
+ $ spydr \-\-dpi 74 \-\-fullgui 20070730_2*.fits
+ $ spydr \-\-pixsize 0.127 20070730_2[2\-3]?.fits 20070730_241.fits
 
  Within yorick:
  > spydr,"~/ascam/2007jun26/20070625T2000*.fits"
- > spydr,["20070730_1[1-3].fits","20070730_23.fits"]
+ > spydr,["20070730_1[1\-3].fits","20070730_23.fits"]
  > spydr,image
  > spydr,[im1,im2]
  > spydr,im1,im2
