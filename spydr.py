@@ -3,7 +3,7 @@
 # 
 # This file is part of spydr, an image viewer/data analysis tool
 #
-# $Id: spydr.py,v 1.11 2008-02-12 13:58:43 frigaut Exp $
+# $Id: spydr.py,v 1.12 2009-03-11 16:03:33 frigaut Exp $
 #
 # Copyright (c) 2007, Francois Rigaut
 #
@@ -21,7 +21,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # $Log: spydr.py,v $
-# Revision 1.11  2008-02-12 13:58:43  frigaut
+# Revision 1.12  2009-03-11 16:03:33  frigaut
+# - patched (fixed?) the whole histogram thing. before, was
+# crashing for image=cte. now ok.
+# - increased the number of digit in GUI for cmin/cmax/binsize
+# - bumped to version 0.8.0
+#
+# Revision 1.11  2008/02/12 13:58:43  frigaut
 # changelog to version 0.7.7:
 #
 # - fixed a bug when spydr_lut is not 0 and one creates a new
@@ -578,6 +584,7 @@ class spydr:
          self.size = self.window.get_size()
          self.glade.get_widget('plugins_pane').hide()
          self.window.resize(s[0],s[1])
+      self.py2yo('pyk_set spydr_showplugins %d' % show_state)
 
    def on_sigmafilter_clicked(self,wdg):
       self.py2yo('spydr_sigmafilter')
@@ -797,7 +804,6 @@ class spydr:
          # set yorick image #
          self.py2yo('set_imnum %d 1' % imnum)
          self.py2yo('imchange_update')
-         self.py2yo('spydr_disp')
          self.glade.get_widget('rebin').set_value(0)
          
    def set_imnum(self,imnum,numim,vis):

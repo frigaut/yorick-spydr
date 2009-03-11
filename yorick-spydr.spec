@@ -1,6 +1,6 @@
 %define name yorick-spydr
-%define version 0.7.7
-%define release gemini2008jan09
+%define version 0.8.0
+%define release gemini2009mar11
 
 Summary: GUI for image display in yorick
 Name: %{name}
@@ -63,7 +63,7 @@ install -m 644 test*.fits $RPM_BUILD_ROOT/usr/share/doc/%{name}
 install -m 644 LICENSE $RPM_BUILD_ROOT/usr/share/doc/%{name}
 install -m 644 README $RPM_BUILD_ROOT/usr/share/doc/%{name}
 install -m 644 spydr.conf $RPM_BUILD_ROOT/etc
-install -m 644 spydr.1.gz $RPM_BUILD_ROOT/usr/share/man/man1
+install -m 644 spydr.1 $RPM_BUILD_ROOT/usr/share/man/man1
 install -m 644 spydr.info $RPM_BUILD_ROOT/usr/lib/yorick/packages/installed
 
 rm $RPM_BUILD_ROOT/usr/lib/yorick/i/*_start.i
@@ -74,8 +74,9 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 /usr/lib/yorick/i/*.i
+/usr/lib/yorick/i-start/*_start.i
 /usr/bin/spydr
-/usr/lib/yorick/python/spydr.py
+/usr/lib/yorick/python/spydr.py*
 /usr/lib/yorick/glade/spydr.glade
 /usr/lib/yorick/g/*.gs
 /etc/spydr.conf

@@ -1,3 +1,13 @@
+Francois Rigaut, v 0.8.0
+
+- patched the histo error bug.
+- added digits to GUI cmin/cmax/histbin entries
+	
+Francois Rigaut, v 0.7.8 (?)
+
+- bug fix: plugin pane show state stays after loading new image
+- new "clean_after" function for status bar
+	
 Francois Rigaut, v 0.7.7 (Tue, 12 Feb 2008 14:54:30 +0100)
 	
 - fixed a bug when spydr_lut is not 0 and one creates a new

@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.30 2008-02-12 13:58:43 frigaut Exp $
+ * $Id: spydr.i,v 1.31 2009-03-11 16:03:33 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,7 +22,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr.i,v $
- * Revision 1.30  2008-02-12 13:58:43  frigaut
+ * Revision 1.31  2009-03-11 16:03:33  frigaut
+ * - patched (fixed?) the whole histogram thing. before, was
+ * crashing for image=cte. now ok.
+ * - increased the number of digit in GUI for cmin/cmax/binsize
+ * - bumped to version 0.8.0
+ *
+ * Revision 1.30  2008/02/12 13:58:43  frigaut
  * changelog to version 0.7.7:
  *
  * - fixed a bug when spydr_lut is not 0 and one creates a new
@@ -244,7 +250,7 @@
  *
  */
 
-spydr_version = "0.7.7";
+spydr_version = "0.8.0";
 
 
 require,"spydr_pyk.i";
@@ -278,12 +284,29 @@ rebin_fact=1;
 //=============================
 
 
-func spydr_pyk_status_push(msg,id=)
+func spydr_pyk_status_push(msg,id=,clean_after=)
 {
+  extern time_to_clean;
   if (id==[]) id=1;
-  spydr_pyk,swrite(format="pyk_status_push(%d,'%s')",id,msg);
+  spydr_pyk,swrite(format="pyk_status_push(%d,' %s')",id,msg);
+
+  if (clean_after) {
+    time_to_clean = unix_time(now=1)+clean_after;
+    after,1,spydr_pyk_status_clean;
+  }
 }
 
+func spydr_pyk_status_clean(void)
+{
+  extern time_to_clean;
+
+  if (unix_time(now=1)<time_to_clean) {
+    after,1,spydr_pyk_status_clean;
+    return;
+  }
+  
+  spydr_pyk,swrite(format="pyk_status_push(%d,'%s')",1,"");
+}
 
 func spydr_pyk_status_pop(id=)
 {
@@ -525,7 +548,7 @@ func disp_contours(void,nofma=)
   levstr = sum(swrite(format="%.1f",levs)+", ");
   levstr = "["+strpart(levstr,:-2)+"]";
   spydr_clegends,levs;
-  //  spydr_pyk_status_push,"levels="+levstr;
+  spydr_pyk_status_push,"levels="+levstr;
   //  limits,old_limits; //(1),old_limits(2),old_limits(3),old_limits(4);
 }
 
@@ -796,6 +819,11 @@ func disp_cpc(e,all=)
     cmin = tmp(1);
     cmax = tmp(2);
   }
+  // deal with image==constant
+  if (cmax==cmin) {
+    cmin -= 0.5;
+    cmax += 0.5;
+  }
   spydrs(imnum).cmin = cmin;
   spydrs(imnum).cmax = cmax;
   if (gui_realized)                                                     \
@@ -979,12 +1007,12 @@ func fit_1d(type)
   local units;
 
   if (onedy==[]) {
-    spydr_pyk_status_push,"Nothing to fit";
+    spydr_pyk_status_push,"Nothing to fit",clean_after=5;
     return;
   }
   
   if (numberof(onedy)!=numberof(onedx)) {
-    spydr_pyk_status_push,"onedy and onedx do not have the same dimensions!";
+    spydr_pyk_status_push,"onedy and onedx do not have the same dimensions!",clean_after=5;
     return;
   }
 
@@ -1070,8 +1098,22 @@ func plot_histo(void)
   if (!spydr_histnbins) spydr_histnbins=100;
   if (spydr_histbinsize==0) binsize=(cmax-cmin)/spydr_histnbins;
   else binsize = spydr_histbinsize;
+
+  // deal with all zero arrays
+  if (binsize==0) binsize=1;
+  spydr_histbinsize = binsize;
+  spydr_pyk,swrite(format="y_parm_update('binsize',%f)",float(spydr_histbinsize));
   
   hy = histo2(subim(*),hx,binsize=binsize,binmin=cmin,binmax=cmax);
+
+  if (numberof(hx)==0) {
+    hx = [cmin,cmax];
+    hy = [0,0];
+  } else if (numberof(hx)==1) {
+    hx = [cmin,hx(1),cmax];
+    hy = [0,hy(1),0];
+  }
+  
   curw = current_window();
 
   show_lower_gui,1;
@@ -1085,6 +1127,7 @@ func plot_histo(void)
                          spydrs(imnum).name,avg(subim),sedgemedian(subim(*)),subim(*)(rms));
   spydr_xytitles,"value","number in bin";
   limits;
+  plmargin;
   window,curw;
   onedx = hx;
   onedy = hy;
@@ -1113,10 +1156,11 @@ func spydr_exportjpeg(name)
   
   spydrs(imnum).saveasname = basename(name);
   spydr_savedir = dirname(name);
-  
+
+  window,spydr_wins(1);
   jpeg,name;
   write,format="Image exported to %s\n",name;
-  spydr_pyk_status_push,swrite(format="Image exported to %s",name);
+  spydr_pyk_status_push,swrite(format="Image exported to %s",name),clean_after=5;
 }
 
 func spydr_exportpng(name)
@@ -1128,9 +1172,10 @@ func spydr_exportpng(name)
   spydrs(imnum).saveasname = basename(name);
   spydr_savedir = dirname(name);
   
+  window,spydr_wins(1);
   png,name;
   write,format="Image exported to %s\n",name;
-  spydr_pyk_status_push,swrite(format="Image exported to %s",name);
+  spydr_pyk_status_push,swrite(format="Image exported to %s",name),clean_after=5;
 }
 
 func spydr_exportpdf(name)
@@ -1142,9 +1187,10 @@ func spydr_exportpdf(name)
   spydrs(imnum).saveasname = basename(name);
   spydr_savedir = dirname(name);
   
+  window,spydr_wins(1);
   pdf,name;
   write,format="Image exported to %s\n",name;
-  spydr_pyk_status_push,swrite(format="Image exported to %s",name);
+  spydr_pyk_status_push,swrite(format="Image exported to %s",name),clean_after=5;
 }
 
 func spydr_exportps(name)
@@ -1156,9 +1202,10 @@ func spydr_exportps(name)
   spydrs(imnum).saveasname = basename(name);
   spydr_savedir = dirname(name);
   
+  window,spydr_wins(1);
   hcps,name;
   write,format="Image exported to %s.ps\n",name;
-  spydr_pyk_status_push,swrite(format="Image exported to %s.ps",name);
+  spydr_pyk_status_push,swrite(format="Image exported to %s.ps",name),clean_after=5;
 }
 
 func spydr_exporteps(name)
@@ -1169,9 +1216,10 @@ func spydr_exporteps(name)
   spydrs(imnum).saveasname = basename(name);
   spydr_savedir = dirname(name);
   
+  window,spydr_wins(1);
   eps,name;
   write,format="Image exported to %s.eps\n",name;
-  spydr_pyk_status_push,swrite(format="Image exported to %s.eps",name);
+  spydr_pyk_status_push,swrite(format="Image exported to %s.eps",name),clean_after=5;
 }
 
 
@@ -1183,7 +1231,7 @@ func spydr_save(void)
   //  fits_write,name,*spydrs(imnum).pim,overwrite=1;
   fits_write,name,spydr_im,overwrite=1;
   write,format="Image saved in %s\n",name;
-  spydr_pyk_status_push,swrite(format="Image saved in %s",name);
+  spydr_pyk_status_push,swrite(format="Image saved in %s",name),clean_after=5;
 }
 
 func spydr_saveas(name)
@@ -1196,7 +1244,7 @@ func spydr_saveas(name)
   spydr_savedir = dirname(name);
   fits_write,name,*spydrs(imnum).pim,overwrite=1;
   write,format="Image saved in %s\n",name;
-  spydr_pyk_status_push,swrite(format="Image saved in %s",name);
+  spydr_pyk_status_push,swrite(format="Image saved in %s",name),clean_after=5;
 }
 
 func escapechar2save(s)
@@ -1239,7 +1287,7 @@ func spydr_cubeops(opn)
   spydrs(0).space="results";
   cube=[];
   spydr_pyk,"set_cursor_busy(0)";
-  spydr_pyk_status_push,"Processing cube operation: Done.";
+  spydr_pyk_status_push,"Processing cube operation: Done.",clean_after=5;
 }
 
 
@@ -1282,6 +1330,8 @@ func spydr_rebin(fact2)
   rebin_fact = fact; // keep for next rebin
   spydrs(imnum).pixsize = spydrs(imnum).opixsize/fact;
   spydr_pyk,swrite(format="y_parm_update('pixsize',%f)",float(spydrs(imnum).pixsize));
+  spydr_pyk_status_push,swrite(format="Image rebinned to %dx%d",\
+                 spydrs(imnum).dims(2),spydrs(imnum).dims(3)),clean_after=5;
 }
 
 
@@ -1386,6 +1436,7 @@ func imchange_update(void)
   spydr_pyk,swrite(format="y_parm_update('wavelength',%f)",float(spydrs(imnum).wavelength));
   spydr_pyk,swrite(format="y_parm_update('zero_point',%f)",float(spydr_zero_point));
   spydr_pyk,swrite(format="y_set_cmincmax(%f,%f,%f,0)",float(cmin),float(cmax),float(cmax-cmin)/100.);
+  spydr_disp;
 }
 
 
@@ -1469,6 +1520,7 @@ func start_zoom(void)
 func disp_zoom(once=)
 {
   extern from_disp,stop_zoom,from_imnum;
+  extern rad4zoom;
 
   if (stop_zoom) {
     stop_zoom=0;
@@ -1512,8 +1564,8 @@ func disp_zoom(once=)
     if ((i-local_rad)<1) wm(1) += (1-i+local_rad);
     if ((j-local_rad)<1) wm(2) += (1-j+local_rad);
 
-    // FIXME: blue cursor is not at correct position when pointing lower than smaller indice
-
+    rad4zoom = min(rad4zoom,min(spydrs(imnum).dims(2:3))/2-1);
+    
     x1 = i-rad4zoom;
     x2 = i+rad4zoom;
     y1 = j-rad4zoom;
@@ -1643,7 +1695,7 @@ func set_cmin(pycmin)
   // transfer, we have to allow for some slack
   if ((cmax-cmin)!=0) if ((abs(pycmin-cmin)/(cmax-cmin))<1e-3) return;
   if (pycmin>cmax) {
-    spydr_pyk_status_push,"cmin > cmax, ignoring";
+    spydr_pyk_status_push,"cmin > cmax, ignoring",clean_after=5;
     return;
   }
   cmin = spydrs(imnum).cmin = pycmin;
@@ -1658,7 +1710,7 @@ func set_cmax(pycmax)
   // transfer, we have to allow for some slack
   if ((cmax-cmin)!=0) if ((abs(pycmax-cmax)/(cmax-cmin))<1e-3) return;
   if (pycmax<cmin) {
-    spydr_pyk_status_push,"cmax < cmin, ignoring";
+    spydr_pyk_status_push,"cmax < cmin, ignoring",clean_after=5;
     return;
   }
   cmax = spydrs(imnum).cmax = pycmax;
@@ -1677,7 +1729,7 @@ func spydr_sigmafilter(void)
   spydr_im(x1:x2,y1:y2) = subim;
   spydr_disp;
   spydr_pyk,"set_cursor_busy(0)";
-  spydr_pyk_status_push,"Sigma Filtering...DONE";
+  spydr_pyk_status_push,"Sigma Filtering...DONE",clean_after=5.;
 }
 
 func spydr_smooth_function(void)
@@ -1688,6 +1740,7 @@ func spydr_smooth_function(void)
   subim = smooth(subim);
   spydr_im(x1:x2,y1:y2) = subim;
   spydr_disp;
+  spydr_pyk_status_push,"Smooth done",clean_after=5.;
 }  
 
 //=========================
@@ -1714,6 +1767,8 @@ func spydr_fits_read(imname,&fh,hdu=)
     spydr_pyk_error,imname+"found, but no data";
     error,imname+"found, but no data";
   }
+
+  if (structof(im)==char) im = short(im);
 
   if (fits_get(fh,"INSTRUME")=="NICI") {
     // SPECIAL NICI !!!!!!
@@ -1794,6 +1849,7 @@ func spydr_replace_current_from_stack(void)
   spydrs(imnum).dims = dimsof(spydr_im);
   spydrs(imnum).opixsize = spydrs(imnum).pixsize;
   spydr_pyk,"glade.get_widget('rebin').set_value(0)";
+  spydr_pyk_status_push,swrite(format="Displayed image replaces orig. image in stack (slot #%d)",imnum),clean_after=5;
 }
 
 func spydr_delete_current_from_stack(void)
@@ -1822,6 +1878,7 @@ func spydr_delete_current_from_stack(void)
     }
     sync_view_menu;
   }
+  spydr_pyk_status_push,"Image deleted from stack",clean_after=5;
 }
 
 func spydr_get_available_windows(void)
@@ -2284,7 +2341,7 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=,hdu=,compact=)
 //=======================================
 
 // when called from the command line:
-arg     = get_argv();
+arg = get_argv();
 
 // were we invoqued from shell or from the yorick prompt?
 spydr_context = "called_from_session";
@@ -2342,7 +2399,7 @@ write,format=" Found spydr.glade in %s\n",path2glade;
 
 //---------------------------------------------------------
 // parse arguments a first time for possible spydr_conffile
-parse_flags,arg;
+if (spydr_context=="called_from_shell") parse_flags,arg;
 
 // include configuration file
 if (spydr_conffile==[]) spydr_conffile = which_spydrconf();
@@ -2363,7 +2420,7 @@ if (spydr_wins==[]) spydr_wins = [0,0,0];
 pldefault,maxcolors=spydr_ncolors;
 
 // parse arguments a second time (to override conffile defaults)
-targets = parse_flags(arg);
+if (spydr_context=="called_from_shell") targets = parse_flags(arg);
 
 spydr_dpi = clip(spydr_dpi,30,400);
 
