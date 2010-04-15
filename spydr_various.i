@@ -5,7 +5,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr_various.i,v 1.4 2008-01-25 03:03:49 frigaut Exp $
+ * $Id: spydr_various.i,v 1.5 2010-04-15 02:56:02 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -23,7 +23,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr_various.i,v $
- * Revision 1.4  2008-01-25 03:03:49  frigaut
+ * Revision 1.5  2010-04-15 02:56:02  frigaut
+ *
+ * updated repo to 0.8.1
+ *
+ * Revision 1.4  2008/01/25 03:03:49  frigaut
  * - updated license or license text to GPLv3 in all files
  *
  * Revision 1.3  2008/01/17 13:15:17  frigaut
@@ -49,7 +53,7 @@ require,"style.i";
    UTIL.I
    A collection of routines for general purpose.
 
-   $Id: spydr_various.i,v 1.4 2008-01-25 03:03:49 frigaut Exp $
+   $Id: spydr_various.i,v 1.5 2010-04-15 02:56:02 frigaut Exp $
 
    last revision/addition: 2003June13
  */
@@ -423,7 +427,7 @@ func extractImage(image,dimx,dimy,method=)
 
   if (method == 1) {
     beg: co = mouse(1,0,"Click on center of image to extract");
-    co1 = round(co(1:2)-[dimx/2.,dimy/2.]+1);
+    co1 = long(round(co(1:2)-[dimx/2.,dimy/2.]+1));
     co2 = co1 + [dimx,dimy]-1;
     xc  = [co1(1),co2(1)];
     yc  = [co1(2),co2(2)];
@@ -439,7 +443,7 @@ func extractImage(image,dimx,dimy,method=)
   }
 
   if (method == 2) {
-    co = round(mouse(1,1,"Click and drag to select image to extract")+0.5);
+    co = long(round(mouse(1,1,"Click and drag to select image to extract")+0.5));
     xc  = [co(1),co(3)];
     yc  = [co(2),co(4)];
     xc  = xc(sort(xc));

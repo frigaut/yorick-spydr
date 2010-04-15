@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr.i,v 1.31 2009-03-11 16:03:33 frigaut Exp $
+ * $Id: spydr.i,v 1.32 2010-04-15 02:56:02 frigaut Exp $
  *
  * Copyright (c) 2007, Francois Rigaut
  *
@@ -22,7 +22,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * $Log: spydr.i,v $
- * Revision 1.31  2009-03-11 16:03:33  frigaut
+ * Revision 1.32  2010-04-15 02:56:02  frigaut
+ *
+ * updated repo to 0.8.1
+ *
+ * Revision 1.31  2009/03/11 16:03:33  frigaut
  * - patched (fixed?) the whole histogram thing. before, was
  * crashing for image=cte. now ok.
  * - increased the number of digit in GUI for cmin/cmax/binsize
@@ -250,7 +254,7 @@
  *
  */
 
-spydr_version = "0.8.0";
+spydr_version = "0.8.1";
 
 
 require,"spydr_pyk.i";
@@ -788,7 +792,7 @@ func spydr_set_lut(_lut)
   } else if (spydr_itt>=5) { // histeq
     ind = span(0.,1.,spydr_ncolors);
   }
-  ind = round(ind*(spydr_ncolors-1)+1);
+  ind = long(round(ind*(spydr_ncolors-1)+1));
   r = r(ind); g = g(ind); b = b(ind);
 
   // and finally, load the palette:

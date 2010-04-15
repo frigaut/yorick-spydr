@@ -3,7 +3,7 @@
 # 
 # This file is part of spydr, an image viewer/data analysis tool
 #
-# $Id: spydr.py,v 1.12 2009-03-11 16:03:33 frigaut Exp $
+# $Id: spydr.py,v 1.13 2010-04-15 02:56:02 frigaut Exp $
 #
 # Copyright (c) 2007, Francois Rigaut
 #
@@ -21,7 +21,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # $Log: spydr.py,v $
-# Revision 1.12  2009-03-11 16:03:33  frigaut
+# Revision 1.13  2010-04-15 02:56:02  frigaut
+#
+# updated repo to 0.8.1
+#
+# Revision 1.12  2009/03/11 16:03:33  frigaut
 # - patched (fixed?) the whole histogram thing. before, was
 # crashing for image=cte. now ok.
 # - increased the number of digit in GUI for cmin/cmax/binsize
@@ -630,9 +634,9 @@ class spydr:
    def on_binsize_value_changed(self,wdg):
       if (self.done_init):
          self.py2yo('pyk_set spydr_histbinsize %f' % self.glade.get_widget('binsize').get_value())
-         isup=self.glade.get_widget('togglelower').get_active()
-         if (isup):
-            self.py2yo('plot_histo')
+         #isup=self.glade.get_widget('togglelower').get_active()
+         #if (isup):
+         #   self.py2yo('plot_histo')
 
    def on_pixsize_value_changed(self,wdg):
       if (self.done_init):

@@ -1,9 +1,9 @@
 # these values filled in by    yorick -batch make.i
-Y_MAKEDIR=/home/frigaut/yorick-2.1
-Y_EXE=/home/frigaut/yorick-2.1/bin/yorick
+Y_MAKEDIR=/usr/lib/yorick
+Y_EXE=/usr/lib/yorick/bin/yorick
 Y_EXE_PKGS=
-Y_EXE_HOME=/home/frigaut/yorick-2.1
-Y_EXE_SITE=/home/frigaut/yorick-2.1
+Y_EXE_HOME=/usr/lib/yorick
+Y_EXE_SITE=/usr/lib/yorick
 
 # 
 # !! THIS IS NOT A PLUGIN !!
@@ -47,6 +47,7 @@ install::
 	mkdir -p $(DEST_Y_SITE)/share/spydr
 	mkdir -p $(DEST_Y_BINDIR)
 	cp -p $(PKG_I) $(DEST_Y_SITE)/i/
+	cp -p $(PKG_I_START) $(DEST_Y_SITE)/i-start/
 	cp -p spydr.py $(DEST_Y_SITE)/python/
 	cp -p spydr.glade $(DEST_Y_SITE)/glade/
 	cp -p spydr*.gs $(DEST_Y_SITE)/g/
