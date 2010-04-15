@@ -1,9 +1,9 @@
 # these values filled in by    yorick -batch make.i
-Y_MAKEDIR=/usr/lib/yorick
-Y_EXE=/usr/lib/yorick/bin/yorick
+Y_MAKEDIR=/usr/lib/yorick/2.1
+Y_EXE=/usr/lib/yorick/2.1/bin/yorick
 Y_EXE_PKGS=
-Y_EXE_HOME=/usr/lib/yorick
-Y_EXE_SITE=/usr/lib/yorick
+Y_EXE_HOME=/usr/lib/yorick/2.1
+Y_EXE_SITE=/usr/share/yorick/2.1
 
 # 
 # !! THIS IS NOT A PLUGIN !!
@@ -42,6 +42,8 @@ clean::
 install::
 	mkdir -p $(DEST_Y_SITE)/python
 	mkdir -p $(DEST_Y_SITE)/glade
+	mkdir -p $(DEST_Y_SITE)/i
+	mkdir -p $(DEST_Y_SITE)/i-start
 	mkdir -p $(DEST_Y_SITE)/g
 	mkdir -p $(DEST_Y_SITE)/gist
 	mkdir -p $(DEST_Y_SITE)/share/spydr
@@ -60,6 +62,7 @@ install::
 
 uninstall::
 	-cd $(DEST_Y_SITE)/i; rm $(PKG_I) 
+	-cd $(DEST_Y_SITE)/i-start; rm $(PKG_I_START) 
 	-rm $(DEST_Y_SITE)/python/spydr.py
 	-rm $(DEST_Y_SITE)/glade/spydr.glade
 	-rm $(DEST_Y_SITE)/g/spydr*.gs
