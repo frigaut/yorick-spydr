@@ -3,7 +3,7 @@
 # 
 # This file is part of spydr, an image viewer/data analysis tool
 #
-# $Id: spydr.py,v 1.13 2010-04-15 02:56:02 frigaut Exp $
+# $Id: spydr.py,v 1.13 2010/04/15 02:56:02 frigaut Exp $
 #
 # Copyright (c) 2007, Francois Rigaut
 #
@@ -21,7 +21,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # $Log: spydr.py,v $
-# Revision 1.13  2010-04-15 02:56:02  frigaut
+# Revision 1.13  2010/04/15 02:56:02  frigaut
 #
 # updated repo to 0.8.1
 #
@@ -889,6 +889,9 @@ class spydr:
             self.glade.get_widget('frame2').hide()
          self.glade.get_widget('table1').hide()
          self.glade.get_widget('drawingarea3').hide()
+
+   def on_propagate_cuts_to_all_activate(self,wdg):
+     self.py2yo('propagate_cuts_to_all')
 
    def on_dpi_change_activate(self,wdg):
 #      sys.stderr.write("%s\n" % wdg.get_name())

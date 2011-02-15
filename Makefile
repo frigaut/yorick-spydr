@@ -16,7 +16,7 @@ Y_EXE_SITE=/usr/share/yorick/2.1
 # used for distribution
 PKG_NAME = spydr
 # include files for this package
-PKG_I=spydr.i spydr_plugins.i spydr_psffit.i spydr_various.i spydr_pyk.i
+PKG_I=spydr.i spydr_plugins.i spydr_psffit.i spydr_various.i spydr_pyk.i spydr_input_data_format.i
 # autoload file for this package, if any
 PKG_I_START=spydr_start.i
 

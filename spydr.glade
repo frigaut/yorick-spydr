@@ -194,6 +194,14 @@ in default save directory (or previously defined directory)</property>
                       </widget>
                     </child>
                     <child>
+                      <widget class="GtkMenuItem" id="propagate_cuts_to_all">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Current cuts to all planes</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_propagate_cuts_to_all_activate"/>
+                      </widget>
+                    </child>
+                    <child>
                       <widget class="GtkMenuItem" id="dpiset">
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
@@ -1351,7 +1359,7 @@ histeq
                         <property name="width_chars">10</property>
                         <property name="adjustment">0 -1e+21 1e+21 1 10 0</property>
                         <property name="climb_rate">1</property>
-                        <property name="digits">12</property>
+                        <property name="digits">5</property>
                         <property name="numeric">True</property>
                         <signal name="value_changed" handler="on_cmin_value_changed"/>
                       </widget>
@@ -1370,7 +1378,7 @@ histeq
                         <property name="width_chars">10</property>
                         <property name="adjustment">0 -1e+21 1e+21 1 10 0</property>
                         <property name="climb_rate">1</property>
-                        <property name="digits">12</property>
+                        <property name="digits">5</property>
                         <property name="numeric">True</property>
                         <signal name="value_changed" handler="on_cmax_value_changed"/>
                       </widget>
@@ -2328,7 +2336,6 @@ calculations (should include all the star flux but no more) [pixels]</property>
     <property name="window_position">center-on-parent</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
-    <property name="has_separator">False</property>
     <property name="program_name">Spydr</property>
     <property name="version">0.8.0</property>
     <property name="copyright" translatable="yes">Francois Rigaut, Copyright 2007-2009</property>
