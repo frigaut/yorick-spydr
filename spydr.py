@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # spydr.py
-# 
+#
 # This file is part of spydr, an image viewer/data analysis tool
 #
 # $Id: spydr.py,v 1.13 2010/04/15 02:56:02 frigaut Exp $
@@ -19,7 +19,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # $Log: spydr.py,v $
 # Revision 1.13  2010/04/15 02:56:02  frigaut
 #
@@ -74,7 +74,7 @@
 # - clipping dpi values to [30,400].
 # - spydr.py: went for a self autodic instead of an explicit
 #   declaration of all functions.
-# - implemented smoothing by x2
+# - implemented smoothing by _x2
 # - implemented 1d linear fitting
 #
 # Revision 1.9  2008/02/02 04:49:21  frigaut
@@ -182,12 +182,12 @@ import pango
 import os, fcntl, errno
 
 class spydr:
-   
+
    def destroy(self, wdg, data=None):
       self.py2yo('spydr_quit')
       raise SystemExit
 #      gtk.main_quit()
-      
+
    def __init__(self,spydrtop,spydr_showlower,spydr_dpi,spydr_showplugins):
       self.spydrtop = spydrtop
       self.spydr_showlower = spydr_showlower
@@ -195,10 +195,10 @@ class spydr:
       self.spydr_dpi = spydr_dpi
       self.spydr_showplugins = spydr_showplugins
       self.usercmd = 'STOP'
-      
+
       # callbacks and glade UI
-      
-      self.glade = gtk.glade.XML(os.path.join(self.spydrtop,'spydr.glade')) 
+
+      self.glade = gtk.glade.XML(os.path.join(self.spydrtop,'spydr.glade'))
       self.window = self.glade.get_widget('window1')
       # handle destroy event
       if (self.window):
@@ -209,7 +209,7 @@ class spydr:
       fd = sys.stdin.fileno()
       flags = fcntl.fcntl(fd, fcntl.F_GETFL)
       fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
-      
+
       # add stdin to the event loop (yorick input pipe by spawn)
       gobject.io_add_watch(sys.stdin,gobject.IO_IN|gobject.IO_HUP,self.yo2py,None)
 
@@ -221,7 +221,7 @@ class spydr:
 
       # set size of graphic areas:
       self.drawingareas_size_allocate(spydr_dpi)
-      
+
       self.pyk_debug=0
       self.currentdir=os.getcwd()
       self.currentsavedir=os.getcwd()
@@ -229,7 +229,7 @@ class spydr:
       self.current_image_menu=0
       self.current_image_saveas_name=None
       self.just_done_range=0
-      
+
       if (spydr_showlower==0):
          if (spydr_dpi < 70):
             self.glade.get_widget('frame1').hide()
@@ -241,13 +241,13 @@ class spydr:
 
       if (spydr_showplugins):
          self.glade.get_widget('plugins_pane').show()
-      
+
       # run
       gtk.main()
 
    doing_zoom=0
    done_init=0
-      
+
    def on_about_activate(self,wdg):
       dialog = self.glade.get_widget('aboutdialog')
       dialog.run()
@@ -260,7 +260,7 @@ class spydr:
 #      sys.stderr.write("PYTHON: actions height = %s\n" % self.glade.get_widget('frame1').get_allocation().height)
 #      sys.stderr.write("PYTHON: LUT height = %s\n" % self.glade.get_widget('frame2').get_allocation().height)
 #      sys.stderr.write("PYTHON: table1 height = %s\n\n" % self.glade.get_widget('table1').get_allocation().height)
-      
+
 #      avail = self.glade.get_widget('vbox2').get_allocation().height
       tb = self.glade.get_widget('menubar1').get_allocation().height
       tb = tb+self.glade.get_widget('statusbar').get_allocation().height+10
@@ -282,9 +282,9 @@ class spydr:
          self.glade.get_widget('table1').show()
       else:
          self.glade.get_widget('table1').hide()
-      
+
 #      sys.stderr.write("PYTHON: available = %d, sum = %d\n\n" % (avail,h))
-      
+
    def drawingareas_size_allocate(self,dpi):
 #      sys.stderr.write("PYTHON: new dpi = %d \n" % dpi)
       dsx = int(595.*dpi/100)+4
@@ -293,7 +293,7 @@ class spydr:
       dsx = int(595.*dpi/100)+4
       dsy = int(307.*dpi/100)+25
       self.glade.get_widget('drawingarea3').set_size_request(dsx,dsy)
-      
+
    #
    # Yorick to Python Wrapper Functions
    #
@@ -314,16 +314,16 @@ class spydr:
 
    def y_set_user_function1_name(self,txt):
       self.glade.get_widget('user_function1').set_label(txt)
-         
+
    def y_set_user_function2_name(self,txt):
       self.glade.get_widget('user_function2').set_label(txt)
-         
+
    def pyk_status_push(self,id,txt):
       self.glade.get_widget('statusbar').push(id,txt)
-      
+
    def pyk_status_pop(self,id):
       self.glade.get_widget('statusbar').pop(id)
-      
+
    def y_set_lut(self,value):
 #      if (self.done_init):
       self.glade.get_widget('colors').set_value(value)
@@ -335,7 +335,7 @@ class spydr:
    def y_set_itt(self,value):
 #      if (self.done_init):
       self.glade.get_widget('itt').set_active(value)
-      
+
    def y_set_cmincmax(self,cmin,cmax,incr,only_values):
       if (only_values!=1):
          pass
@@ -351,15 +351,15 @@ class spydr:
       for item in c:
          #sys.stderr.write("PYTHON: removing menu item =%s \n" % item.get_name())
          self.glade.get_widget('image_menu').remove(item)
-         
+
    def add_to_image_menu(self,name,ind):
       item=gtk.MenuItem(label=name)
       item.set_name(name)
       item.connect("activate",self.on_image_menu_selection_done, ind)
       self.glade.get_widget('image_menu').append(item)
       item.show()
-      
-      
+
+
    def pyk_error(self,msg):
       dialog = gtk.MessageDialog(type=gtk.MESSAGE_ERROR,buttons=gtk.BUTTONS_OK,message_format=msg)
       dialog.run()
@@ -381,7 +381,7 @@ class spydr:
       dialog = gtk.MessageDialog(type=gtk.MESSAGE_WARNING,buttons=gtk.BUTTONS_OK,message_format=msg)
       dialog.run()
       dialog.destroy()
-      
+
    def on_debug_toggled(self,wdg):
       if (wdg.get_active()):
          self.pyk_debug=1
@@ -407,7 +407,7 @@ class spydr:
             fs += '\"'+file+'\" '
          self.py2yo('spydr %s' % fs)
       chooser.destroy()
-         
+
    def on_append_activate(self,wdg):
       chooser = gtk.FileChooserDialog(title='spydr open file',action=gtk.FILE_CHOOSER_ACTION_OPEN,buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK))
       filter = gtk.FileFilter()
@@ -426,7 +426,7 @@ class spydr:
          self.py2yo('pyk_set spydr_append 1')
          self.py2yo('spydr %s' % fs)
       chooser.destroy()
-         
+
    def on_saveas_activate(self,wdg):
       chooser = gtk.FileChooserDialog(title='Save as...',action=gtk.FILE_CHOOSER_ACTION_SAVE,buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE,gtk.RESPONSE_OK))
       filter = gtk.FileFilter()
@@ -444,7 +444,7 @@ class spydr:
 
    def on_save_activate(self,wdg):
       self.py2yo('spydr_save')
-      
+
    def on_exportjpeg_activate(self,wdg):
       chooser = gtk.FileChooserDialog(title='Export as jpeg',action=gtk.FILE_CHOOSER_ACTION_SAVE,buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE,gtk.RESPONSE_OK))
       filter = gtk.FileFilter()
@@ -459,7 +459,7 @@ class spydr:
          self.currentsavedir = chooser.get_current_folder()
          self.py2yo('spydr_exportjpeg \"%s\"' % file)
       chooser.destroy()
-      
+
    def on_exportpng_activate(self,wdg):
       chooser = gtk.FileChooserDialog(title='Export as png',action=gtk.FILE_CHOOSER_ACTION_SAVE,buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE,gtk.RESPONSE_OK))
       filter = gtk.FileFilter()
@@ -527,15 +527,15 @@ class spydr:
       data = self.glade.get_widget('ccolor').get_active()
       #sys.stderr.write("PYTHON: color = %s \n" % data.get_name())
       self.py2yo('set_spydr_ccolor \"%s\"' % data.get_name())
-      
+
    def on_mcolor_toggled(self,wdg):
       data = self.glade.get_widget('mcolor').get_active()
       self.py2yo('set_spydr_mcolor \"%s\"' % data.get_name()[1:])
-      
+
    def on_clabel_toggled(self,wdg):
       data = self.glade.get_widget('clabel').get_active()
       self.py2yo('set_spydr_clabel \"%s\"' % data.get_name())
-      
+
    def on_cubemed_activate(self,wdg):
       self.py2yo('spydr_cubeops 1')
 
@@ -565,13 +565,13 @@ class spydr:
 
    def on_comboboxentry2_changed(self,wdg):
       self.py2yo('pyk_set spydr_funtype "%s"' % wdg.get_active_text())
-      
+
    def on_invert_toggled(self,wdg):
       if (self.done_init):
          self.py2yo('pyk_set spydr_invertlut %d' % wdg.get_active())
          self.py2yo('spydr_set_lut')
 
-         
+
    def on_plugins_toggled(self,wdg):
       show_state = self.glade.get_widget('plugins').get_active()
       if (show_state):
@@ -595,13 +595,13 @@ class spydr:
 
    def on_user_function1_clicked(self,wdg):
       self.py2yo('user_function1')
-      
+
    def on_user_function2_clicked(self,wdg):
       self.py2yo('user_function2')
 
    def on_do_psf_fit_clicked(self,wdg): # one pass
       self.py2yo('yfwhm spydr_im 1')
-      
+
    def on_do_psf_fit2_clicked(self,wdg): # multiple pass
       self.py2yo('yfwhm spydr_im 0')
 
@@ -616,7 +616,7 @@ class spydr:
 
    def on_strehl_map_clicked(self,wdg):
       self.py2yo('spydr_strehl_map')
-      
+
    def on_quit_activate(self,*args):
       self.py2yo('spydr_quit')
       raise SystemExit
@@ -625,7 +625,7 @@ class spydr:
       if (self.done_init):
          self.py2yo('pyk_set spydr_azimuth %f' % self.glade.get_widget('azimuth').get_value())
          self.py2yo('spydr_disp')
-         
+
    def on_elevation_value_changed(self,wdg):
       if (self.done_init):
          self.py2yo('pyk_set spydr_elevation %f' % self.glade.get_widget('elevation').get_value())
@@ -641,15 +641,15 @@ class spydr:
    def on_pixsize_value_changed(self,wdg):
       if (self.done_init):
          self.py2yo('spydr_set_pixsize %f' % self.glade.get_widget('pixsize').get_value())
-      
+
    def on_boxsize_value_changed(self,wdg):
       if (self.done_init):
          self.py2yo('pyk_set spydr_boxsize %d' % self.glade.get_widget('boxsize').get_value())
-         
+
    def on_saturation_value_changed(self,wdg):
       if (self.done_init):
          self.py2yo('pyk_set spydr_saturation %f' % self.glade.get_widget('saturation').get_value())
-         
+
    def on_airmass_value_changed(self,wdg):
       if (self.done_init):
          self.py2yo('pyk_set spydr_airmass %f' % self.glade.get_widget('airmass').get_value())
@@ -657,7 +657,7 @@ class spydr:
    def on_wavelength_value_changed(self,wdg):
       if (self.done_init):
          self.py2yo('spydr_set_wavelength %f' % self.glade.get_widget('wavelength').get_value())
-   
+
    def on_zero_point_value_changed(self,wdg):
       if (self.done_init):
          self.py2yo('pyk_set spydr_zero_point %f' % self.glade.get_widget('zero_point').get_value())
@@ -673,7 +673,7 @@ class spydr:
    def on_strehl_aper_diameter_value_changed(self,wdg):
       if (self.done_init):
          self.py2yo('pyk_set spydr_strehlaper %f' % self.glade.get_widget('strehl_aper_diameter').get_value())
-         
+
    def on_compute_strehl_toggled(self,wdg):
       self.py2yo('pyk_set compute_strehl %d' % wdg.get_active())
       self.glade.get_widget('wavelength_label').set_sensitive(wdg.get_active())
@@ -684,27 +684,27 @@ class spydr:
       self.glade.get_widget('cobs').set_sensitive(wdg.get_active())
       self.glade.get_widget('strehl_aper_diameter_label').set_sensitive(wdg.get_active())
       self.glade.get_widget('strehl_aper_diameter').set_sensitive(wdg.get_active())
-         
+
    def on_output_magnitudes_toggled(self,wdg):
       self.glade.get_widget('zero_point_label').set_sensitive(wdg.get_active())
       self.glade.get_widget('zero_point').set_sensitive(wdg.get_active())
-      
+
    def on_unzoom_clicked(self,wdg):
       self.py2yo('unzoom')
       self.py2yo('limits')
-      
+
    def on_histogram_clicked(self,wdg):
       self.py2yo('plot_histo')
 
    def on_limits_clicked(self,wdg):
       self.py2yo('do_limits')
-      
+
    def on_cut_clicked(self,wdg):
       self.py2yo('plot_cut')
 
    def on_cmincmax_toggled(self,wdg):
       self.py2yo('pyk_set zoom_cmincmax %d' % wdg.get_active())
-      
+
    def on_cmin_value_changed(self,wdg):
       if (self.done_init):
          self.py2yo('set_cmin %f' % self.glade.get_widget('cmin').get_value())
@@ -732,7 +732,7 @@ class spydr:
          #self.glade.get_widget('contours_plus_tv').set_active(0)
          #self.glade.get_widget('contours_filled').set_active(0)
          self.py2yo('switch_disp 1') # 1 is tv
-         
+
    def on_contours_pressed(self,wdg):
       self.glade.get_widget('contours_plus_tv').set_sensitive(1)
       self.glade.get_widget('contours_filled').set_sensitive(1)
@@ -772,7 +772,7 @@ class spydr:
                self.glade.get_widget('contours_plus_tv').set_active(0)
          self.py2yo('pyk_set spydr_filled %d' % wdg.get_active())
          self.py2yo('spydr_disp')
-      
+
    def on_contours_plus_tv_toggled(self,wdg):
       if (self.done_init):
          if (wdg.get_active()):
@@ -791,8 +791,8 @@ class spydr:
       if (self.done_init):
          self.py2yo('spydr_rebin %d' % self.glade.get_widget('rebin').get_value())
          self.py2yo('spydr_disp')
-      
-         
+
+
    def on_nlevs_value_changed(self,wdg):
       if (self.done_init):
          self.py2yo('pyk_set spydr_nlevs %d' % self.glade.get_widget('nlevs').get_value())
@@ -809,7 +809,7 @@ class spydr:
          self.py2yo('set_imnum %d 1' % imnum)
          self.py2yo('imchange_update')
          self.glade.get_widget('rebin').set_value(0)
-         
+
    def set_imnum(self,imnum,numim,vis):
       #sys.stderr.write("PYTHON: entering set_imnum with request %d\n" % imnum)
       if (self.done_init):
@@ -827,7 +827,7 @@ class spydr:
          #sys.stderr.write("PYTHON: current image=%d\n" % current1)
          if (current1!=imnum):
             self.glade.get_widget('imnum').set_value(imnum)
-         
+
    def on_window1_map_event(self,wdg,*args):
       drawingarea = self.glade.get_widget('drawingarea1')
       mwid1 = drawingarea.window.xid;
@@ -840,11 +840,11 @@ class spydr:
    def on_window1_focus_in_event(self,wdg,*args):
 #      sys.stderr.write("PYTHON: focus in\n")
       self.py2yo('spydr_focus_in')
-      
+
    def on_window1_focus_out_event(self,wdg,*args):
 #      sys.stderr.write("PYTHON: focus out\n")
       self.py2yo('spydr_focus_out')
-      
+
    def on_drawingarea1_enter_notify_event(self,wdg,*args):
       self.glade.get_widget('eventbox2').grab_focus()
       self.py2yo('start_zoom')
@@ -980,15 +980,15 @@ class spydr:
    #
    # minimal wrapper for yorick/python communication
    #
-   
+
    def yo2py_flush(self):
       sys.stdin.flush()
-   
+
    def py2yo(self,msg):
       # sends string command to yorick's eval
       sys.stdout.write(msg+'\n')
       sys.stdout.flush()
-   
+
    def yo2py(self,cb_condition,*args):
       if cb_condition == gobject.IO_HUP:
          raise SystemExit, "lost pipe to yorick"
@@ -998,7 +998,7 @@ class spydr:
          try:
             msg = sys.stdin.readline()
             msg = "self."+msg
-            if (self.pyk_debug>1): 
+            if (self.pyk_debug>1):
                sys.stderr.write("Python stdin:"+msg)
             exec(msg)
          except IOError, e:
@@ -1016,7 +1016,7 @@ class spydr:
          self.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
       else:
          self.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.LEFT_PTR))
-         
+
 if len(sys.argv) != 5:
    print 'Usage: spydr.py path_to_spydr spydr_showlower dpi showplugins'
    raise SystemExit

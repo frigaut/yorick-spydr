@@ -1,6 +1,6 @@
 /*
  * spydr_various.i
- * 
+ *
  * Utility functions for spydr.
  *
  * This file is part of spydr, an image viewer/data analysis tool
@@ -129,7 +129,7 @@ func gamma(arg)
 
 func factoriel(arg)
 /* DOCUMENT factoriel(arg)
- * Return factoriel of the argument    
+ * Return factoriel of the argument
  * SEE ALSO:
  */
 {
@@ -304,7 +304,7 @@ func png_write_color(im,filename)
 func log00(void){logxy,0,0;}
 func log11(void){logxy,1,1;}
 /* DOCUMENT log00() and log11()
- * Shortcuts for logxy,0,0 and logxy,1,1    
+ * Shortcuts for logxy,0,0 and logxy,1,1
  * SEE ALSO: logxy
  */
 
@@ -398,7 +398,7 @@ func clmfit(y,x,&a,function,&yfit)
   // clean after oneself:
   remove,fname;
   return a;
-} 
+}
 //---------------------------------------------------------
 
 func extractImage(image,dimx,dimy,method=)
@@ -451,8 +451,8 @@ func extractImage(image,dimx,dimy,method=)
     sim = image(xc(1):xc(2),yc(1):yc(2));
   }
   return sim;
-}      
-      
+}
+
 //---------------------------------------------------------
 
 func surface(image,shade=)
@@ -488,7 +488,7 @@ func surface(image,shade=)
     else
       {plwf,image,xy(,,1),xy(,,2);}
   }
-}   
+}
 
 //---------------------------------------------------------
 
@@ -570,7 +570,7 @@ func fftfit(yin,fraccut,nsig,silent=)
   np	= 1;
   iter	= 0;
   maxiter=100;
-  while ((np != 0) && (iter <= maxiter)) 
+  while ((np != 0) && (iter <= maxiter))
    {
     iter= iter+1;
     f	= fft(v,1);
@@ -586,7 +586,7 @@ func fftfit(yin,fraccut,nsig,silent=)
     if (is_array(w) == 0) {np=0;}
     if (np != 0) {v(w) = vfit(w);}
    }
-  if ((!silent) && (iter >= maxiter)) 
+  if ((!silent) && (iter >= maxiter))
     print,"Max number of iteration reach. Exiting.";
   yout	= vfit(1:n);
   return yout;
@@ -609,13 +609,13 @@ func fft2dfit(yin,fraccut,nsig,silent=,high=)
   v = array(structof(yin),[2,2*n,2*n]);
   v(1:n,1:n) = yin;
   v(n+1:,1:n) = yin(::-1,);
-  v(,n+1:) = v(,1:n)(,::-1);  
+  v(,n+1:) = v(,1:n)(,::-1);
 
   np	= 1;
   iter	= 0;
   maxiter = 30;
 
-  while ((np != 0) && (iter <= maxiter)) 
+  while ((np != 0) && (iter <= maxiter))
    {
     iter= iter+1;
     write,format="iter #%d\n",iter;
@@ -635,7 +635,7 @@ func fft2dfit(yin,fraccut,nsig,silent=,high=)
     if (is_array(w) == 0) {np=0;}
     if (np != 0) {v(w) = vfit(w);}
    }
-  if ((!silent) && (iter >= maxiter)) 
+  if ((!silent) && (iter >= maxiter))
     print,"Max number of iteration reach. Exiting.";
   yout	= vfit(1:n,1:n);
   return yout;
@@ -742,7 +742,7 @@ func axisLegend(xtext,ytext,xyoff=,yxoff=)
  * F.Rigaut, 2001/10
 
  * USE LINALG.I
- 
+
  * SEE ALSO: trace
  */
   /*
@@ -755,7 +755,7 @@ func axisLegend(xtext,ytext,xyoff=,yxoff=)
   */
 //---------------------------------------------------------
 
-//func trace2(image) 
+//func trace2(image)
 /* DOCUMENT trace(image)
  * Returns the trace of the input matrix
  * F.Rigaut 2001/10
@@ -778,7 +778,7 @@ func fftshift(image,xs,ys)
  *    - There should not be discontinuities at the edges, etc...
  * The input array can be 1D or 2D
  * SEE ALSO: fftrebin
- */ 
+ */
 {
   s = dimsof(image);
 
@@ -807,7 +807,7 @@ func fftshift(image,xs,ys)
     sim    = float(fft(fft(image,-1)*fsh,1));
     sim    = sim/sum(sim)*sum(image);
   }
-  
+
   return sim;
 }
 //---------------------------------------------------------
@@ -862,7 +862,7 @@ func oldclip(arg,lt,ht)
     if (max(imo) > ht) imo=ht;
     if (min(imo) < lt) imo=lt;
     return imo;
-  } 
+  }
   if (max(imo) > ht) imo(where(imo > ht)) = ht;
   if (min(imo) < lt) imo(where(imo < lt)) = lt;
   return imo;
@@ -875,10 +875,10 @@ if (clip == []) {clip = oldclip;}
 func strInt(ivec,nchar)
 /* DOCUMENT strInt(ivec,nchar);
  * Create a string array which elements are the string
- * equivalent of each elements of "ivec", with as many 
+ * equivalent of each elements of "ivec", with as many
  * heading "0" added to fill a string of length nchar.
- * example: 
- * print,strInt(indgen(10:12),4) 
+ * example:
+ * print,strInt(indgen(10:12),4)
  * ["0010","0011","0012"]
  * F.Rigaut, 2001/11/10.
  * SEE ALSO: str routines in string.i
@@ -903,7 +903,7 @@ func str2float(strarray)
 
 //---------------------------------------------------------
 
-func medianCube(cube) 
+func medianCube(cube)
 /* DOCUMENT medianCube(cube)
  * Returns a 2D array which elements are the median along the
  * 3rd dimension of the input variable "cube".
@@ -958,7 +958,7 @@ func apod(length,degree)
 
   if ((degree >= 0) && (degree <= 3))
     {
-      c = transpose([[1.,0.,0.,0.],  // matrix of the coefficients of 
+      c = transpose([[1.,0.,0.,0.],  // matrix of the coefficients of
        [0.548,-0.0833,0.5353,0.],    // the apodization fonction.
        [0.26,-0.154838,0.894838,0.], // c(2,*) = vector of coef for weak apod
        [0.09,0.,0.5875,0.3223]]);     // c(4,*) = "      "    "   "  strong "
@@ -966,7 +966,7 @@ func apod(length,degree)
       u = 2.*(indgen(length)-1.)/length-1.;
 
       ffil=u*0.;
-      
+
       for (i=1;i<=4;i++) {ffil = ffil + c(degree,i)*(1-u^2.)^i;}
     }
 
@@ -1000,7 +1000,7 @@ func psd(s, length, step=, filter=, samp=, db=,noplot=,overplot=,
  * noplot  = do not plot
  * overplot= over plot
  * sqroot  = returns the sqrt of the dsp
- * roddier = plots the psd roddier style    
+ * roddier = plots the psd roddier style
  * SEE ALSO:
  */
 {
@@ -1009,7 +1009,7 @@ func psd(s, length, step=, filter=, samp=, db=,noplot=,overplot=,
     write,"psd,data,FFTlength,step=, filter=, samp=, db=,noplot=,overplot=,sqrt=,roddier=,xtitre=,ytitre=,silent=";
     return;
   }
-  if (is_void(step)) { step = length/2;} 
+  if (is_void(step)) { step = length/2;}
   if (is_void(filter)) { filter = 0;}
   if (is_void(samp)) { samp = 1;}
   if (is_void(noplot)) { noplot = 0;}
@@ -1052,7 +1052,7 @@ func psd(s, length, step=, filter=, samp=, db=,noplot=,overplot=,
 
   if (!is_set(silent)) { write,format="Freq. Max = %8.6e\n",max(f);}
 
-  dsp	= dsp*2.;                        // x2 because negative part omitted
+  dsp	= dsp*2.;                        // _x2 because negative part omitted
   dsp	= dsp/length*(length/2./max(f)); // to get in unit^2/Hz
 
   if (!is_void(sqroot)) { dsp = sqrt(dsp); }
@@ -1071,7 +1071,7 @@ func psd(s, length, step=, filter=, samp=, db=,noplot=,overplot=,
         }
         psdnumberofoverplots=0;
       }
-      
+
       if (overplot) {
         psdnumberofoverplots++;
         cols = ["red","blue","green","magenta"];
@@ -1080,7 +1080,7 @@ func psd(s, length, step=, filter=, samp=, db=,noplot=,overplot=,
         } else {
           plg,dsp(2:),f(2:),color=cols(psdnumberofoverplots),color=color,type=type;
         }
-      }  
+      }
       myxytitles,xtitre,ytitre;
 
       limits;

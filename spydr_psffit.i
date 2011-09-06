@@ -1,6 +1,6 @@
 /*
  * spydr_psffit.i
- * 
+ *
  * PSF fitting functions for spydr. Computes Strehl ratio and FWHM.
  *
  * This file is part of spydr, an image viewer/data analysis tool
@@ -66,7 +66,7 @@
  * - clipping dpi values to [30,400].
  * - spydr.py: went for a self autodic instead of an explicit
  *   declaration of all functions.
- * - implemented smoothing by x2
+ * - implemented smoothing by _x2
  * - implemented 1d linear fitting
  *
  * Revision 1.8  2008/02/02 05:12:05  frigaut
@@ -197,7 +197,7 @@ func getam(hdr,verbose=)
     exit,"Problem in determining location, see getam";
   }
 
-  // Convert long and lat in decimal: 
+  // Convert long and lat in decimal:
   longitude= longitude(1)+longitude(2)/60.;
   latitude= latitude(1)+latitude(2)/60.;
 
@@ -214,7 +214,7 @@ func getam(hdr,verbose=)
     write,format="LST = %f ; RA = %f ; dec = %f\n",
       lst,sxpar(hdr,"RA"),sxpar(hdr,"DEC");
   }
-  
+
   ha    = min(abs([lst-sxpar(hdr,"RA"),(24+lst)-sxpar(hdr,"RA")]));
   dec	= sxpar(hdr,"DEC");
 
@@ -231,7 +231,7 @@ func getam(hdr,verbose=)
 
   // Zenith angle:
   zenang= 90.-alt;
- 
+
   if (is_set(verbose)) {
     write,format="Zenith angle = %f ; Airmass = %f\n",zenang,airmass(zenang);
   }
@@ -290,7 +290,7 @@ func lmfit_lim(a,dir)
   }
   return a;
 }
-  
+
 func gaussian(x,ai)
 {
   local a; a=ai;
@@ -410,7 +410,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
 {
   extern spydr_fit_fwhm_estimate,imnum;
   extern spydr_fit_background_estimate;
-  
+
   if (!is_set(boxsize)) boxsize = spydr_boxsize;
   if (!is_set(saturation)) saturation = spydr_saturation;
   if (!is_set(pixsize)) {pixsize = spydrs(imnum).pixsize;}
@@ -428,7 +428,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
   }
 
   show_lower_gui,1;
-  
+
   batch_mode = (xstar!=[]);
 
   if (batch_mode) {
@@ -440,14 +440,14 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
 
   //  spydr_disp;
   window,spydr_wins(1);
-  
+
   maskarg = array(1,narg);
 
   yfwhmres = s_yfwhmres();
   allres = [];
 
   local b,pow,zp,f,ferr,el,eler,an,airmass,dims,sky1,bim;
-  
+
   b       = boxsize/2;
   // update zoom to match boxsize:
   rad4zoom = b;
@@ -461,7 +461,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
   airmass = double(airmass);
 
   dims = (dimsof(bim))(2:3);
-  
+
   sky1    = sky(bim,dev1);
   bim     = bim-sky1;
   if (saturation != 0.) {saturation -= sky1;}
@@ -474,7 +474,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     write,"Left click on star for FWHM. Right click to exit.";
     write,"Middle click to remove last entry.";
   }
-  
+
   if (onepass) spydr_pyk_status_push,"Click on star";
   else spydr_pyk_status_push,"BUTTONS: Left:Select Star / Middle:Remove last entry / Right:Exit.";
 
@@ -484,19 +484,19 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
         write,"X[pix]  Y[pix]      X FWHM[\"]      Y FWHM[\"]  FLUX[ADU] ELLIP  ANGLE    MAX";
       } else          {
         write,"X[pix]  Y[pix]      X FWHM[\"]      Y FWHM[\"]  MAGNITUDE ELLIP  ANGLE    MAX";
-      } 
+      }
     } else {
       if (!magswitch) {
         write,"X[pix]  Y[pix]    X FWHM[pix]    Y FWHM[pix]  FLUX[ADU] ELLIP  ANGLE    MAX";
       } else          {
         write,"X[pix]  Y[pix]    X FWHM[pix]    Y FWHM[pix]  MAGNITUDE ELLIP  ANGLE    MAX";
-      } 
+      }
     }
   }
 
   local nloop;
   nloop=1;
-  
+
   do {
     if (batch_mode) {
       c = long(_(xstar(nloop),ystar(nloop)));
@@ -529,7 +529,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     i2 = clip(c(1)+b,,dims(1));
     j1 = clip(c(2)-b,1,);
     j2 = clip(c(2)+b,,dims(2));
-    
+
     im   = smooth(bim(i1:i2,j1:j2),2);
     wm   = where2(im == max(im))(*)(1:2)-b-1;
     c    = c + wm;
@@ -567,7 +567,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
       nloop++;
       continue;
     }
-    
+
     extern lmfit_amin,lmfit_amax;
 
     if (compute_strehl==0) {
@@ -611,9 +611,9 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
         fwhm  = fwhm/airmass^0.6; fwhmerr = fwhmerr/airmass^0.6;
         ellip = abs(fwhm(2)-fwhm(1))/avg(fwhm);
         ellerr= 2*(fwhmerr(1)+fwhmerr(2))*(2*fwhm(2))/(fwhm(1)+fwhm(2))^2.;
-        
+
       } else if (funtype == "moffat") {
-        
+
         // a    = [sky,total,xc,yc,fwhm_parameter,beta]
         ai      = [0,sum(im-median(im(*))),d(2)/2.,d(3)/2.,5.,1.7];
         if (batch_mode) { // we've been given (guessed) coordinates, use them
@@ -648,7 +648,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
         }
         while (angle > 90)  angle -= 180.;
         while (angle < -90) angle += 180.;
-        
+
         fwhm    =  2*a(5:6)*sqrt(0.5^(-1./a(8))-1.)*pixsize; // moffat
         fwhmerr = fwhm*(err(5:6)/a(5:6)+
                         0.5*abs(log(0.5))*err(8)/a(8)^2.*0.5^(1./a(8))/(0.5^(1./a(8))-1.));
@@ -658,7 +658,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
         ellip   = (fwhm(1)-fwhm(2))/avg(fwhm);
         ellerr  = 2*(fwhmerr(1)+fwhmerr(2))*(2*fwhm(2))/(fwhm(1)+fwhm(2))^2.;
       }
-      
+
       maxim = max(tmp);
       window,spydr_wins(3);
       tv,transpose(grow(transpose(im),transpose(tmp),
@@ -676,7 +676,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
       grow,an,angle;
 
       if (magswitch) {flux = zp-2.5*log10(clip(a(2),1e-10,));} else {flux = a(2);}
-    
+
       yfwhmres.xpos = pos(1);
       yfwhmres.ypos = pos(2);
       yfwhmres.xposerr = (*r.stdev)(3);
@@ -698,11 +698,11 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
       msg=swrite(format="%7.2f %7.2f %6.3f+/-%5.3f %6.3f+/-%5.3f  %9.1f  %4.2f %6.2f %6.1f",
                  pos(1),pos(2),fwhm(1),fwhmerr(1),fwhm(2),fwhmerr(2),flux,ellip,angle,maxim);
       write,format="%s\n",msg;
-      
+
       msg=swrite(format="  x=%.2f | y=%.2f | xfwhm=%.3f | yfwhm=%.3f | flux=%.1f | ell=%.2f | ang=%.2f | max=%.1f | bckgrd=%.1f",
                  pos(1),pos(2),fwhm(1),fwhm(2),flux,ellip,angle,maxim,a(1)+sky1+sky2);
       msg = msg+" ("+funtype+")";
-      
+
     } else if (compute_strehl) {
 
       if (pixset==0) {
@@ -713,15 +713,15 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
         spydr_pyk_warning,"Need wavelength to compute Strehl!";
         return;
       }
-      
+
       // determination of background
       sdim = dimsof(im)(2);
       rmask = spydr_strehlaper/2.;
       //      write,format="rmask=%f, boxsize=%f\n",rmask*1.,boxsize*1.;
       if ((2*rmask)>boxsize) {
         spydr_pyk_error,"boxsize smaller than aperture for Strehl. Increase boxsize or decrease aperture.";
-        return;  
-      }        
+        return;
+      }
       smask = (dist(sdim)>rmask);
       psky = im(where(smask)); // outside of disk
       nsig=4.;
@@ -752,7 +752,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
 
       // apply fudge
       pstrehl *= spydr_strehlfudge;
-      
+
       // plot boxes
 
       if (spydr_plot_in_arcsec) {
@@ -761,7 +761,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
       } else {
         fact = 1.0f;
         axtit = "pixels";
-      }  
+      }
 
       plg,([j2+1,j2+1,j1,j1,j2+1])*fact,([i1,i2+1,i2+1,i1,i1])*fact,color="red";
       plt,"Sky",(i1)*fact,(j2+1)*fact,justify="LT",tosys=1,color="red",opaque=0;
@@ -788,7 +788,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     //    typeReturn;
     nloop++;
   } while (but != 3);
-  
+
 
   if (!compute_strehl) {
     f     = f(,2:);
@@ -817,7 +817,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     spydr_fit_fwhm_estimate = pfwhm/pixsize;
     spydr_fit_background_estimate = skyavg;
   }
-    
+
   spydr_pyk,swrite(format="y_text_parm_update('find_fwhm','%.3f')",spydr_fit_fwhm_estimate);
 
   if (compute_strehl) return _(pfwhm,pstrehl);
@@ -870,7 +870,7 @@ func spydr_lmfit(f, x, &a, y, w, fit=, correl=, stdev=, gain=, tol=, deriv=, itm
   nfit= numberof(fit);
   if (!nfit)
     error, "no parameters to fit.";
-    
+
   /* Check weights. */
   if (is_void(w)) w= 1.0;
   else if (anyof(w < 0.0))
@@ -896,7 +896,7 @@ func spydr_lmfit(f, x, &a, y, w, fit=, correl=, stdev=, gain=, tol=, deriv=, itm
   neval= 0;
   conv= 0.0;
   niter= 0;
-    
+
   while (1) {
     if (deriv) {
       m= f(x, a, grad, deriv=1);
@@ -936,7 +936,7 @@ func spydr_lmfit(f, x, &a, y, w, fit=, correl=, stdev=, gain=, tol=, deriv=, itm
     gamma= 1.0 / gamma;
     beta *= gamma;
     alpha *= gamma(,-) * gamma(-,);
-	
+
     while (1) {
       alpha(diag)= 1.0 + lambda;
       anew= a;
@@ -968,7 +968,7 @@ func spydr_lmfit(f, x, &a, y, w, fit=, correl=, stdev=, gain=, tol=, deriv=, itm
       break;
     }
   }
-    
+
  done:
   sigma= sqrt(nfree/chi2);
   result= lmfit_result(neval=neval, niter=niter, nfree=nfree, nfit=nfit,

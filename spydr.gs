@@ -12,7 +12,7 @@ landscape= 0
 default = {
   legend= 0,
 
-  viewport= { 0.1807, 0.6493, 0.4157, 0.8843 },
+  viewport= { 0.1907, 0.6493, 0.4257, 0.8843 },
 
   ticks= {
 

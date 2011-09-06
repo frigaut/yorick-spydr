@@ -1,7 +1,7 @@
 /* spydr_pyk.i
  * 2 way communication interface to python (useful for GUIs)
  * package copy of pyk.i to avoid name collision with other pyk calls.
- * 
+ *
  * Author: Francois Rigaut
  * Written May 2007
  * last revision/addition: 2007
@@ -43,7 +43,7 @@ func spydr_pyk(py_command)
   if (is_void(_spydr_pyk_proc)) {
     error,"_spydr_pyk_proc should not be emtpy on spydr_pyk call within spydr";
   }
-  
+
   if (is_void(py_command)) return;
 
   if (pyk_debug) {
@@ -106,7 +106,7 @@ func _spydr_pyk_callback(line)
   for (i=1 ; i<=nofline ; i++) funcdef(line(i));
 }
 
-func pyk_set(&v1,x1,&v2,x2,&v3,x3,&v4,x4,&v5,x5,&v6,x6,&v7,x7,&v8,x8)
+func pyk_set(&v1,_x1,&v2,_x2,&v3,_x3,&v4,_x4,&v5,_x5,&v6,_x6,&v7,_x7,&v8,_x8)
 /* DOCUMENT pyk_set var1 val1 var2 val2 ...
  *
  *   This function is designed to be invoked by the python front-end;
@@ -124,12 +124,12 @@ func pyk_set(&v1,x1,&v2,x2,&v3,x3,&v4,x4,&v5,x5,&v6,x6,&v7,x7,&v8,x8)
  * SEE ALSO: pyk
  */
 {
-  v1 = x1;
-  if (is_void(x1)) return; else v2 = x2;
-  if (is_void(x2)) return; else v3 = x3;
-  if (is_void(x3)) return; else v4 = x4;
-  if (is_void(x4)) return; else v5 = x5;
-  if (is_void(x5)) return; else v6 = x6;
-  if (is_void(x6)) return; else v7 = x7;
-  if (is_void(x7)) return; else v8 = x8;
+  v1 = _x1;
+  if (is_void(_x1)) return; else v2 = _x2;
+  if (is_void(_x2)) return; else v3 = _x3;
+  if (is_void(_x3)) return; else v4 = _x4;
+  if (is_void(_x4)) return; else v5 = _x5;
+  if (is_void(_x5)) return; else v6 = _x6;
+  if (is_void(_x6)) return; else v7 = _x7;
+  if (is_void(_x7)) return; else v8 = _x8;
 }
