@@ -223,6 +223,7 @@ class spydr:
       self.drawingareas_size_allocate(spydr_dpi)
 
       self.pyk_debug=0
+      self.win_init_done = 0
       self.currentdir=os.getcwd()
       self.currentsavedir=os.getcwd()
       self.imgroup=None
@@ -829,6 +830,7 @@ class spydr:
             self.glade.get_widget('imnum').set_value(imnum)
 
    def on_window1_map_event(self,wdg,*args):
+      if (self.win_init_done): return
       drawingarea = self.glade.get_widget('drawingarea1')
       mwid1 = drawingarea.window.xid;
       drawingarea = self.glade.get_widget('drawingarea2')
@@ -836,6 +838,7 @@ class spydr:
       drawingarea = self.glade.get_widget('drawingarea3')
       mwid3 = drawingarea.window.xid;
       self.py2yo('spydr_win_init %d %d %d' % (mwid1,mwid2,mwid3))
+      self.win_init_done = 1
 
    def on_window1_focus_in_event(self,wdg,*args):
 #      sys.stderr.write("PYTHON: focus in\n")
