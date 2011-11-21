@@ -1012,7 +1012,8 @@ class spydr:
             raise SystemExit, "yo2py unexpected IOError:" + str(e)
          except Exception, ee:
             raise SystemExit, "yo2py unexpected Exception:" + str(ee)
-         return True
+      # carefull with the ident here
+      return True
 
    def set_cursor_busy(self,state):
       if state:
