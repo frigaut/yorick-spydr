@@ -2333,6 +2333,8 @@ func which_spydrconf(void) {
     path3 = pathform(_("./",Y_USER,Y_SITE)+"share/spydr/");
     file = find_in_path("spydr.conf",takefirst=1,path=path3);
   }
+  return file;
+/*
   if (file==[]) {
     spydr_pyk_error,swrite(format="Can't find spydr.conf in %s:%s:%s\n",path1,path2,path3);
     error,swrite(format="Can't find spydr.conf in %s:%s:%s\n",path1,path2,path3);
@@ -2340,6 +2342,7 @@ func which_spydrconf(void) {
 
   //  write,format=" Using %s\n",file;
   return file;
+  */
 }
 
 func spydr_quit(void)
@@ -2719,13 +2722,19 @@ spydr_verbose       = 1
 
 // include configuration file
 if (spydr_conffile==[]) spydr_conffile = which_spydrconf();
-write,format=" Using %s\n",spydr_conffile;
-if (findfiles(spydr_conffile)==[]) {
-  spydr_pyk_error,swrite(format="Can not find configuration file %s",spydr_conffile);
-  if (spydr_context=="called_from_shell") quit;
-  error,swrite(format="Can not find configuration file %s",spydr_conffile);
- }
-require,spydr_conffile;
+if (spydr_conffile==[]) {
+  write,format="%s\n",
+   "WARNING: CAN NOT FIND ANY CONFIGURATION FILE, USING INTERNAL DEFAULTS";  
+} else {
+  if (findfiles(spydr_conffile)==[]) {
+    spydr_pyk_error,swrite(format="Can not find configuration file %s",spydr_conffile);
+    if (spydr_context=="called_from_shell") quit;
+    error,swrite(format="Can not find configuration file %s",spydr_conffile);
+  } else {
+    write,format=" Using %s\n",spydr_conffile;
+    require,spydr_conffile;
+  }  
+}
 
 // set other defaults
 spydr_ncolors = 240;
