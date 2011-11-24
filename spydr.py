@@ -230,6 +230,7 @@ class spydr:
       self.current_image_menu=0
       self.current_image_saveas_name=None
       self.just_done_range=0
+      self.next_to_all = 0
 
       if (spydr_showlower==0):
          if (spydr_dpi < 70):
@@ -242,6 +243,8 @@ class spydr:
 
       if (spydr_showplugins):
          self.glade.get_widget('plugins_pane').show()
+
+      self.pyk_status_push(1,'Initializing...')
 
       # run
       gtk.main()
@@ -932,74 +935,109 @@ class spydr:
       self.glade.get_widget('imnum').set_value(data)
 #      self.set_imnum(data)
 
+   def op_multi_im_impossible(self):
+      if self.next_to_all: 
+         self.pyk_status_push(1,'Not implemented or does not make sense on multiple images')
+         self.next_to_all = 0
+      
+
    def on_vbox3_key_press(self,wdg,event):
+      # sys.stderr.write("received string: %s\n" % event.string)
+      if (event.string==''):
+         return True
       if (event.string=='?'):
          self.py2yo('spydr_shortcut_help')
       if (event.string=='k'):
+         self.op_multi_im_impossible()
          self.py2yo('disp_fft')
       if (event.string=='B'):
+         self.op_multi_im_impossible()
          self.py2yo('mark_current_as_sky')
       if (event.string=='b'):
-         self.py2yo('subtract_sky')
+         self.py2yo('subtract_sky %d' % self.next_to_all)
       if (event.string=='f'):
+         self.op_multi_im_impossible()
          self.py2yo('fit_1d 1')
       if (event.string=='F'):
+         self.op_multi_im_impossible()
          self.py2yo('fit_1d 0')
       if (event.string=='c'):
+         self.op_multi_im_impossible()
          self.py2yo('plot_cut')
       if (event.string=='C'):
-         self.py2yo('crop_image')
+         self.py2yo('crop_image %d' % self.next_to_all)
       if (event.string=='u'):
          self.py2yo('unzoom')
          self.py2yo('limits')
       if (event.string=='.'):
+         self.op_multi_im_impossible()
          self.py2yo('plot_radial')
       if (event.string=='o'):
          self.py2yo('pyk_set overplot_next 1')
       if (event.string=='r'):
          self.py2yo('rotate_image')
       if (event.string=='X'):
+         self.op_multi_im_impossible()
          self.py2yo('toggle_xcut')
       if (event.string=='Y'):
+         self.op_multi_im_impossible()
          self.py2yo('toggle_ycut')
       if (event.string=='x'):
+         self.op_multi_im_impossible()
          self.py2yo('plot_xcut')
       if (event.string=='y'):
+         self.op_multi_im_impossible()
          self.py2yo('plot_ycut')
       if (event.string=='h'):
+         self.op_multi_im_impossible()
          self.py2yo('plot_histo')
       if (event.string=='&'):
          self.py2yo('shift_and_add')
       if (event.string=='e'):
+         self.op_multi_im_impossible()
          self.py2yo('disp_cpc')
          self.py2yo('spydr_disp')
       if (event.string=='E'):
+         self.op_multi_im_impossible()
          self.py2yo('disp_cpc 0')
          self.py2yo('spydr_disp')
       if (event.string=='n'):
+         self.op_multi_im_impossible()
          n = self.glade.get_widget('imnum').get_value()
          self.glade.get_widget('imnum').set_value(n+1)
       if (event.string=='p'):
+         self.op_multi_im_impossible()
          n = self.glade.get_widget('imnum').get_value()
          self.glade.get_widget('imnum').set_value(n-1)
       if (event.string=='R'):
+         self.op_multi_im_impossible()
          self.py2yo('spydr_replace_current_from_stack')
       if (event.string=='D'):
+         self.op_multi_im_impossible()
          self.py2yo('spydr_delete_current_from_stack')
       if (event.string=='s'):
-         self.py2yo('spydr_sigmafilter')
+         self.py2yo('spydr_sigmafilter %d' % self.next_to_all)
       if (event.string=='S'):
-         self.py2yo('spydr_smooth_function')
+         self.py2yo('spydr_smooth_function %d' % self.next_to_all)
       if (event.string=='M'):
+         self.op_multi_im_impossible()
          self.py2yo('spydr_compute_distance 1')
       if (event.string=='m'):
+         self.op_multi_im_impossible()
          self.py2yo('spydr_compute_distance')
       if (event.string=='z'):
+         self.op_multi_im_impossible()
          self.py2yo('plot_zcut')
       if (event.string=='-'):
          self.py2yo('rad4zoom_incr')
       if (event.string=='=') or (event.string=='+'):
          self.py2yo('rad4zoom_decr')
+      if (event.string=='*'):
+         self.next_to_all = 1
+         self.pyk_status_push(1,'Next operation will be applied to all images')
+      else:
+         self.next_to_all = 0
+         self.pyk_status_push(1,'')
       return True
 
    #

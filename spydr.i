@@ -282,7 +282,6 @@ struct spydr_struct{
   string  space;    // name of image space
 };
 
-flushing_interval=0.2;
 rebin_fact=1;
 //=============================
 //  SPYDR_PYK wrapping functions
@@ -438,6 +437,7 @@ func spydr_win_init(pid1,pid2,pid3,redisp=)
   if (redisp) return;
 
   spydr_pyk,"done_init = 1";
+  set_idler,spydr_ready_func;
   gui_realized=1;
 
   if (spydr_nim>0) {
@@ -812,11 +812,13 @@ func spydr_set_lut(_lut)
 }
 
 
-func disp_cpc(e,all=)
+func disp_cpc(e,allim,all=)
 {
   extern cmin,cmax,imnum,spydrs,gui_realized;
 
   if (spydr_nim<1) return;
+
+  spydr_pyk_status_push,"Computing display cuts"+(allim?"s":"")+"...";
 
   if (all) eq_nocopy,subim,spydr_im;
   else subim=get_subim(_x1,_x2,_y1,_y2);
@@ -840,6 +842,8 @@ func disp_cpc(e,all=)
   spydrs(imnum).cmax = cmax;
   if (gui_realized)                                                     \
     spydr_pyk,swrite(format="y_set_cmincmax(%f,%f,%f,1)",float(cmin),float(cmax),float(cmax-cmin)/100.);
+
+  spydr_pyk_status_push,"Computing display cuts"+(allim?"s":"")+"...DONE";
 }
 
 
@@ -886,6 +890,7 @@ func disp_fft(void)
   if (cw==spydr_wins(1)) type=2;
   if (cw==spydr_wins(3)) type=1;
   if (!type) return;
+  spydr_pyk_status_push,"Doing FFT...";
   if (type==2) {
     spydr_im = roll(abs(fft(spydr_im,1)))/dimsof(spydr_im)(2);
     spydr_disp;
@@ -895,6 +900,7 @@ func disp_fft(void)
     plh,onedy,color=spydr_colors(spydr_fma());
     limits;
   }
+  spydr_pyk_status_push,"Doing FFT...DONE";
 }
 
 n_overplot = 1;
@@ -977,13 +983,15 @@ func rotate_image(void)
   unzoom;
 }
 
-func crop_image(void)
+func crop_image(all)
 {
   local l;
   extern spydr_im;
   window,spydr_wins(1);
   l = limits()(1:4)+0.5; // in these plots, limits start at zero
   dims = dimsof(spydr_im);
+
+  spydr_pyk_status_push,"Cropping image"+(all?"s":"")+" ...";
 
   if (l(1)<1) l(1)=1;
   if (l(2)>dims(2)) l(2)=dims(2);
@@ -1004,21 +1012,33 @@ func crop_image(void)
     // the display is probably not set as square, let's take what we got
     l = lround(l);
   }
+
   spydr_im = spydr_im(l(1):l(2),l(3):l(4));
   spydr_disp;
   unzoom;
   limits;
+
+  if (all) {
+    dims = spydrs(imnum).dims;
+    for (i=1;i<=spydr_nim;i++) {
+      if (nallof(spydrs(i).dims==dims)) continue;
+      spydrs(i).pim = &((*spydrs(i).pim)(l(1):l(2),l(3):l(4)));
+      spydrs(i).dims = dimsof(*spydrs(i).pim);
+    }
+  }
+  spydr_pyk_status_push,"Cropping image"+(all?"s":"")+" ... DONE";
 }
 
 func mark_current_as_sky(void)
 {
-  extern sky_im;
+  extern sky_im,spydrs;
   sky_im = spydr_im;
   msg = "Current image stored as sky";
   spydr_pyk_status_push,msg;
+  spydrs(imnum).space = "sky";
 }
 
-func subtract_sky(void)
+func subtract_sky(all)
 {
   extern spydr_im;
   // sky not defined
@@ -1031,9 +1051,28 @@ func subtract_sky(void)
     write,format="%s\n","Current image and sky dimensions not compatible";
     return;    
   }
-  spydr_im -= sky_im;
-  status = disp_cpc();
-  status = spydr_disp();
+
+  spydr_pyk_status_push,"Subtracting sky...";
+
+  if (all) {
+    imnum_orig = imnum;
+    for (i=1;i<=spydr_nim;i++) {
+      if (nallof(dimsof(sky_im)==spydrs(i).dims)) continue;
+      if (spydrs(i).space=="sky") continue;
+      *spydrs(i).pim -= sky_im;
+      imnum = i;
+      spydr_im = *spydrs(i).pim;
+      disp_cpc;
+      spydr_disp;
+    }
+    imnum = imnum_orig;
+    spydr_im = *spydrs(imnum).pim;
+  } else {
+    spydr_im -= sky_im;
+    disp_cpc;
+  }
+  spydr_disp;
+  spydr_pyk_status_push,"Subtracting sky...DONE";
 }
 
 func plot_cut(void)
@@ -1080,7 +1119,6 @@ func plot_cut(void)
   show_lower_gui,1;
 
   window,spydr_wins(3);
-  // spydr_fma;
   plh,cut_y,cut_x,color=spydr_colors(spydr_fma());
   limits,square=0; limits;
   spydr_xytitles,xtit,"value";
@@ -1125,7 +1163,6 @@ func plot_xcut(j)
   show_lower_gui,1;
 
   window,spydr_wins(3);
-  // spydr_fma;
   hnlavg = lround((spydr_nline_avg-1)/2.); // half number of lines to avg
   cut_y=spydr_im(,j-hnlavg:j+hnlavg)(,avg);
   cut_x=indgen(dims(2))*fact;
@@ -1133,7 +1170,7 @@ func plot_xcut(j)
   spydr_xytitles,xtit,"value";
   if (hnlavg==0) spydr_pltitle,swrite(format="line# %d",j);
   else spydr_pltitle,swrite(format="Average of lines# [%d:%d]",j-hnlavg,j+hnlavg);
-  // limits,i1*fact,i2*fact,cmin-0.1*(cmax-cmin),cmax;
+  limits,i1*fact,i2*fact;//,cmin-0.1*(cmax-cmin),cmax;
   window,curw;
   onedx=cut_x(long(i1):long(i2));
   onedy=cut_y(long(i1):long(i2));
@@ -1172,11 +1209,10 @@ func plot_ycut(i)
   show_lower_gui,1;
 
   window,spydr_wins(3);
-  spydr_fma;
   hnlavg = lround((spydr_nline_avg-1)/2.); // half number of lines to avg
   cut_y=spydr_im(i-hnlavg:i+hnlavg,)(avg,);
   cut_x=indgen(dims(3))*fact;
-  plh,cut_y,cut_x;
+  plh,cut_y,cut_x,color=spydr_colors(spydr_fma());
   spydr_xytitles,xtit,"value";
   if (hnlavg==0) spydr_pltitle,swrite(format="column# %d",j);
   else spydr_pltitle,swrite(format="Average of columns# [%d:%d]",i-hnlavg,i+hnlavg);
@@ -1211,8 +1247,7 @@ func plot_zcut(void)
   curw = current_window();
   show_lower_gui,1;
   window,spydr_wins(3);
-  spydr_fma;
-  plh,zv,zi;
+  plh,zv,zi,color=spydr_colors(spydr_fma());
   spydr_xytitles,"Image #","value";
   spydr_pltitle,swrite(format="[%d:%d,%d:%d] vs Image#",c(1),c(3),c(2),c(4));
   limits;
@@ -1295,7 +1330,6 @@ func plot_radial(void)
   window,spydr_wins(3);
   xy = indices(dimsof(subim))-(cur(1:2)-[i1,j1]+1)(-,-,);
   d = abs(xy(,,1),xy(,,2));
-  spydr_fma;
   if (spydr_plot_in_arcsec) {
     if (spydr_check_pixsize()) return;
     fact = spydrs(imnum).pixsize;
@@ -1314,7 +1348,7 @@ func plot_radial(void)
   onedy = onedy(w);
 
   //  plp,subim,d*fact,symbol=default_symbol,size=0.3;
-  plp,onedy,onedx,symbol=default_symbol,size=0.3;
+  plp,onedy,onedx,symbol=default_symbol,size=0.2,color=spydr_colors(spydr_fma());
   spydr_xytitles,xtit,"value";
   limits;
   plmargin,0.02;
@@ -1355,8 +1389,7 @@ func plot_histo(void)
   show_lower_gui,1;
 
   window,spydr_wins(3);
-  spydr_fma;
-  plh,hy,hx;
+  plh,hy,hx,color=spydr_colors(spydr_fma());
   //  plmargin,0.02;
   spydr_pltitle,swrite(format="%s: histogram of region [%d:%d,%d:%d]",spydrs(imnum).name,_x1,_x2,_y1,_y2);
   msg = swrite(format=" %s: avg=%4.6g med=%4.6g rms=%4.6g min=%4.6g max=%4.6g",
@@ -1532,11 +1565,11 @@ func spydr_cubeops(opn)
   spydrs(0).space="results";
   cube=[];
   spydr_pyk,"set_cursor_busy(0)";
-  spydr_pyk_status_push,"Processing cube operation: Done.",clean_after=5;
+  spydr_pyk_status_push,"Processing cube operation: DONE.",clean_after=5;
 }
 
 
-func spydr_rebin(fact2)
+func spydr_rebin(fact2,all)
 // rebin the image by 2,3,4
 {
   extern spydr_im,cur_limits,rebin_init,rebin_fact,rebin_stamp;
@@ -1546,6 +1579,8 @@ func spydr_rebin(fact2)
   fact = 2.^fact2;
 
   if (fact==rebin_fact) return;
+
+  spydr_pyk_status_push,"Rebinning image"+(all?"s":"")+"...";
 
   //  if (fact==1) {
   //    spydr_im = *spydrs(imnum).pim;
@@ -1577,6 +1612,8 @@ func spydr_rebin(fact2)
   spydr_pyk,swrite(format="y_parm_update('pixsize',%f)",float(spydrs(imnum).pixsize));
   spydr_pyk_status_push,swrite(format="Image rebinned to %dx%d",\
                  spydrs(imnum).dims(2),spydrs(imnum).dims(3)),clean_after=5;
+
+  spydr_pyk_status_push,"Rebinning image"+(all?"s":"")+"...DONE";
 }
 
 
@@ -1974,34 +2011,40 @@ func set_cmax(pycmax)
   spydr_disp;
 }
 
-func spydr_sigmafilter(void)
+func spydr_sigmafilter(all)
 {
-  extern spydr_im;
+  extern spydr_im,spydrs;
   if (spydr_nim<1) return;
   subim = get_subim(_x1,_x2,_y1,_y2);
   if (subim==[]) return;
-  spydr_pyk_status_push,"Sigma Filtering...";
   spydr_pyk,"set_cursor_busy(1)";
   spydr_pyk_status_push,"Sigma Filtering...";
   if (!spydr_sigmafilter_nsig) spydr_sigmafilter_nsig=4.5;
   if (!spydr_sigmafilter_niter) spydr_sigmafilter_niter=4;
-  subim = sigfil(subim,spydr_sigmafilter_nsig,iter=spydr_sigmafilter_niter,silent=1);
-  spydr_im(_x1:_x2,_y1:_y2) = subim;
-  spydr_disp;
+  if (all) {
+    for (i=1;i<=spydr_nim;i++) {
+      *spydrs(i).pim = sigfil(*spydrs(i).pim,spydr_sigmafilter_nsig,iter=spydr_sigmafilter_niter,silent=1);
+    }
+  } else {
+    subim = sigfil(subim,spydr_sigmafilter_nsig,iter=spydr_sigmafilter_niter,silent=1);
+    spydr_im(_x1:_x2,_y1:_y2) = subim;
+  }
+  spydr_redisp;
   spydr_pyk,"set_cursor_busy(0)";
   spydr_pyk_status_push,"Sigma Filtering...DONE",clean_after=5.;
 }
 
-func spydr_smooth_function(void)
+func spydr_smooth_function(all)
 {
   extern spydr_im;
   require,"utils.i";
+  spydr_pyk_status_push,"Smoothing image"+(all?"s":"")+"...";
   subim = get_subim(_x1,_x2,_y1,_y2);
   if (subim==[]) return;
   subim = smooth(subim);
   spydr_im(_x1:_x2,_y1:_y2) = subim;
   spydr_disp;
-  spydr_pyk_status_push,"Smooth done",clean_after=5.;
+  spydr_pyk_status_push,"Smooth... DONE",clean_after=5.;
 }
 
 //=========================
@@ -2158,19 +2201,6 @@ func spydr_get_available_windows(void)
   // main, zoom, plot windows
   if (allof(spydr_wins==0)) spydr_wins = [40,41,42];
 }
-
-func spydr_pyk_flush(void)
-{
-  extern flushing;
-  if (_spydr_pyk_proc==[]) {
-    flushing=0;
-    return;
-  }
-  flushing=1;
-  spydr_pyk,"yo2py_flush";
-  after,flushing_interval,spydr_pyk_flush;
-}
-flushing=0;
 
 func parse_flags(args)
 {
@@ -2440,7 +2470,7 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=,hdu=,compact=)
   extern spydr_im,cmin,cmax;
   extern spydr_fh, spydr_nim;
   extern xcut, ycut, imnamen;
-  extern flushing,spydr_showlower;
+  extern spydr_showlower;
   local  imname,im,nim,wavelength,pixsize,im;
 
   default_wavelength = (wavelength?wavelength:spydr_wavelength);
@@ -2589,7 +2619,6 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=,hdu=,compact=)
   // span the python process, and hook to existing _spydr_pyk_proc (see spydr_pyk.i)
   if (!_spydr_pyk_proc) {
     _spydr_pyk_proc = spawn(pyk_cmd, _spydr_pyk_callback);
-    write,"\n SPYDR v"+spydr_version+" ready                                                         ";
   } else {
     // there's already a GUI around. hence we're not going to receive
     // a signal from python to bring up windows and display. we have
@@ -2599,9 +2628,8 @@ func spydr(vimage,..,wavelength=,pixsize=,name=,append=,hdu=,compact=)
     disp_cpc;
     spydr_disp;
     if (spydr_showlower) plot_histo;
-    write,"\n                                                                     ";
   }
-  if (flushing==0) spydr_pyk_flush;
+  write,"                                                                     ";
 }
 
 
@@ -2756,3 +2784,11 @@ pyk_cmd=[python_exec,path2glade,swrite(format="%d",spydr_showlower),swrite(forma
          swrite(format="%d",spydr_showplugins)];
 
 if (spydr_context=="called_from_shell") spydr,targets;
+
+func spydr_ready_func(void)
+{
+  msg = swrite(format="SPYDR v%s ready",spydr_version);
+  spydr_pyk_status_push,msg;
+  write,format="%s\n",msg;
+  maybe_prompt;
+}
