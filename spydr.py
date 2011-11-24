@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # spydr.py
 #
 # This file is part of spydr, an image viewer/data analysis tool
@@ -137,8 +137,8 @@
 # - created "about" dialog.
 # - added an "image" menu (with names of all images in stack). user can
 #   select image form there.
-# - added an "ops" (operation) menu. Can compute median, average, sum and
-#   rms of cube.
+# - added an "ops" (operation) menu. Can compute median, average, sum,
+#   rms, min and max of cube.
 # - small gui (without lower panel) form is called with --compact (-c)
 #
 # Bug fixes:
@@ -549,6 +549,12 @@ class spydr:
    def on_cuberms_activate(self,wdg):
       self.py2yo('spydr_cubeops 4')
 
+   def on_cubemin_activate(self,wdg):
+      self.py2yo('spydr_cubeops 5')
+
+   def on_cubemax_activate(self,wdg):
+      self.py2yo('spydr_cubeops 6')
+
    def on_itt_changed(self,wdg):
       itt = wdg.get_active_text()
       if (itt=="linear"):
@@ -929,17 +935,29 @@ class spydr:
    def on_vbox3_key_press(self,wdg,event):
       if (event.string=='?'):
          self.py2yo('spydr_shortcut_help')
+      if (event.string=='k'):
+         self.py2yo('disp_fft')
+      if (event.string=='B'):
+         self.py2yo('mark_current_as_sky')
+      if (event.string=='b'):
+         self.py2yo('subtract_sky')
       if (event.string=='f'):
          self.py2yo('fit_1d 1')
       if (event.string=='F'):
          self.py2yo('fit_1d 0')
       if (event.string=='c'):
          self.py2yo('plot_cut')
+      if (event.string=='C'):
+         self.py2yo('crop_image')
       if (event.string=='u'):
          self.py2yo('unzoom')
          self.py2yo('limits')
-      if (event.string=='r'):
+      if (event.string=='.'):
          self.py2yo('plot_radial')
+      if (event.string=='o'):
+         self.py2yo('pyk_set overplot_next 1')
+      if (event.string=='r'):
+         self.py2yo('rotate_image')
       if (event.string=='X'):
          self.py2yo('toggle_xcut')
       if (event.string=='Y'):
@@ -950,6 +968,8 @@ class spydr:
          self.py2yo('plot_ycut')
       if (event.string=='h'):
          self.py2yo('plot_histo')
+      if (event.string=='&'):
+         self.py2yo('shift_and_add')
       if (event.string=='e'):
          self.py2yo('disp_cpc')
          self.py2yo('spydr_disp')
@@ -974,6 +994,8 @@ class spydr:
          self.py2yo('spydr_compute_distance 1')
       if (event.string=='m'):
          self.py2yo('spydr_compute_distance')
+      if (event.string=='z'):
+         self.py2yo('plot_zcut')
       if (event.string=='-'):
          self.py2yo('rad4zoom_incr')
       if (event.string=='=') or (event.string=='+'):
