@@ -1028,6 +1028,8 @@ class spydr:
       if (event.string=='z'):
          self.op_multi_im_impossible()
          self.py2yo('plot_zcut')
+      if (event.string=='t'):
+         self.py2yo('zcut_to_threshold %d' % self.next_to_all)
       if (event.string=='-'):
          self.py2yo('rad4zoom_incr')
       if (event.string=='=') or (event.string=='+'):

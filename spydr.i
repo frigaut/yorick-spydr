@@ -986,7 +986,8 @@ func rotate_image(void)
 func crop_image(all)
 {
   local l;
-  extern spydr_im;
+  extern spydr_im, spydrs;
+
   window,spydr_wins(1);
   l = limits()(1:4)+0.5; // in these plots, limits start at zero
   dims = dimsof(spydr_im);
@@ -1016,7 +1017,6 @@ func crop_image(all)
   spydr_im = spydr_im(l(1):l(2),l(3):l(4));
   spydr_disp;
   unzoom;
-  limits;
 
   if (all) {
     dims = spydrs(imnum).dims;
@@ -1028,6 +1028,25 @@ func crop_image(all)
   }
   spydr_pyk_status_push,"Cropping image"+(all?"s":"")+" ... DONE";
 }
+
+func zcut_to_threshold(all)
+{
+  extern spydr_im, spydrs;
+
+  window,spydr_wins(1);
+
+  spydr_im = clip(spydr_im,spydrs(imnum).cmin,spydrs(imnum).cmax);
+  spydr_disp;
+  unzoom;
+
+  if (all) {
+    for (i=1;i<=spydr_nim;i++) {
+      *spydrs(i).pim = clip(*spydrs(i).pim,spydrs(i).cmin,spydrs(i).cmax);
+    }
+  }
+  spydr_pyk_status_push,"Thresholding image"+(all?"s":"")+" ... DONE";
+}
+
 
 func mark_current_as_sky(void)
 {
@@ -1922,6 +1941,7 @@ func spydr_shortcut_help(void)
                " r:   Rotate image 90 deg CW",
                " s:   Sigma filter ROI",
                " S:   2_x2 smooth ROI",
+               " t:   Threshold image with current cuts",
                " -/+: Decr/Incr zoom factor in zoom window",
                " u:   Unzoom",
                " &amp;:   Shift and Add",
@@ -2209,7 +2229,7 @@ func parse_flags(args)
   extern spydr_pixsize, spydr_boxsize, spydr_showplugins;
   extern spydr_saturation, spydr_wavelength, spydr_zero_point;
   extern spydr_histnbins,spydr_strehlaper,spydr_showlower;
-  extern spydr_gsaoi,spydr_hdu;
+  extern spydr_gsaoi,spydr_hdu,spydr_rebin_all;
   local args,flags;
 
   if (numberof(args)<4) return;
@@ -2297,6 +2317,12 @@ func parse_flags(args)
       if (i==nflags) print_help,flags(i);
       spydr_boxsize=0;
       sread,flags(i+1),spydr_boxsize;
+      valid(i:i+1)=1;
+    }
+    if ((flags(i)=="--rebin")|(flags(i)=="-r")) {
+      if (i==nflags) print_help,flags(i);
+      spydr_rebin_all=0;
+      sread,flags(i+1),spydr_rebin_all;
       valid(i:i+1)=1;
     }
     if ((flags(i)=="--saturation")|(flags(i)=="-s")) {
