@@ -529,7 +529,7 @@ func disp_contours(void,nofma=)
   extern spydr_width,spydr_ccolor;
 
   dims = dimsof(spydr_im);
-  
+
   window,spydr_wins(1);
   if (nofma!=1) fma;
 
@@ -885,7 +885,7 @@ func show_lower_gui(visibility)
 func disp_fft(void)
 {
   extern spydr_im,ondx,onedy;
-  
+
   cw = focused_window();
   if (cw==spydr_wins(1)) type=2;
   if (cw==spydr_wins(3)) type=1;
@@ -924,7 +924,7 @@ func shift_and_add(void)
   // first, let's select the region
   if (numberof(spydrs)==1) return;
   dims = dimsof(spydr_im);
-  
+
   cim = *spydrs(1).pim;
   for (i=2;i<=numberof(spydrs);i++) {
     cim += *spydrs(i).pim;
@@ -1068,7 +1068,7 @@ func subtract_sky(all)
   // sky dimension !=image dimension
   if (nallof(dimsof(sky_im)==dimsof(spydr_im))) {
     write,format="%s\n","Current image and sky dimensions not compatible";
-    return;    
+    return;
   }
 
   spydr_pyk_status_push,"Subtracting sky...";
@@ -1158,7 +1158,7 @@ func plot_xcut(j)
 
   if (spydr_nim<1) return;
   dims = dimsof(spydr_im);
-  
+
   if (spydr_plot_in_arcsec) {
     if (spydr_check_pixsize()) return;
     fact = spydrs(imnum).pixsize;
@@ -1233,7 +1233,7 @@ func plot_ycut(i)
   cut_x=indgen(dims(3))*fact;
   plh,cut_y,cut_x,color=spydr_colors(spydr_fma());
   spydr_xytitles,xtit,"value";
-  if (hnlavg==0) spydr_pltitle,swrite(format="column# %d",j);
+  if (hnlavg==0) spydr_pltitle,swrite(format="column# %d",i);
   else spydr_pltitle,swrite(format="Average of columns# [%d:%d]",i-hnlavg,i+hnlavg);
   // limits,j1*fact,j2*fact,cmin-0.1*(cmax-cmin),cmax;
   window,curw;
@@ -1245,7 +1245,7 @@ func plot_ycut(i)
 func plot_zcut(void)
 {
   extern onedx,onedy;
-  
+
   spydr_pyk_status_push,"Click on pixel or region",clean_after=5;
   c = lround(mouse(1,1)(1:4)+0.5);
   // xmin, ymin, xmax, ymax
@@ -1253,7 +1253,7 @@ func plot_zcut(void)
   if (c(4)<c(2)) c([2,4]) = c([4,2]);
 
   dims = dimsof(spydr_im);
-  
+
   zv=zi=[];
   for (i=1;i<=numberof(spydrs);i++) {
     if (allof(spydrs(i).dims==dims)) {
@@ -1262,7 +1262,7 @@ func plot_zcut(void)
     }
   }
   if (zv==[]) return;
-  
+
   curw = current_window();
   show_lower_gui,1;
   window,spydr_wins(3);
@@ -2778,7 +2778,7 @@ spydr_verbose       = 1
 if (spydr_conffile==[]) spydr_conffile = which_spydrconf();
 if (spydr_conffile==[]) {
   write,format="%s\n",
-   "WARNING: CAN NOT FIND ANY CONFIGURATION FILE, USING INTERNAL DEFAULTS";  
+   "WARNING: CAN NOT FIND ANY CONFIGURATION FILE, USING INTERNAL DEFAULTS";
 } else {
   if (findfiles(spydr_conffile)==[]) {
     spydr_pyk_error,swrite(format="Can not find configuration file %s",spydr_conffile);
@@ -2787,7 +2787,7 @@ if (spydr_conffile==[]) {
   } else {
     write,format=" Using %s\n",spydr_conffile;
     require,spydr_conffile;
-  }  
+  }
 }
 
 // set other defaults
