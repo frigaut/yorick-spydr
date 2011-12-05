@@ -2001,6 +2001,7 @@ func spydr_redisp(void)
   spydr_disp;
 }
 
+
 func set_cmin(pycmin)
 {
   extern spydrs,cmin,imnum;
@@ -2049,7 +2050,7 @@ func spydr_sigmafilter(all)
     subim = sigfil(subim,spydr_sigmafilter_nsig,iter=spydr_sigmafilter_niter,silent=1);
     spydr_im(_x1:_x2,_y1:_y2) = subim;
   }
-  spydr_redisp;
+  spydr_disp;
   spydr_pyk,"set_cursor_busy(0)";
   spydr_pyk_status_push,"Sigma Filtering...DONE",clean_after=5.;
 }
