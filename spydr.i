@@ -829,6 +829,9 @@ func disp_cpc(e,allim,all=)
     cmin = min(subim);
     cmax = max(subim);
   } else {
+    n = numberof(subim);
+    ind = long(span(1,n,clip(n,,1000000)));
+    subim = subim(ind);
     tmp = minmax(cpc(subim,0.1,0.999));
     cmin = tmp(1);
     cmax = tmp(2);
