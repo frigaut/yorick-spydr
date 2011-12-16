@@ -13,8 +13,9 @@ func id_instrument_from_header(fh)
   return;
 }
 
-func gsaoi_read(imname,&fh)
+func gsaoi_read(imname,&fh,gap_value=)
 {
+  if (gap_value==[]) gap_value=0.0f;
   // read header:
   a = fits_read(imname,fh);
 
