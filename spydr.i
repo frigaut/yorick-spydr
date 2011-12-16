@@ -1238,7 +1238,7 @@ func plot_ycut(i)
   spydr_xytitles,xtit,"value";
   if (hnlavg==0) spydr_pltitle,swrite(format="column# %d",i);
   else spydr_pltitle,swrite(format="Average of columns# [%d:%d]",i-hnlavg,i+hnlavg);
-  // limits,j1*fact,j2*fact,cmin-0.1*(cmax-cmin),cmax;
+  limits,j1*fact,j2*fact,cmin-0.1*(cmax-cmin),cmax;
   window,curw;
   onedx=cut_x(long(j1):long(j2));
   onedy=cut_y(long(j1):long(j2));
