@@ -25,7 +25,7 @@ func gsaoi_read(imname,&fh,gap_value=)
   // problem with NaN in the overscan. first column.
   tmp(1,)= tmp(2,);
   dim = dimsof(tmp)(2);
-  im = array(0.0f,[2,2*dim+170,2*dim+170]);
+  im = array(float(gap_value),[2,2*dim+170,2*dim+170]);
   im(dim+1+170:,1:dim)    = tmp;
 
   tmp = fits_read(imname,hdu=3); tmp(1,)= tmp(2,);
