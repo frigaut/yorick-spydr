@@ -936,10 +936,10 @@ class spydr:
 #      self.set_imnum(data)
 
    def op_multi_im_impossible(self):
-      if self.next_to_all: 
+      if self.next_to_all:
          self.pyk_status_push(1,'Not implemented or does not make sense on multiple images')
          self.next_to_all = 0
-      
+
 
    def on_vbox3_key_press(self,wdg,event):
       # sys.stderr.write("received string: %s\n" % event.string)
@@ -993,6 +993,12 @@ class spydr:
          self.py2yo('plot_histo')
       if (event.string=='&'):
          self.py2yo('shift_and_add')
+      if (event.string=='`'):
+         self.py2yo('pick_star_and_add_to_list')
+      if (event.string=='~'):
+         self.py2yo('reset_star_list')
+      if (event.string=='!'):
+         self.py2yo('remove_last_from_star_list')
       if (event.string=='e'):
          self.op_multi_im_impossible()
          self.py2yo('disp_cpc')

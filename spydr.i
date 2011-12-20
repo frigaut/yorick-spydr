@@ -922,6 +922,26 @@ func spydr_fma(void)
   return n_overplot;
 }
 
+func pick_star_and_add_to_list(void)
+{
+  extern starlist;
+  xy = get_cursor();
+  grow,starlist,yfwhm(spydr_im,1,xy(1),xy(2),10000);
+}
+
+func reset_star_list(void)
+{
+  extern starlist;
+  starlist = [];
+}
+
+func remove_last_from_star_list(void)
+{
+  extern starlist;
+  if (starlist==[]) return;
+  starlist = starlist(:-1);
+}
+
 func shift_and_add(void)
 {
   // first, let's select the region
