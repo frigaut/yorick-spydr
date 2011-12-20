@@ -15,6 +15,9 @@ func id_instrument_from_header(fh)
 
 func gsaoi_read(imname,&fh,gap_value=)
 {
+  extern gsaoi_gap;
+  gsaoi_gap = 137;
+  
   if (gap_value==[]) gap_value=0.0f;
   // read header:
   a = fits_read(imname,fh);
@@ -25,17 +28,17 @@ func gsaoi_read(imname,&fh,gap_value=)
   // problem with NaN in the overscan. first column.
   tmp(1,)= tmp(2,);
   dim = dimsof(tmp)(2);
-  im = array(float(gap_value),[2,2*dim+170,2*dim+170]);
-  im(dim+1+170:,1:dim)    = tmp;
+  im = array(float(gap_value),[2,2*dim+gsaoi_gap,2*dim+gsaoi_gap]);
+  im(dim+1+gsaoi_gap:,1:dim)    = tmp;
 
   tmp = fits_read(imname,hdu=3); tmp(1,)= tmp(2,);
   im(1:dim,1:dim)  = tmp;
 
   tmp = fits_read(imname,hdu=4); tmp(1,)= tmp(2,);
-  im(1:dim,dim+1+170:)    = tmp;
+  im(1:dim,dim+1+gsaoi_gap:)    = tmp;
 
   tmp = fits_read(imname,hdu=5); tmp(1,)= tmp(2,);
-  im(dim+1+170:,dim+1+170:) = tmp;
+  im(dim+1+gsaoi_gap:,dim+1+gsaoi_gap:) = tmp;
   return im;
 }
 
