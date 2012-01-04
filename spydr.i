@@ -929,7 +929,8 @@ func pick_patch(void)
   if (spydr_patch_size==[]) spydr_patch_size=10;
   hdim = long(spydr_patch_size/2);
   xy = long(get_cursor());
-  spydr_patch = spydr_im(xy(1)-hdim:xy(1)+hdim-1,xy(2)-hdim:xy(2)+hdim-1);
+  spydr_patch = spydr_im(xy(1)-hdim:xy(1)-hdim+spydr_patch_size-1,
+                         xy(2)-hdim:xy(2)-hdim+spydr_patch_size-1);
   write,"Picked Patch";
 }
 
@@ -942,7 +943,8 @@ func apply_patch(void)
     return;
   } else write,"Patching";
   hdim = long(spydr_patch_size/2);
-  spydr_im(xy(1)-hdim:xy(1)+hdim-1,xy(2)-hdim:xy(2)+hdim-1) = spydr_patch;
+  spydr_im(xy(1)-hdim:xy(1)-hdim+spydr_patch_size-1,
+           xy(2)-hdim:xy(2)-hdim+spydr_patch_size-1) = spydr_patch;
   spydr_disp;
 }
 
@@ -2002,6 +2004,12 @@ func spydr_shortcut_help(void)
                " s:   Sigma filter ROI",
                " S:   2_x2 smooth ROI",
                " t:   Threshold image with current cuts",
+               " `:   Pick star and add to list (starlist)",
+               " ~:   Pick cursor position and add to list (starlist)",
+               " @:   Remove last star list entry",
+               " !:   Reset star list",
+               " ::   Pick patch (spydr_patch_size, key is colon)",
+               " ;:   Apply patch (key is semi-colon)",
                " -/+: Decr/Incr zoom factor in zoom window",
                " u:   Unzoom",
                " &amp;:   Shift and Add",
