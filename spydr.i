@@ -922,6 +922,30 @@ func spydr_fma(void)
   return n_overplot;
 }
 
+
+func pick_patch(void)
+{
+  extern spydr_patch, spydr_patch_size;
+  if (spydr_patch_size==[]) spydr_patch_size=10;
+  hdim = long(spydr_patch_size/2);
+  xy = long(get_cursor());
+  spydr_patch = spydr_im(xy(1)-hdim:xy(1)+hdim-1,xy(2)-hdim:xy(2)+hdim-1);
+  write,"Picked Patch";
+}
+
+func apply_patch(void)
+{
+  extern spydr_im;
+  xy = long(get_cursor());
+  if (dimsof(spydr_patch)(2) != spydr_patch_size) {
+    write,"Can't patch";
+    return;
+  } else write,"Patching";
+  hdim = long(spydr_patch_size/2);
+  spydr_im(xy(1)-hdim:xy(1)+hdim-1,xy(2)-hdim:xy(2)+hdim-1) = spydr_patch;
+  spydr_disp;
+}
+
 func pick_star_and_add_to_list(void)
 {
   extern starlist;
@@ -929,8 +953,20 @@ func pick_star_and_add_to_list(void)
   grow,starlist,yfwhm(spydr_im,1,xy(1),xy(2),10000);
 }
 
+func pick_star_and_add_to_list_no_fit(void)
+{
+  extern starlist;
+  xy = float(get_cursor());
+  res = s_yfwhmres();
+  res.xpos = xy(1);
+  res.ypos = xy(2);
+  write,format="Adding star @ (%.0f,%.0f)\n",xy(1),xy(2);
+  grow,starlist,res;
+}
+
 func reset_star_list(void)
 {
+  write,"Resetting starlist";
   extern starlist;
   starlist = [];
 }
@@ -939,6 +975,7 @@ func remove_last_from_star_list(void)
 {
   extern starlist;
   if (starlist==[]) return;
+  write,"Removing last starlist entry";
   starlist = starlist(:-1);
 }
 

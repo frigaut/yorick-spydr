@@ -996,9 +996,15 @@ class spydr:
       if (event.string=='`'):
          self.py2yo('pick_star_and_add_to_list')
       if (event.string=='~'):
-         self.py2yo('reset_star_list')
+         self.py2yo('pick_star_and_add_to_list_no_fit')
       if (event.string=='!'):
+         self.py2yo('reset_star_list')
+      if (event.string=='@'):
          self.py2yo('remove_last_from_star_list')
+      if (event.string==':'):
+         self.py2yo('pick_patch')
+      if (event.string==';'):
+         self.py2yo('apply_patch')
       if (event.string=='e'):
          self.op_multi_im_impossible()
          self.py2yo('disp_cpc')
