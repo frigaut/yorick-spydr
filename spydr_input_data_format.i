@@ -9,36 +9,43 @@ func id_instrument_from_header(fh)
     user_read_image_fun = gsaoi_read;
     return "GSAOI";
   }
+  if (fits_get(fh,"INSTRUME")=="GMOS-S") {
+    user_read_image_fun = gmoss_read;
+    return "GMOS-S";
+  }
   user_read_image_fun = [];
   return;
 }
 
-func gsaoi_read(imname,&fh,gap_value=)
+func gmoss_read(imname)
 {
-  extern gsaoi_gap;
-  gsaoi_gap = 137;
-  
-  if (gap_value==[]) gap_value=0.0f;
-  // read header:
-  a = fits_read(imname,fh);
+  tmp = fits_read(imname,hdu=2);
+  dim = dimsof(tmp);
+  if (dim(3)>3000) {
+    gap=36; 
+    oscan = 32;
+  } else {
+    gap=18;
+    oscan = 16;
+  }
+  dim(2)-=oscan*2;
+  im = array(0.0f,[2,3*dim(2)+2*gap,dim(3)]);
+  im(1:dim(2),)  = tmp(1+oscan:-oscan,);
+  im(dim(2)+gap+1:2*dim(2)+gap,) = fits_read(imname,hdu=3)(1+oscan:-oscan,);
+  im(2*dim(2)+2*gap+1:3*dim(2)+2*gap,) = fits_read(imname,hdu=4)(1+oscan:-oscan,);
+  return im;
+}
 
-  // read data:
+func gsaoi_read(imname)
+{
   if (spydr_hdu) return fits_read(imname,hdu=spydr_hdu);
   tmp = fits_read(imname,hdu=2);
-  // problem with NaN in the overscan. first column.
-  tmp(1,)= tmp(2,);
   dim = dimsof(tmp)(2);
-  im = array(float(gap_value),[2,2*dim+gsaoi_gap,2*dim+gsaoi_gap]);
-  im(dim+1+gsaoi_gap:,1:dim)    = tmp;
-
-  tmp = fits_read(imname,hdu=3); tmp(1,)= tmp(2,);
-  im(1:dim,1:dim)  = tmp;
-
-  tmp = fits_read(imname,hdu=4); tmp(1,)= tmp(2,);
-  im(1:dim,dim+1+gsaoi_gap:)    = tmp;
-
-  tmp = fits_read(imname,hdu=5); tmp(1,)= tmp(2,);
-  im(dim+1+gsaoi_gap:,dim+1+gsaoi_gap:) = tmp;
+  im = array(0.0f,[2,2*dim+170,2*dim+170]);
+  im(dim+1+170:,1:dim)    = tmp;
+  im(1:dim,1:dim)       = fits_read(imname,hdu=3);
+  im(1:dim,dim+1+170:)    = fits_read(imname,hdu=4);
+  im(dim+1+170:,dim+1+170:) = fits_read(imname,hdu=5);
   return im;
 }
 
