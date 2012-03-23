@@ -19,6 +19,8 @@ func id_instrument_from_header(fh)
 
 func gmoss_read(imname)
 {
+  extern spydr_pixsize;
+  spydr_pixsize = 0.0359;
   tmp = fits_read(imname,hdu=2);
   dim = dimsof(tmp);
   if (dim(3)>3000) {
@@ -38,6 +40,8 @@ func gmoss_read(imname)
 
 func gsaoi_read(imname)
 {
+  extern spydr_pixsize;
+  spydr_pixsize = 0.02;
   if (spydr_hdu) return fits_read(imname,hdu=spydr_hdu);
   tmp = fits_read(imname,hdu=2);
   dim = dimsof(tmp)(2);
