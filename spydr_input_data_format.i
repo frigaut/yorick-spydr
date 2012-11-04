@@ -5,7 +5,8 @@ func id_instrument_from_header(fh)
     user_read_image_fun = nici_read;
     return "NICI";
   }
-  if (fits_get(fh,"INSTRUME")=="GSAOI") {
+  if ( (fits_get(fh,"INSTRUME")=="GSAOI") &&
+       (fits_get(fh,"REDNAME")!="YORICK-REDGSAOI") ) {
     user_read_image_fun = gsaoi_read;
     return "GSAOI";
   }
