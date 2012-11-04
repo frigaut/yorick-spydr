@@ -39,18 +39,32 @@ func gmoss_read(imname)
   return im;
 }
 
-func gsaoi_read(imname)
+func gsaoi_read(imname,&fh,gap_value=)
 {
-  extern spydr_pixsize;
-  spydr_pixsize = 0.02;
+  extern gsaoi_gap;
+  gsaoi_gap = 137;
+  
+  if (gap_value==[]) gap_value=0.0f;
+  // read header:
+  a = fits_read(imname,fh);
+
+  // read data:
   if (spydr_hdu) return fits_read(imname,hdu=spydr_hdu);
   tmp = fits_read(imname,hdu=2);
+  // problem with NaN in the overscan. first column.
+  tmp(1,)= tmp(2,);
   dim = dimsof(tmp)(2);
-  im = array(0.0f,[2,2*dim+170,2*dim+170]);
-  im(dim+1+170:,1:dim)    = tmp;
-  im(1:dim,1:dim)       = fits_read(imname,hdu=3);
-  im(1:dim,dim+1+170:)    = fits_read(imname,hdu=4);
-  im(dim+1+170:,dim+1+170:) = fits_read(imname,hdu=5);
+  im = array(float(gap_value),[2,2*dim+gsaoi_gap,2*dim+gsaoi_gap]);
+  im(dim+1+gsaoi_gap:,1:dim)    = tmp;
+
+  tmp = fits_read(imname,hdu=3); tmp(1,)= tmp(2,);
+  im(1:dim,1:dim)  = tmp;
+
+  tmp = fits_read(imname,hdu=4); tmp(1,)= tmp(2,);
+  im(1:dim,dim+1+gsaoi_gap:)    = tmp;
+
+  tmp = fits_read(imname,hdu=5); tmp(1,)= tmp(2,);
+  im(dim+1+gsaoi_gap:,dim+1+gsaoi_gap:) = tmp;
   return im;
 }
 
