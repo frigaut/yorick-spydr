@@ -2355,7 +2355,7 @@ calculations (should include all the star flux but no more) [pixels]</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
     <property name="program_name">Spydr</property>
-    <property name="version">0.8.0</property>
+    <property name="version">0.8.5</property>
     <property name="copyright" translatable="yes">Francois Rigaut, Copyright 2007-2009</property>
     <property name="comments" translatable="yes">Display and Analysis of fits images and data cube</property>
     <property name="website">http://www.maumae.net/yorick/plugins.html</property>
