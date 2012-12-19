@@ -42,7 +42,7 @@ func gmoss_read(imname)
 func gsaoi_read(imname,&fh,gap_value=)
 {
   extern gsaoi_gap;
-  gsaoi_gap = 137;
+  if (gsaoi_gap==[]) gsaoi_gap = 137;
   
   if (gap_value==[]) gap_value=0.0f;
   // read header:

@@ -846,6 +846,11 @@ class spydr:
       mwid2 = drawingarea.window.xid;
       drawingarea = self.glade.get_widget('drawingarea3')
       mwid3 = drawingarea.window.xid;
+      # set size of drawingarea2, just once per session:
+      dsx = int(183.*self.spydr_dpi/100)+4
+      dsy = int(183.*self.spydr_dpi/100)+25
+      self.glade.get_widget('drawingarea2').set_size_request(dsx,dsy)
+
       self.py2yo('spydr_win_init %d %d %d' % (mwid1,mwid2,mwid3))
       self.win_init_done = 1
 

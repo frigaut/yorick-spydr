@@ -420,8 +420,8 @@ func spydr_win_init(pid1,pid2,pid3,redisp=)
 
   if (!gui_realized) {
 	  if (!window_exists(spydr_wins(2))) {
-      window,spydr_wins(2),dpi=31,wait=1,style="nobox.gs",parent=pid2,    \
-        ypos=-27,xpos=-4;
+      window,spydr_wins(2),dpi=long(31*(spydr_dpi/100.)),wait=1, \
+        style="nobox.gs",parent=pid2,ypos=-27,xpos=-4;
       limits,square=1;
 		}
   }
@@ -1908,7 +1908,7 @@ func disp_zoom(once=)
   from_imnum=imnum;
 
   sys = cur(3);
-  if (sys!=0) {
+  if (sys>0) {
     dims = dimsof(spydr_im);
     i = clip(cur(1),1,dims(2));
     j = clip(cur(2),1,dims(3));
