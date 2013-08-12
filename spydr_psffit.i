@@ -5,9 +5,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr_psffit.i,v 1.10 2008-02-12 13:58:43 frigaut Exp $
- *
- * Copyright (c) 2007, Francois Rigaut
+ * Copyright (c) 2007-2013, Francois Rigaut
  *
  * This program is free software; you can redistribute it and/or  modify it
  * under the terms of the GNU General Public License  as  published  by the
@@ -22,136 +20,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * $Log: spydr_psffit.i,v $
- * Revision 1.10  2008-02-12 13:58:43  frigaut
- * changelog to version 0.7.7:
- *
- * - fixed a bug when spydr_lut is not 0 and one creates a new
- *   window.
- * - other minor bug fixes.
- * - updated spydr man page
- * - written and published web doc on maumae.
- *
- * Revision 1.9  2008/02/10 15:08:07  frigaut
- * Version 0.7.6:
- * - can now change the dpi on the fly. ctrl++ and ctrl+- will enlarge
- *   or shrink the graphical areas. long time missing in yorick.
- *   I have tried to make the window resizable, but it's a mess. Not
- *   only in the management of events, but also in the policy: really,
- *   only enlarging proportionally makes sense.
- * - changed a bit the zoom behavior: now zoom is started once (the first
- *   time the mouse enter drawingarea1), and does not stop from that point.
- *   This is not ideal/economical (although disp_zoom returns immediately
- *   if the mouse is not in the image window), but it has the advantage
- *   of being sure the disp_zoom process does not spawn multiple instances
- *   (recurrent issue with "after").
- * - The menu items in the left menu bar are hidden/shown according to the
- *   window size.
- * - gotten rid of a few (unused) functions in spydr.i (the progressbar
- *   and message functions) that were conflicting with other pyk instances.
- * - there's now focus in and out functions that will reset the current
- *   window to what it was before the focus was given to spydr. This is
- *   convenient when one just want to popup a spydr window to look at an
- *   image, and then come back to whatever one was doing without having to
- *   execute a window,n command.
- * - fixed a bug in disp_cpc. Now, when a "e"/"E" command is executed
- *   while a subimage is displayed, the "e"/"E" applies to the displayed
- *   subimage, not the whole image.
- * - changed a bit the behavior of the lower graphical area: not the y
- *   range is the same as the image zcuts (cmin/cmax).
- * - fixed a small bug in get_subim (using floor/ceil instead of round
- *   for the indices determination).
- * - added "compact" keyword to the spydr function (when called from
- *   within yorick).
- * - clipping dpi values to [30,400].
- * - spydr.py: went for a self autodic instead of an explicit
- *   declaration of all functions.
- * - implemented smoothing by _x2
- * - implemented 1d linear fitting
- *
- * Revision 1.8  2008/02/02 05:12:05  frigaut
- * fixed bug when picking star for fitting while being in "graphical axis
- * in arcsec" mode.
- *
- * Revision 1.7  2008/01/30 05:28:19  frigaut
- * - added spydr_pyk to avoid conflicts with other calls of pyk, and modify
- * spydr_pyk for our purpose. I know this means we will not benefit from
- * future pyk code improvements, but I can deal with that.
- * - added check of yorick main version to avoid use with V<2.1.05 (in which
- * current_mouse does not exist)
- *
- * Revision 1.6  2008/01/25 03:03:49  frigaut
- * - updated license or license text to GPLv3 in all files
- *
- * Revision 1.5  2008/01/24 15:05:17  frigaut
- * - added "delete from stack" feature
- * - some bugfix in psffit
- *
- * Revision 1.4  2008/01/23 21:11:22  frigaut
- * - load of new things:
- *
- * New Features:
- * - added a number of command line flags (see man page or spydr -h)
- * - can now handle series of image of different sizes
- * - can mix single image and cube
- * - cmin and cmax are now set per image (sticky setting)
- * - image titles are better handled
- * - updated man page
- * - new image can be opened from the GUI menu (filechooser, multiple
- *   selection ok)
- * - migrated to a spydrs structure, replaced many different variables, cleaner.
- * - now opens the GUI even with no image argument (can use "open" from menu)
- * - all errors are now also displayed as popups (critical quits yorick
- *   when called from shell)
- * - because some (of the more critical) errors can happen before python is
- *   started, I had to use zenity for the popup window. New dependency.
- * - added an "append" keyword to spydr. If set, the new image is appended
- *   to the list of displayed image. The old ones are kept, and the total
- *   number of image is ++
- * - append is also available from the GUI menu
- * - any action on displayed image can be null by using "help->refresh
- *   display" (in particular, sigmafilter)
- * - created "about" dialog.
- * - added an "image" menu (with names of all images in stack). user can
- *   select image form there.
- * - added an "ops" (operation) menu. Can compute median, average, sum and
- *   rms of cube.
- * - small gui (without lower panel) form is called with --compact (-c)
- *
- * Bug fixes:
- * - fixed path to find python and glade files
- * - fixed path for configuration file
- * - main routine re-written and much more robust and clean
- * - (kind of) solved a issue where image got displayed several times
- *   because of echo from setting cmin and cmax
- * - fixed thibaut bug when closing window.
- * - fixed "called_from_shell" when no image argument.
- * - waiting for a doc for the user buttons, set to insivible.
- * - waiting for a proper implementation of find, pane set to invisible.
- *
- *
- * - bug: sometimes the next/previous image does not register
- *
- * Revision 1.3  2008/01/17 13:15:17  frigaut
- * - modified the name of lmfit (-> spydr_lmfit) in spydr_psffit to avoid
- * conflicts with the lmfit of yutils.
- * - modified all calls of lmfit -> spydr_lmfit (spydr_psffit and spydr_various)
- * - also default box size is now 51 (was 181)
- *
- * Revision 1.2  2007/12/13 13:43:27  frigaut
- * - added license headers in all files
- * - added LICENSE
- * - slightly modified Makefile
- * - updated info
- * - bumped to 0.5.1
- *
- *
  *
  */
 
 
-version = "1.5";
-modifDate = "June 17, 2007";
+// version = "1.5";
+// modifDate = "June 17, 2013";
 
 require,"random.i";
 require,"string.i";
@@ -161,7 +35,10 @@ require,"spydr_various.i";
 require,"astro_util1.i"; // for sky()
 require,"aoutil.i"; // for fwhmStrehl()
 
-struct s_yfwhmres { double xpos, xposerr, ypos, yposerr, pstrehl, pfwhm, xfwhm, xfwhmerr, yfwhm, yfwhmerr, flux, fluxerr, el, elerr, angle, maxim, background;};
+struct s_yfwhmres { 
+  double xpos, xposerr, ypos, yposerr, pstrehl, pfwhm, xfwhm, xfwhmerr, yfwhm, yfwhmerr, flux, fluxerr, el, elerr, angle, maxim, background;
+  string name;
+};
 
 func parseDate(strdate)
 {
@@ -350,13 +227,9 @@ func moffat(x,ai)
   if (a(8)==0) {
     z = 1.+zp*0.;
   } else {
-    if (a1==0) {
-      z = (1. + ((yp/a2)^2.))^(-a(8));
-    } else if (a2==0) {
-      z = (1. + ((xp/a1)^2.))^(-a(8));
-    } else {
-      z = (1. + ((xp/a1)^2.+(yp/a2)^2.))^(-a(8));
-    }
+    ia1 = sign(a1)/clip(abs(a1),1e-4,);
+    ia2 = sign(a2)/clip(abs(a2),1e-4,);
+    z = (1. + ((xp*ia1)^2.+(yp*ia2)^2.))^(-a(8));
   }
   if (sum(z)==0) return a(1)+z;
   z = a(1)+a(2)*z/sum(z);
@@ -372,7 +245,7 @@ func printhelp(void)
 func printlonghelp(void)
 {
   write,"Yorick function to interactively measure FWHM on an image";
-  write,"Version "+version+" / Last modified "+modifDate;
+  // write,"Version "+version+" / Last modified "+modifDate;
   write,"Syntax: yfwhm [-help] [-p pixelsize -b boxsize -mag] image";
   write,"-help          Prints this message";
   //  write,"-1             Uses only one window for graphic display";
@@ -427,7 +300,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     if (funtype == "moffat") {write,"Using Moffat fit";}
   }
 
-  show_lower_gui,1;
+  if (!batch_mode) show_lower_gui,1;
 
   batch_mode = (xstar!=[]);
 
@@ -475,8 +348,10 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     write,"Middle click to remove last entry.";
   }
 
-  if (onepass) spydr_pyk_status_push,"Click on star";
-  else spydr_pyk_status_push,"BUTTONS: Left:Select Star / Middle:Remove last entry / Right:Exit.";
+  if (!batch_mode) {
+    if (onepass) spydr_pyk_status_push,"Click on star";
+    else spydr_pyk_status_push,"BUTTONS: Left:Select Star / Middle:Remove last entry / Right:Exit.";
+  }
 
   if (!compute_strehl) {
     if (pixset) {
@@ -540,12 +415,14 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     if ((saturation > 0) && (max(im) > saturation)) {
       if (onepass) {
       write,"Some pixels > specified saturation level. Aborting !";
-      spydr_pyk_status_push,"Some pixels > specified saturation level. Aborting !";
-        exit;
+      if (!batch_mode) \
+        spydr_pyk_status_push,"Some pixels > specified saturation level. Aborting !";
+      exit;
       } else {
         write,"Some pixels > specified saturation level. Choose another star";
-        spydr_pyk_status_push,"Some pixels > specified saturation level. Choose another star";
-      continue;
+        if (!batch_mode) \
+          spydr_pyk_status_push,"Some pixels > specified saturation level. Choose another star";
+        continue;
       }
     }
     sky2 = sky(im,dev2);
@@ -556,16 +433,25 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
 
     x    = indices(d);
 
-    if (catch(0x11)) {
-      if (onepass) {
-        write,"Error detected, exiting.";
-        spydr_pyk_status_push,"Error detected, exiting.";
-        return;
+    // if (catch(0x11)) {
+    //   if (onepass) {
+    //     write,"Error detected, exiting.";
+    //     spydr_pyk_status_push,"Error detected, exiting.";
+    //     return 1;
+    //   }
+    //   write,"Error detected, skipping source";
+    //   spydr_pyk_status_push,"Error detected, skipping source";
+    //   nloop++;
+    //   continue;
+    // }
+
+    if (!onepass) {
+      if (catch(0x11)) {
+        write,"Error detected, skipping source";
+        if (!batch_mode) spydr_pyk_status_push,"Error detected, skipping source";
+        nloop++;
+        continue;
       }
-      write,"Error detected, skipping source";
-      spydr_pyk_status_push,"Error detected, skipping source";
-      nloop++;
-      continue;
     }
 
     extern lmfit_amin,lmfit_amax;
@@ -582,8 +468,8 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
         //a=[sky,Totalflux,Xcent,Ycent,a,b,angle]
         a     = [ai(1),ai(2),ai(3),ai(4),ai(5),ai(5),0.];
         if (batch_mode) {
-          lmfit_amin = [0,0,a(3)-3,a(4)-3,a(5)-2,a(6)-2,0];
-          lmfit_amax = [0,0,a(3)+3,a(4)+3,a(5)+2,a(6)+2,0];
+          lmfit_amin = [0,0,a(3)-20,a(4)-20,a(5)-10,a(6)-10,0];
+          lmfit_amax = [0,0,a(3)+20,a(4)+20,a(5)+10,a(6)+10,0];
           a(3:6) *=0.;
         } else { // interative, no constraints.
           lmfit_amin = [0,0,0,0,0,0,0];
@@ -618,7 +504,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
         ai      = [0,sum(im-median(im(*))),d(2)/2.,d(3)/2.,5.,1.7];
         if (batch_mode) { // we've been given (guessed) coordinates, use them
           if (spydr_fit_fwhm_estimate==[]) spydr_fit_fwhm_estimate=3.;
-          ai = [0,fluxstar(nloop)*10.,xstar(nloop)-i1+1,ystar(nloop)-j1+1,
+          ai = [0,fluxstar(nloop)*3.,xstar(nloop)-i1+1,ystar(nloop)-j1+1,
                 clip(spydr_fit_fwhm_estimate,2.1,),1.7];
         }
         // r = spydr_lmfit(moffatRound,x,ai,im,w,tol=1e-6,itmax=50,silent=1);
@@ -626,15 +512,20 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
         a       = [ai(1),ai(2),ai(3),ai(4),ai(5),ai(5),0.,ai(6)];
         //      a     = [ai(1),ai(2),ai(3),ai(4),ai(5),ai(5),0.];
         if (batch_mode) {
-          lmfit_amin = [0,0,a(3)-3,a(4)-3,a(5)-2,a(6)-2,0,1.];
-          lmfit_amax = [0,0,a(3)+3,a(4)+3,a(5)+2,a(6)+2,0,3.];
+          // lmfit_amin = [0,0,a(3)-3,a(4)-3,a(5)-2,a(6)-2,0,1.];
+          // lmfit_amax = [0,0,a(3)+3,a(4)+3,a(5)+2,a(6)+2,0,3.];
+          // a(3:6) *=0.;
+          lmfit_amin = [0,0,a(3)-20,a(4)-20,a(5)-10,a(6)-10,0,0.];
+          lmfit_amax = [0,0,a(3)+20,a(4)+20,a(5)+10,a(6)+10,0,10.];
           a(3:6) *=0.;
+          // lmfit_amin = [0,0,0,0,0,0,0,0];
+          // lmfit_amax = [0,0,0,0,0,0,0,0];
         } else { // interative, no constraints.
           lmfit_amin = [0,0,0,0,0,0,0,0];
           lmfit_amax = [0,0,0,0,0,0,0,0];
         }
         fit = [1,2,3,4,5,6,7,8];
-        r       = spydr_lmfit(moffat,x,a,im,w,stdev=1,tol=2e-8,itmax=50,silent=1,fit=fit);
+        r       = spydr_lmfit(moffat,x,a,im,w,stdev=1,tol=1e-10,itmax=50,silent=1,fit=fit);
         tmp     = moffat(x,a);
         a = lmfit_lim(a,1);
         a(5:6)  = abs(a(5:6));
@@ -782,7 +673,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
       //yfwhmres.pfwhm = pfwhm;
     }
 
-    spydr_pyk_status_push,msg;
+    if (!batch_mode) spydr_pyk_status_push,msg;
 
     if (onepass) break;
     //    typeReturn;
@@ -818,7 +709,8 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
     spydr_fit_background_estimate = skyavg;
   }
 
-  spydr_pyk,swrite(format="y_text_parm_update('find_fwhm','%.3f')",spydr_fit_fwhm_estimate);
+  if (!batch_mode) \
+    spydr_pyk,swrite(format="y_text_parm_update('find_fwhm','%.3f')",spydr_fit_fwhm_estimate);
 
   if (compute_strehl) return _(pfwhm,pstrehl);
   else return allres;

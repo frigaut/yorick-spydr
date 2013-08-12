@@ -7,7 +7,7 @@
  *
  * $Id: spydr_various.i,v 1.5 2010-04-15 02:56:02 frigaut Exp $
  *
- * Copyright (c) 2007, Francois Rigaut
+ * Copyright (c) 2007-2013, Francois Rigaut
  *
  * This program is free software; you can redistribute it and/or  modify it
  * under the terms of the GNU General Public License  as  published  by the
@@ -22,41 +22,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * $Log: spydr_various.i,v $
- * Revision 1.5  2010-04-15 02:56:02  frigaut
- *
- * updated repo to 0.8.1
- *
- * Revision 1.4  2008/01/25 03:03:49  frigaut
- * - updated license or license text to GPLv3 in all files
- *
- * Revision 1.3  2008/01/17 13:15:17  frigaut
- * - modified the name of lmfit (-> spydr_lmfit) in spydr_psffit to avoid
- * conflicts with the lmfit of yutils.
- * - modified all calls of lmfit -> spydr_lmfit (spydr_psffit and spydr_various)
- * - also default box size is now 51 (was 181)
- *
- * Revision 1.2  2007/12/13 13:43:27  frigaut
- * - added license headers in all files
- * - added LICENSE
- * - slightly modified Makefile
- * - updated info
- * - bumped to 0.5.1
- *
- *
- *
  */
 
 require,"style.i";
-
-/*
-   UTIL.I
-   A collection of routines for general purpose.
-
-   $Id: spydr_various.i,v 1.5 2010-04-15 02:56:02 frigaut Exp $
-
-   last revision/addition: 2003June13
- */
 
 func null (arg,..) { return 0; }
 
@@ -546,9 +514,10 @@ func decimal_time(str,delim)
   local res;
   for (i=1;i<=numberof(str);i++) {
     v	= grow(strtok(str(i),delim)(1),strtok(strtok(str(i),delim)(2),delim));
+    sig = (strpart(v(1),1:1)=="-"?-1:1);
     hh = mm = ss = 0.;
     sread,v,hh,mm,ss;
-    grow,res,hh+mm/60.+ss/3600.;
+    grow,res,sig*(abs(hh)+mm/60.+ss/3600.);
   }
   return res;
 }

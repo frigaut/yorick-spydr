@@ -5,9 +5,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr_plugins.i,v 1.3 2008-01-25 03:03:49 frigaut Exp $
- *
- * Copyright (c) 2007, Francois Rigaut
+ * Copyright (c) 2007-2013, Francois Rigaut
  *
  * This program is free software; you can redistribute it and/or  modify it
  * under the terms of the GNU General Public License  as  published  by the
@@ -21,19 +19,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * $Log: spydr_plugins.i,v $
- * Revision 1.3  2008-01-25 03:03:49  frigaut
- * - updated license or license text to GPLv3 in all files
- *
- * Revision 1.2  2007/12/13 13:43:27  frigaut
- * - added license headers in all files
- * - added LICENSE
- * - slightly modified Makefile
- * - updated info
- * - bumped to 0.5.1
- *
- *
  *
  */
 

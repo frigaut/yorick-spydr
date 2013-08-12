@@ -2,11 +2,7 @@
  * 2 way communication interface to python (useful for GUIs)
  * package copy of pyk.i to avoid name collision with other pyk calls.
  *
- * Author: Francois Rigaut
- * Written May 2007
- * last revision/addition: 2007
- *
- * Copyright (c) 2007, Francois Rigaut
+ * Copyright (c) 2007-2013, Francois Rigaut
  *
  * This program is free software; you can redistribute it and/or  modify it
  * under the terms of the GNU General Public License  as  published  by the
