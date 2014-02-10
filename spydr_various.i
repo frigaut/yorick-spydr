@@ -59,18 +59,18 @@ func zernumero(zn)
  * SEE ALSO: prepzernike, zernike
  */
 {
-  j	= 0;
+  j = 0;
   for (n=0;n<=100;n++)
    {
     for (m=0;m<=n;m++)
      {
       if (even(n-m))
        {
-        j	= j+1;
+        j = j+1;
         if (j == zn) {return [n,m];}
         if (m != 0)
          {
-          j	= j+1;
+          j = j+1;
           if (j == zn) {return [n,m];}
          }
        }
@@ -126,8 +126,8 @@ func zernike(zn)
 {
   extern zdim,zr,zteta,zmask,zrmod,zmaskmod;
 
-  z	= array(float,zdim,zdim);
-  znm	= zernumero(zn) ; n=znm(1) ; m=znm(2);
+  z = array(float,zdim,zdim);
+  znm = zernumero(zn) ; n=znm(1) ; m=znm(2);
 
   for (i=0;i<=(n-m)/2;i++) {
     z = z + (-1.)^i*zr^(n-2.*i)*factoriel(n-i)/
@@ -168,8 +168,8 @@ func zernike_ext(zn)
 {
   extern zdim,zr,zteta,zmask,zrmod,zmaskmod;
 
-  z	= array(float,zdim,zdim);
-  znm	= zernumero(zn) ; n=znm(1) ; m=znm(2);
+  z = array(float,zdim,zdim);
+  znm = zernumero(zn) ; n=znm(1) ; m=znm(2);
 
   for (i=0;i<=(n-m)/2;i++) {
     z = z + (-1.)^i*zrmod^(n-2.*i)*factoriel(n-i)/
@@ -213,15 +213,15 @@ func prepzernike(size,diameter,xc,yc)
   if (yc == []) {yc = size/2+1;}
 
   radius= (diameter+1.)/2.;
-  zdim	= size;
-  zr	= dist(zdim,xc=xc,yc=yc)/radius;
-  zmask	= (zr <= 1.);
+  zdim  = size;
+  zr  = dist(zdim,xc=xc,yc=yc)/radius;
+  zmask = (zr <= 1.);
   zmaskmod = (zr <= 1.2);
-  zrmod	= zr*zmaskmod;
-  zr	= zr*zmask;
-  x	= float(span(1,zdim,zdim)(,-:1:zdim));
-  y	= transpose(x);
-  zteta	= atan(y-yc,x-xc);
+  zrmod = zr*zmaskmod;
+  zr  = zr*zmask;
+  x = float(span(1,zdim,zdim)(,-:1:zdim));
+  y = transpose(x);
+  zteta = atan(y-yc,x-xc);
 }
 
 //---------------------------------------------------------
@@ -354,7 +354,7 @@ func clmfit(y,x,&a,function,&yfit)
   fname = "/tmp/foo.i";
   if (open(fname,"r",1)) remove,fname;
 
-  f	= open(fname,"w");
+  f = open(fname,"w");
   write,f,"func foo(x,a) {return "+function+";}";
   close,f;
   include,fname,10;
@@ -513,7 +513,7 @@ func decimal_time(str,delim)
 {
   local res;
   for (i=1;i<=numberof(str);i++) {
-    v	= grow(strtok(str(i),delim)(1),strtok(strtok(str(i),delim)(2),delim));
+    v = grow(strtok(str(i),delim)(1),strtok(strtok(str(i),delim)(2),delim));
     sig = (strpart(v(1),1:1)=="-"?-1:1);
     hh = mm = ss = 0.;
     sread,v,hh,mm,ss;
@@ -534,30 +534,30 @@ func fftfit(yin,fraccut,nsig,silent=)
  * SEE ALSO:
  */
 {
-  n	= numberof(yin);
-  v	= grow(yin,yin(::-1));
-  np	= 1;
-  iter	= 0;
+  n = numberof(yin);
+  v = grow(yin,yin(::-1));
+  np  = 1;
+  iter  = 0;
   maxiter=100;
   while ((np != 0) && (iter <= maxiter))
    {
     iter= iter+1;
-    f	= fft(v,1);
-    mask	= float(f)*0.;
+    f = fft(v,1);
+    mask  = float(f)*0.;
     mask(1:long(n*fraccut)) = 1;
-    mask	= mask(::-1);
+    mask  = mask(::-1);
     mask(1:long(n*fraccut+1)) = 1;
-    vfit	= float(fft(f*mask,-1))/(2*n);
+    vfit  = float(fft(f*mask,-1))/(2*n);
     // fma;plg,v;plg,vfit,type=2; pause,500;
-    sig	= (v-vfit)(rms);
-    w	= where(abs(v-vfit) > nsig*sig);
-    np	= numberof(w); // print,np;
+    sig = (v-vfit)(rms);
+    w = where(abs(v-vfit) > nsig*sig);
+    np  = numberof(w); // print,np;
     if (is_array(w) == 0) {np=0;}
     if (np != 0) {v(w) = vfit(w);}
    }
   if ((!silent) && (iter >= maxiter))
     print,"Max number of iteration reach. Exiting.";
-  yout	= vfit(1:n);
+  yout  = vfit(1:n);
   return yout;
 }
 
@@ -580,33 +580,33 @@ func fft2dfit(yin,fraccut,nsig,silent=,high=)
   v(n+1:,1:n) = yin(::-1,);
   v(,n+1:) = v(,1:n)(,::-1);
 
-  np	= 1;
-  iter	= 0;
+  np  = 1;
+  iter  = 0;
   maxiter = 30;
 
   while ((np != 0) && (iter <= maxiter))
    {
     iter= iter+1;
     write,format="iter #%d\n",iter;
-    f	= fft(v,1);
+    f = fft(v,1);
     mask = eclat(dist(2*n)/float(n));
     if (high) mask = (mask>=fraccut);
     else mask = (mask<fraccut);
 
-    vfit	= float(fft(f*mask,-1))/(2*n)^2.;
+    vfit  = float(fft(f*mask,-1))/(2*n)^2.;
 
     tv,cpc(vfit(1:n,1:n));
 
     //    fma;plg,v;plg,vfit,type=2; pause,500;
-    sig	= (v-vfit)(*)(rms);
-    w	= where(abs(v-vfit) > nsig*sig);
-    np	= numberof(w); // print,np;
+    sig = (v-vfit)(*)(rms);
+    w = where(abs(v-vfit) > nsig*sig);
+    np  = numberof(w); // print,np;
     if (is_array(w) == 0) {np=0;}
     if (np != 0) {v(w) = vfit(w);}
    }
   if ((!silent) && (iter >= maxiter))
     print,"Max number of iteration reach. Exiting.";
-  yout	= vfit(1:n,1:n);
+  yout  = vfit(1:n,1:n);
   return yout;
 }
 
@@ -640,21 +640,21 @@ func convol2d(image,kernel)
  */
 {
   local im;
-  s	= dimsof(image);
-  sk	= dimsof(kernel);
-  im	= array(float,s(2)+sk(2),s(3)+sk(3));
+  s = dimsof(image);
+  sk  = dimsof(kernel);
+  im  = array(float,s(2)+sk(2),s(3)+sk(3));
   im(1:s(2),1:s(3)) = image;
-  imac	= im*0.;
-  mask	= im*0.;
+  imac  = im*0.;
+  mask  = im*0.;
   mask(1:s(2),1:s(3)) = 1.;
   maskac= mask*0.;
   for (i=1;i<=sk(2);i++) {
       for (j=1;j<=sk(3);j++) {
-          imac	 = imac+roll(im,[i,j])*kernel(i,j);
+          imac   = imac+roll(im,[i,j])*kernel(i,j);
           maskac = maskac+roll(mask,[i,j])*kernel(i,j);
         }
     }
-  imac	= imac/clip(maskac,1e-4,);
+  imac  = imac/clip(maskac,1e-4,);
   //  return maskac;
   //  return imac;
   return imac(sk(2)/2+2:sk(2)/2+s(2)+1,sk(3)/2+2:sk(3)/2+s(3)+1);
@@ -716,8 +716,8 @@ func axisLegend(xtext,ytext,xyoff=,yxoff=)
  */
   /*
     {
-    s	= (dimsof(image))(2);
-    d	= array(float,s);
+    s = (dimsof(image))(2);
+    d = array(float,s);
     for (i=1;i<=s;i++) {d(i) = image(i,i);}
     return d;
     }
@@ -790,9 +790,9 @@ func fftrebin(image,nreb)
  * SEE ALSO: fft, fft_setup, fft_inplace
  */
 {
-  dim	= (dimsof(image))(2);
-  ndim	= nreb*dim;
-  imout	= array(complex,ndim,ndim);
+  dim = (dimsof(image))(2);
+  ndim  = nreb*dim;
+  imout = array(complex,ndim,ndim);
 
   imfft = fft(eclat(image),1);
   imfft.re = eclat(imfft.re);
@@ -898,10 +898,10 @@ func calcpsf(pupil,phase,init=)
     workspace= fft_setup(dimsof(pupil),1);
   }
 
-  dim	= (dimsof(pupil))(2);
-  p	= array(complex,dim,dim);
-  p.re	= pupil*cos(phase);
-  p.im	= pupil*sin(phase);
+  dim = (dimsof(pupil))(2);
+  p = array(complex,dim,dim);
+  p.re  = pupil*cos(phase);
+  p.im  = pupil*sin(phase);
   psf = eclat(abs(fft(p,1,setup=calcPsfWorkSpace)))^2.;
   return psf;
 }
@@ -960,11 +960,11 @@ func psd(s, length, step=, filter=, samp=, db=,noplot=,overplot=,
 /* DOCUMENT psd(s, length, step=, filter=, samp=, db=,noplot=,overplot=,
  *    sqrt=,roddier=,xtitre=,ytitre=)
  * Procedure PSD : Compute the Power Spectral Density of a vector
- * s	   = variable on which the PSD has to be computed
+ * s       = variable on which the PSD has to be computed
  * length  = length of the subsample for FFTs
- * step	   = shift in pixels between subsamples
+ * step    = shift in pixels between subsamples
  * filter  = apodization function as in apod.pro (usually 6)
- * samp	   = sampling time
+ * samp    = sampling time
  * db      = plots in dB :10*alog10(dsp)
  * noplot  = do not plot
  * overplot= over plot
@@ -975,92 +975,87 @@ func psd(s, length, step=, filter=, samp=, db=,noplot=,overplot=,
 {
   extern psdnumberofoverplots;
   if (is_void(s)) {
-    write,"psd,data,FFTlength,step=, filter=, samp=, db=,noplot=,overplot=,sqrt=,roddier=,xtitre=,ytitre=,silent=";
+    write,"psd,data,fftlength,step=,filter=,samp=,db=,noplot=,overplot=,sqrt=,roddier=,xtitre=,ytitre=,silent=";
     return;
   }
-  if (is_void(step)) { step = length/2;}
-  if (is_void(filter)) { filter = 0;}
-  if (is_void(samp)) { samp = 1;}
-  if (is_void(noplot)) { noplot = 0;}
-  if (is_void(xtitre)) { xtitre	= "Frequency";}
-  if (is_void(ytitre)) { ytitre = "";}
-  if (is_set(roddier)) { ytitre = ytitre+"[freq * PSD]";} else {ytitle = ytitre+"[PSD]";}
+  if (is_void(step)) { step = length/2; }
+  if (is_void(filter)) { filter = 0; }
+  if (is_void(samp)) { samp = 1; }
+  if (is_void(noplot)) { noplot = 0; }
+  if (is_void(xtitre)) { xtitre = "Frequency"; }
+  if (is_void(ytitre)) { ytitre = ""; }
+  if (is_set(roddier)) { ytitre = ytitre+"[freq * PSD]";} else {ytitle = ytitre+"[PSD]"; }
 
-  if (length > numberof(s))
-    {error,"length > number of element in vector!!!";}
+  if (length > numberof(s)) {
+    error,"length > number of element in vector!!!";
+  }
 
-  if (!is_set(silent))
-    {print,"Stdev of input PSD vector (in psd.i) : ",s(rms);}
+  if (!is_set(silent)) {
+    print,"Stdev of input PSD vector (in psd.i) : ",s(rms);
+  }
 
   nb = long((numberof(s) - length)/step)+1;
 
-  if (!is_set(silent))
-    {write,format="Averaging %2d sample of length %5d shifted by %5d\n",
-              nb,length,step;}
+  if (!is_set(silent)) {
+    write,format="Averaging %2d sample of length %5d shifted by %5d\n", \
+              nb,length,step;
+  }
 
   dsp  = array(double,length);
   if (filter == -1) {
     fil = array(1.,length);
   } else {
-    fil  = apod(length,filter);
+    fil = apod(length,filter);
   }
   fn   = sum(abs(fft(fil,1))^2.)/length^2.;
 
-  for (i=0;i<=nb-1;i++)
-    {
-      tmp  = s(i*step+1:i*step+length);
-      tmp  = tmp-avg(tmp);
-      dsp  = dsp + abs(fft(tmp*fil,1))^2./length/fn;
-    }
+  for (i=0;i<=nb-1;i++) {
+    tmp  = s(i*step+1:i*step+length);
+    tmp  = tmp-avg(tmp);
+    dsp  = dsp + abs(fft(tmp*fil,1))^2./length/fn;
+  }
 
-  dsp	= dsp/nb;
-  dsp	= dsp(1:length/2);
+  dsp = dsp/nb;
+  dsp = dsp(1:length/2);
 
-  f	= (indgen(length/2)-1.)/samp/2./(length/2-1.);
-  f	= (indgen(length/2)-1.)/samp/2./(length/2);
+  f = (indgen(length/2)-1.)/samp/2./(length/2-1.);
+  f = (indgen(length/2)-1.)/samp/2./(length/2);
 
-  if (!is_set(silent)) { write,format="Freq. Max = %8.6e\n",max(f);}
+  if (!is_set(silent)) {
+    write,format="Freq. Max = %8.6e\n",max(f);
+  }
 
-  dsp	= dsp*2.;                        // _x2 because negative part omitted
-  dsp	= dsp/length*(length/2./max(f)); // to get in unit^2/Hz
+  dsp = dsp*2.; // _x2 because negative part omitted
+  dsp = dsp/length*(length/2./max(f)); // to get in unit^2/Hz
 
   if (!is_void(sqroot)) { dsp = sqrt(dsp); }
 
-  if (db)      { dsp = 10.*log10(dsp); }
-  if (roddier) { dsp = f*dsp;}
+  if (db) dsp = 10.*log10(dsp);
+  if (roddier) dsp = f*dsp;
 
-  if (!noplot)
-    {
-      if (!overplot) {
-        //fma;
-        if (hist) {
-          plh,dsp(2:),f(2:),color=color,type=type;
-        } else {
-          plg,dsp(2:),f(2:),color=color,type=type;
-        }
-        psdnumberofoverplots=0;
-      }
+  if (!noplot) {
+    if (!overplot) {
+      if (hist) plh,dsp(2:),f(2:),color=color,type=type;
+      else plg,dsp(2:),f(2:),color=color,type=type;
+      psdnumberofoverplots=0;
+    }
 
-      if (overplot) {
-        psdnumberofoverplots++;
-        cols = ["red","blue","green","magenta"];
-        if (hist) {
-          plh,dsp(2:),f(2:),color=cols(psdnumberofoverplots),color=color,type=type;
-        } else {
-          plg,dsp(2:),f(2:),color=cols(psdnumberofoverplots),color=color,type=type;
-        }
-      }
-      myxytitles,xtitre,ytitre;
-
-      limits;
-      if (roddier) {
-        logxy,1,0;
-      } else if (db) {
-        logxy,1,0;
+    if (overplot) {
+      psdnumberofoverplots++;
+      cols = ["red","blue","green","magenta"];
+      if (hist) {
+        plh,dsp(2:),f(2:),color=cols(psdnumberofoverplots),color=color,type=type;
       } else {
-        logxy,1,1;
+        plg,dsp(2:),f(2:),color=cols(psdnumberofoverplots),color=color,type=type;
       }
     }
+    myxytitles,xtitre,ytitre;
+
+    limits;
+    if (roddier) { logxy,1,0; }
+    else if (db) { logxy,1,0; }
+    else { logxy,1,1; }
+  }
 
   return [f,dsp];
 }
