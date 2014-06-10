@@ -4,7 +4,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * Copyright (c) 2007-2013, Francois Rigaut
+ * Copyright (c) 2007-2014, Francois Rigaut
  *
  * This program is free software; you can redistribute it and/or  modify it
  * under the terms of the GNU General Public License  as  published  by the
@@ -21,7 +21,7 @@
  *
  */
 
-spydr_version = "0.8.6";
+spydr_version = "0.8.7";
 
 
 require,"spydr_pyk.i";

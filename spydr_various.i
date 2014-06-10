@@ -5,9 +5,7 @@
  *
  * This file is part of spydr, an image viewer/data analysis tool
  *
- * $Id: spydr_various.i,v 1.5 2010-04-15 02:56:02 frigaut Exp $
- *
- * Copyright (c) 2007-2013, Francois Rigaut
+ * Copyright (c) 2007-2014, Francois Rigaut
  *
  * This program is free software; you can redistribute it and/or  modify it
  * under the terms of the GNU General Public License  as  published  by the
