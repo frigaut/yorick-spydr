@@ -1696,6 +1696,7 @@ func disp_zoom(once=)
     if ((j-local_rad)<1) wm(2) += (1-j+local_rad);
 
     rad4zoom = min(rad4zoom,min(dims(2:3))/2-1);
+    rad4zoom = clip(rad4zoom,0,);
 
     _x1 = i-rad4zoom;
     _x2 = i+rad4zoom;
