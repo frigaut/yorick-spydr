@@ -1112,6 +1112,55 @@ func plot_zcut(void)
   onedy=zv;
 }
 
+func keepbest(thres)
+{
+  w = where(onedy>thres);
+  nw = numberof(w);
+  cube = array(*spydrs(1).pim,nw);
+  for (i=1;i<=nw;i++) cube(,,i) = *spydrs(w(i)).pim;
+  return cube;
+}
+
+func mkeos1m(void)
+{
+  extern spydrs;
+  spydrs.wavelength = 0.870;
+  spydrs.opixsize = spydrs.pixsize = 0.090;
+}
+
+func plot_zcutmax(void)
+{
+  extern onedx,onedy;
+
+  spydr_pyk_status_push,"Click on pixel or region",clean_after=5;
+  c = lround(mouse(1,1)(1:4)+0.5);
+  // xmin, ymin, xmax, ymax
+  if (c(3)<c(1)) c([1,3]) = c([3,1]);
+  if (c(4)<c(2)) c([2,4]) = c([4,2]);
+
+  dims = dimsof(spydr_im);
+
+  zv=zi=[];
+  for (i=1;i<=numberof(spydrs);i++) {
+    if (allof(spydrs(i).dims==dims)) {
+      grow,zi,i;
+      grow,zv,max((*spydrs(i).pim)(c(1):c(3),c(2):c(4)));
+    }
+  }
+  if (zv==[]) return;
+
+  curw = current_window();
+  show_lower_gui,1;
+  window,spydr_wins(3);
+  plh,zv,zi,color=spydr_colors(spydr_fma());
+  spydr_xytitles,"Image #","value";
+  spydr_pltitle,swrite(format="[%d:%d,%d:%d] vs Image#",c(1),c(3),c(2),c(4));
+  limits;
+  window,curw;
+  onedx=zi;
+  onedy=zv;
+}
+
 func spydr_gauss_foo(x,aa)
 {
   return aa(1)+aa(2)*exp(-0.5*((x-aa(3))/(sign(aa(4))*(abs(aa(4))+1e-12)))^2.);
@@ -1761,6 +1810,7 @@ func spydr_shortcut_help(void)
                " x/y: Plot line/col at cursor",
                " X/Y: Toggle cont. plot of line/col at cursor",
                " z:   Plot pixel/region along cube/images",
+               " Z:   Plot and return max along cube/images",
                " c:   Interactive plot of cut across image",
                " h:   Plot histogram of ROI",
                " o:   Overplot next 1d plot",
