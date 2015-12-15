@@ -761,6 +761,7 @@ func shift_and_add(void)
   cim /= numberof(spydrs);
   pli,cpc(cim);
   spydr_pyk_status_push,"Select region for correlation",clean_after=5;
+  write,"Use ssa_brightest=1 to recenter on brightest pixel (default centroid)";
   c = lround(mouse(1,1)(1:4)+0.5);
   // xmin, ymin, xmax, ymax
   if (c(3)<c(1)) c([1,3]) = c([3,1]);
@@ -776,6 +777,7 @@ func shift_and_add(void)
   maxref = max(ref);
   ref = (ref-minref)/(maxref-minref);
   a0 = [0.,1.,0.,0.]; // amplitude offset, gain, x and y offsets
+  off = [0.,0.];
 
   // find optimum shift for all images
   aa = array(0.,[2,numberof(spydrs),4]);
@@ -785,7 +787,13 @@ func shift_and_add(void)
     sim = (*spydrs(i).pim)(c(1):c(3),c(2):c(4));
     sim = cpc(sim,0.5,1.0);
     sim = (sim-minref)/(maxref-minref);
-    res = spydr_lmfit(saa_foo,ref,a,sim,eps=0.01,silent=1);
+    if (saa_brightest) {
+      w2 = where2(sim==max(sim))(,1)-off;
+      if (i==1) off = w2;
+      a(3:4) = w2;
+    } else {
+      res = spydr_lmfit(saa_foo,ref,a,sim,eps=0.01,silent=1);      
+    }
     if (spydr_sign==[]) spydr_sign=1;
     a(3:4) *= -1*spydr_sign;
     tv,saa_foo(sim,a);
