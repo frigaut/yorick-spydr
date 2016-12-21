@@ -35,7 +35,7 @@ require,"spydr_various.i";
 require,"astro_util1.i"; // for sky()
 require,"aoutil.i"; // for fwhmStrehl()
 
-struct s_yfwhmres { 
+struct s_yfwhmres {
   double xpos, xposerr, ypos, yposerr, pstrehl, pfwhm, xfwhm, xfwhmerr, yfwhm, yfwhmerr, flux, fluxerr, el, elerr, angle, maxim, background;
   string name;
 };
@@ -262,23 +262,19 @@ func printlonghelp(void)
 
 func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtype=, \
            magswitch=,verbose=,airmass=)
-/* DOCUMENT func yfwhm(image,boxsize=,saturation=,pixsize=,funtype=,
-   magswitch=,nwindow=,verbose=,airmass=)
+/* DOCUMENT yfwhm(image,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,
+           funtype=,magswitch=,verbose=,airmass=)
    image      = 2D image
-   airmass    = airmass. Outputs airmass corrected FWHM values
-   pixsize    = Specify the image pixel size
-   boxsize    = Specify the size of the box of sub-images
-   (usually 4-10 times the fwhm)
-   funtype    = function to use for fit (gaussian,special,moffat
+   onepass    = set to 1 for batch mode (use outside of spydr)
+   x & ystar  = coordinates of the star for batch processing
+   fluxstar   = flux estimate for batch processing
+   boxsize    = Specify the size of the box of sub-images (usually 4-10 times the fwhm)
    saturation = Saturation value (prevents picking saturated stars)
+   pixsize    = Specify the image pixel size
+   funtype    = function to use for fit (gaussian,special,moffat)
    magswitch  =  Output flux in magnitude (zp=spydr_zero_point is used)
-   nwindow    = Number of window for UI (default 2)
    verbose    = Verbose mode (0/1=more chatty)
-   x and y: added 2007jun15 for compatibilty with spydr find mode.
-            if x and y are set, then the interactive mode is turned off,
-            and the (x,y) coordinates are looped on to produce the
-            final yfwhmres (this function loops on the (x,y) and fit
-            each image in turn).
+   airmass    = airmass. Outputs airmass corrected FWHM values
 */
 {
   extern spydr_fit_fwhm_estimate,imnum;
@@ -356,15 +352,15 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
   if (!compute_strehl) {
     if (pixset) {
       if (!magswitch) {
-        write,"X[pix]  Y[pix]      X FWHM[\"]      Y FWHM[\"]  FLUX[ADU] ELLIP  ANGLE    MAX";
+        write,"X[pix]  Y[pix]      X FWHM[\"]      Y FWHM[\"]  FLUX[ADU] ELLIP   ANGLE     MAX";
       } else          {
-        write,"X[pix]  Y[pix]      X FWHM[\"]      Y FWHM[\"]  MAGNITUDE ELLIP  ANGLE    MAX";
+        write,"X[pix]  Y[pix]      X FWHM[\"]      Y FWHM[\"]  MAGNITUDE ELLIP   ANGLE     MAX";
       }
     } else {
       if (!magswitch) {
-        write,"X[pix]  Y[pix]    X FWHM[pix]    Y FWHM[pix]  FLUX[ADU] ELLIP  ANGLE    MAX";
+        write,"X[pix]  Y[pix]    X FWHM[pix]    Y FWHM[pix]  FLUX[ADU] ELLIP   ANGLE     MAX";
       } else          {
-        write,"X[pix]  Y[pix]    X FWHM[pix]    Y FWHM[pix]  MAGNITUDE ELLIP  ANGLE    MAX";
+        write,"X[pix]  Y[pix]    X FWHM[pix]    Y FWHM[pix]  MAGNITUDE ELLIP   ANGLE     MAX";
       }
     }
   }
@@ -541,13 +537,13 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
         while (angle < -90) angle += 180.;
 
         fwhm    =  2*a(5:6)*sqrt(0.5^(-1./a(8))-1.)*pixsize; // moffat
-        fwhmerr = fwhm*(err(5:6)/a(5:6)+
-                        0.5*abs(log(0.5))*err(8)/a(8)^2.*0.5^(1./a(8))/(0.5^(1./a(8))-1.));
+        fwhmerr = abs(fwhm*(err(5:6)/a(5:6)+
+                        0.5*abs(log(0.5))*err(8)/a(8)^2.*0.5^(1./a(8))/(0.5^(1./a(8))-1.)));
         fwhm = fwhm/airmass^0.6; fwhmerr = fwhmerr/airmass^0.6;
         fwhmerr = fwhmerr(sort(fwhm)(::-1));
         fwhm    = fwhm(sort(fwhm)(::-1));
         ellip   = (fwhm(1)-fwhm(2))/avg(fwhm);
-        ellerr  = 2*(fwhmerr(1)+fwhmerr(2))*(2*fwhm(2))/(fwhm(1)+fwhm(2))^2.;
+        ellerr  = abs(2*(fwhmerr(1)+fwhmerr(2))*(2*fwhm(2))/(fwhm(1)+fwhm(2))^2.);
       }
 
       maxim = max(tmp);
@@ -586,7 +582,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
 
       grow,allres,yfwhmres;
 
-      msg=swrite(format="%7.2f %7.2f %6.3f+/-%5.3f %6.3f+/-%5.3f  %9.1f  %4.2f %6.2f %6.1f",
+      msg=swrite(format="%7.2f %7.2f %6.3f+/-%5.3f %6.3f+/-%5.3f  %9.1f  %4.2f %+7.2f %7.1f",
                  pos(1),pos(2),fwhm(1),fwhmerr(1),fwhm(2),fwhmerr(2),flux,ellip,angle,maxim);
       write,format="%s\n",msg;
 
@@ -699,7 +695,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
       msg=swrite(format="Median FWHM : X = %6.3f / Y = %6.3f / <XY> = %6.3f [pixel]",
                  median(f(1,)),median(f(2,)),avg([median(f(1,)),median(f(2,))]));
     }
-    write,format="\n%s\n",msg;
+    write,format=" %s\n",msg;
     if (!onepass) spydr_pyk_status_push,msg;
     // in pixels:
     spydr_fit_fwhm_estimate = avg([median(f(1,)),median(f(2,))])/pixsize;
