@@ -21,7 +21,7 @@
  *
  */
 
-spydr_version = "0.8.7";
+spydr_version = "0.9";
 
 
 require,"spydr_pyk.i";
