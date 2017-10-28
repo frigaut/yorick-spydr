@@ -98,6 +98,9 @@ func _spydr_pyk_callback(line)
 
   nofline = numberof(line);
 
+  // in batch mode, we may not want commands back from python
+  if (batch_mode>1) return;
+
   /* parse and execute yorick command lines */
   for (i=1 ; i<=nofline ; i++) funcdef(line(i));
 }
