@@ -36,6 +36,8 @@ func spydr_pyk(py_command)
 {
   require,"pathfun.i";
 
+  if (batch_mode && (batch_mode>1)) return;
+
   if (is_void(_spydr_pyk_proc)) {
     error,"_spydr_pyk_proc should not be emtpy on spydr_pyk call within spydr";
   }
@@ -78,6 +80,10 @@ func _spydr_pyk_callback(line)
    * _spydr_pyk_linebuf holds the most recent incomplete line,
    *   assuming the the remainder will arrive in future callbacks
    */
+
+   // in batch mode, we may not want commands back from python
+   if (batch_mode && (batch_mode>1)) return;
+
   _spydr_pyk_linebuf += line;
   selist = strword(_spydr_pyk_linebuf, "\n", 256);
   line = strpart(_spydr_pyk_linebuf, selist);
@@ -97,9 +103,6 @@ func _spydr_pyk_callback(line)
   if (pyk_debug) write, "from python:", line;
 
   nofline = numberof(line);
-
-  // in batch mode, we may not want commands back from python
-  if (batch_mode && (batch_mode>1)) return;
 
   /* parse and execute yorick command lines */
   for (i=1 ; i<=nofline ; i++) funcdef(line(i));
