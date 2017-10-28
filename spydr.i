@@ -796,7 +796,7 @@ func shift_and_add(void,region=)
       if (i==1) off = w2;
       a(3:4) = w2;
     } else {
-      res = spydr_lmfit(saa_foo,ref,a,sim,eps=0.01,silent=1);      
+      res = spydr_lmfit(saa_foo,ref,a,sim,eps=0.01,silent=1);
     }
     if (spydr_sign==[]) spydr_sign=1;
     a(3:4) *= -1*spydr_sign;
