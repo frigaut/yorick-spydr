@@ -298,7 +298,7 @@ func yfwhm(bim,onepass,xstar,ystar,fluxstar,boxsize=,saturation=,pixsize=,funtyp
 
   if (!batch_mode) show_lower_gui,1;
 
-  batch_mode = (xstar!=[]);
+  if (batch_mode==[]) batch_mode = (xstar!=[]);
 
   if (batch_mode) {
     if (numberof(xstar)!=numberof(ystar)) \

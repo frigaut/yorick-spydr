@@ -21,7 +21,7 @@
  *
  */
 
-spydr_version = "0.8.7";
+spydr_version = "0.9";
 
 
 require,"spydr_pyk.i";
@@ -748,7 +748,7 @@ func remove_last_from_star_list(void)
   starlist = starlist(:-1);
 }
 
-func shift_and_add(void)
+func shift_and_add(void,region=)
 {
   // first, let's select the region
   if (numberof(spydrs)==1) return;
@@ -762,7 +762,11 @@ func shift_and_add(void)
   pli,cpc(cim);
   spydr_pyk_status_push,"Select region for correlation",clean_after=5;
   write,"Use ssa_brightest=1 to recenter on brightest pixel (default centroid)";
-  c = lround(mouse(1,1)(1:4)+0.5);
+  if (region!=[]) c=region;
+  else {
+    c = lround(mouse(1,1)(1:4)+0.5);
+    write,c;
+  }
   // xmin, ymin, xmax, ymax
   if (c(3)<c(1)) c([1,3]) = c([3,1]);
   if (c(4)<c(2)) c([2,4]) = c([4,2]);
