@@ -1,8 +1,2 @@
 #!/bin/sh
-
-#which rlwrap 2>&1 > /dev/null
-#if [ "$?" -eq "0" ]; then
-#    rlwrap yorick -i spydr.i $*
-#else
-yorick -i spydr.i $*
-#fi
+rlwrap yorick -i spydr.i $*
