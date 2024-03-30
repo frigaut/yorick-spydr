@@ -53,6 +53,7 @@ install::
 	cp -p $(PKG_I_START) $(DEST_Y_SITE)/i-start/
 	cp -p spydr.py $(DEST_Y_SITE)/python/
 	cp -p spydr.glade $(DEST_Y_SITE)/glade/
+	cp -p spydr.ui $(DEST_Y_SITE)/glade/
 	cp -p spydr*.gs $(DEST_Y_SITE)/g/
 	cp -p spydr*.gs $(DEST_Y_SITE)/gist/
 	cp -p spydr.conf $(DEST_Y_SITE)/share/spydr/
@@ -66,6 +67,7 @@ uninstall::
 	-cd $(DEST_Y_SITE)/i-start; rm $(PKG_I_START) 
 	-rm $(DEST_Y_SITE)/python/spydr.py
 	-rm $(DEST_Y_SITE)/glade/spydr.glade
+	-rm $(DEST_Y_SITE)/glade/spydr.ui
 	-rm $(DEST_Y_SITE)/g/spydr*.gs
 	-rm $(DEST_Y_SITE)/gist/spydr*.gs
 	-rm -rf $(DEST_Y_SITE)/share/spydr
@@ -93,6 +95,7 @@ package:
 	cp -p $(PKG_I) pkg/$(PKG_NAME)/dist/y_site/i/
 	cp -p spydr.py pkg/$(PKG_NAME)/dist/y_site/python/
 	cp -p spydr.glade pkg/$(PKG_NAME)/dist/y_site/glade/
+	cp -p spydr.ui pkg/$(PKG_NAME)/dist/y_site/glade/
 	cp -p *.gs pkg/$(PKG_NAME)/dist/y_site/g/
 	cp -p *.gs pkg/$(PKG_NAME)/dist/y_site/gist/
 	cp -p spydr.conf pkg/$(PKG_NAME)/dist/y_site/share/spydr/
