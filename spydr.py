@@ -54,7 +54,7 @@ class spydr:
       # callbacks and glade UI
 
       self.builder = Gtk.Builder()
-      self.builder.add_from_file("spydr.ui")
+      self.builder.add_from_file(os.path.join(self.spydrtop,'spydr.ui'))
       self.window = self.builder.get_object("window1")
       if (self.window):
          self.window.connect("destroy", self.destroy)
