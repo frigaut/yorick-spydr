@@ -50,6 +50,10 @@ struct spydr_struct{
 };
 
 rebin_fact=1;
+
+dpi_scale = get_env("GDK_SCALE");
+if (dpi_scale) dpi_scale=long(tonum(dpi_scale)); else dpi_scale=1;
+
 //=============================
 //  SPYDR_PYK wrapping functions
 //=============================
@@ -155,7 +159,8 @@ func spydr_change_dpi(dpi)
   extern spydr_dpi;
   extern xid1,xid2,xid3;
 
-  spydr_dpi=dpi;
+  // spydr_dpi=long(dpi*dpi_scale);
+  spydr_dpi = long(dpi);
   window,spydr_wins(1);
   lims = limits();
   winkill,spydr_wins(1);
@@ -173,7 +178,7 @@ func spydr_win_init(pid1,pid2,pid3,redisp=)
   xid1=pid1; xid2=pid2; xid3=pid3;
 
   if (!window_exists(spydr_wins(1))) {
-    window,spydr_wins(1),dpi=spydr_dpi,wait=(!redisp),width=0,height=0,   \
+    window,spydr_wins(1),dpi=spydr_dpi*dpi_scale,wait=(!redisp),width=0,height=0,   \
       xpos=-2,ypos=-2,style="spydr.gs",parent=pid1;
     limits,square=1;
     palette,"gray.gp"; // need this if loadct is used!?
@@ -187,14 +192,16 @@ func spydr_win_init(pid1,pid2,pid3,redisp=)
 
   if (!gui_realized) {
 	  if (!window_exists(spydr_wins(2))) {
-      window,spydr_wins(2),dpi=long(31*(spydr_dpi/100.)),wait=1, \
-        style="nobox.gs",parent=pid2,ypos=-27,xpos=-4;
+      // window,spydr_wins(2),dpi=long(31*(spydr_dpi/100.))*dpi_scale,wait=1, \
+      //   style="nobox.gs",parent=pid2,ypos=-27,xpos=-4;
+      window,spydr_wins(2),dpi=long(31*(spydr_dpi/100.))*dpi_scale,wait=1, \
+        style="nobox.gs",parent=pid2,ypos=0,xpos=0;
       limits,square=1;
 		}
   }
 
 	if (!window_exists(spydr_wins(3))) {
-		window,spydr_wins(3),dpi=spydr_dpi,wait=((!redisp)&(spydr_showlower)), \
+		window,spydr_wins(3),dpi=spydr_dpi*dpi_scale,wait=((!redisp)&(spydr_showlower)), \
 		style="spydr2.gs",xpos=-2,ypos=-2,parent=pid3;
 	}
 
@@ -649,7 +656,9 @@ func spydr_compute_distance(zero)
 
 func show_lower_gui(visibility)
 {
-  spydr_pyk,swrite(format="glade.get_widget('togglelower').set_active(%d)",visibility(1));
+  return;
+
+  spydr_pyk,swrite(format="builder.get_object('togglelower').set_active(%d)",visibility(1));
 }
 
 func disp_fft(void)
@@ -1597,7 +1606,7 @@ func gui_update(void)
   spydr_pyk,swrite(format="y_parm_update('cobs',%f)",float(spydr_cobs));
   spydr_pyk,swrite(format="y_parm_update('strehl_aper_diameter',%f)",float(spydr_strehlaper));
   spydr_pyk,swrite(format="y_set_checkbutton('compute_strehl',%d)",long(compute_strehl));
-  spydr_pyk,swrite(format="glade.get_widget('plugins').set_active(%d)",spydr_showplugins);
+  spydr_pyk,swrite(format="builder.get_object('plugins_pane').set_sensitive(%d)",spydr_showplugins);
   spydr_pyk,swrite(format="y_set_checkbutton('output_magnitudes',%d)",long(output_magnitudes));
   spydr_pyk,swrite(format="y_set_cmincmax(%f,%f,%f,0)",float(cmin),float(cmax),float(cmax-cmin)/100.);
   spydr_pyk,swrite(format="y_set_lut(%d)",spydr_lut);
@@ -1605,15 +1614,15 @@ func gui_update(void)
   spydr_pyk,swrite(format="y_set_itt(%d)",clip(long(spydr_itt-1),0,4));
   if (first_update==[]) {
     spydr_pyk,swrite(format="currentsavedir = '%s'",spydr_savedir);
-    spydr_pyk,"glade.get_widget('menubar_images').set_sensitive(1)";
-    spydr_pyk,"glade.get_widget('menubar_ops').set_sensitive(1)";
-    spydr_pyk,"glade.get_widget('save').set_sensitive(1)";
-    spydr_pyk,"glade.get_widget('export').set_sensitive(1)";
-    spydr_pyk,"glade.get_widget('saveas').set_sensitive(1)";
-    spydr_pyk,swrite(format="glade.get_widget('debug').set_active(%d)",pyk_debug);
-    spydr_pyk,swrite(format="glade.get_widget('plot_in_arcsec').set_active(%d)",spydr_plot_in_arcsec);
-    spydr_pyk,swrite(format="glade.get_widget('cmincmax').set_active(%d)",zoom_cmincmax);
-    //    spydr_pyk,swrite(format="glade.get_widget('%s').set_active(1)",spydr_ccolor);
+    /// spydr_pyk,"builder.get_object('menubar_images').set_sensitive(1)";
+    /// spydr_pyk,"builder.get_object('menubar_ops').set_sensitive(1)";
+    /// spydr_pyk,"builder.get_object('save').set_sensitive(1)";
+    /// spydr_pyk,"builder.get_object('export').set_sensitive(1)";
+    /// spydr_pyk,"builder.get_object('saveas').set_sensitive(1)";
+    /// spydr_pyk,swrite(format="builder.get_object('debug').set_sensitive(%d)",pyk_debug);
+    /// spydr_pyk,swrite(format="builder.get_object('plot_in_arcsec').set_sensitive(%d)",spydr_plot_in_arcsec);
+    /// spydr_pyk,swrite(format="builder.get_object('cmincmax').set_sensitive(%d)",zoom_cmincmax);
+    //    spydr_pyk,swrite(format="builder.get_object('%s').set_active(1)",spydr_ccolor);
     first_update=1;
   }
   sync_view_menu;
@@ -2074,7 +2083,7 @@ func spydr_replace_current_from_stack(void)
   spydrs(imnum).pim = &spydr_im;
   spydrs(imnum).dims = dimsof(spydr_im);
   spydrs(imnum).opixsize = spydrs(imnum).pixsize;
-  spydr_pyk,"glade.get_widget('rebin').set_value(0)";
+  spydr_pyk,"builder.get_object('rebin').set_value(0)";
   spydr_pyk_status_push,swrite(format="Displayed image replaces orig. image in stack (slot #%d)",imnum),clean_after=5;
 }
 
@@ -2693,7 +2702,8 @@ if (spydr_conffile==[]) {
 spydr_ncolors = 240;
 spydr_colors = ["fg","red","blue","green","magenta","yellow","cyan"];
 from_disp = 1;
-spydr_dpi = spydr_defaultdpi;
+// spydr_dpi = long(spydr_defaultdpi*dpi_scale);
+spydr_dpi = long(spydr_defaultdpi);
 if (spydr_histbinsize==[]) spydr_histbinsize=0;
 if (spydr_wins==[]) spydr_wins = [0,0,0];
 pldefault,maxcolors=spydr_ncolors;
@@ -2701,7 +2711,7 @@ pldefault,maxcolors=spydr_ncolors;
 // parse arguments a second time (to override conffile defaults)
 if (spydr_context=="called_from_shell") targets = parse_flags(arg);
 
-spydr_dpi = clip(spydr_dpi,30,400);
+spydr_dpi = long(clip(spydr_dpi,30,400));
 
 // spawned gtk interface
 python_exec = path2py+"/spydr.py";
