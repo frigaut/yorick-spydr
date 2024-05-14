@@ -1,9 +1,9 @@
 # these values filled in by    yorick -batch make.i
-Y_MAKEDIR=/usr/lib/yorick/2.2
-Y_EXE=/usr/lib/yorick/2.2/bin/yorick
+Y_MAKEDIR=/home/frigaut/.yorick/relocate
+Y_EXE=/home/frigaut/.yorick/relocate/bin/yorick
 Y_EXE_PKGS=
-Y_EXE_HOME=/usr/lib/yorick/2.2
-Y_EXE_SITE=/usr/share/yorick/2.2
+Y_EXE_HOME=/home/frigaut/.yorick/relocate
+Y_EXE_SITE=/home/frigaut/.yorick/relocate
 Y_HOME_PKG=
 
 # 
@@ -61,6 +61,7 @@ install::
 	cp -p README $(DEST_Y_SITE)/share/spydr/
 	cp -p test3.fits $(DEST_Y_SITE)/share/spydr/
 	cp -p spydr $(DEST_Y_BINDIR)/
+	@echo "On wayland, run with GDK_SCALE=1 GDK_BACKEND=x11 spydr image.fits"
 
 uninstall::
 	-cd $(DEST_Y_SITE)/i; rm $(PKG_I) 
