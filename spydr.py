@@ -592,6 +592,7 @@ class spydr:
             s = 0
          self.size = self.window.get_size()
          self.builder.get_object('plugins_pane').show()
+         self.builder.get_object('plugins_pane').set_sensitive(1)
          if (s):
             self.window.resize(s[0],s[1])
       else:
@@ -613,6 +614,7 @@ class spydr:
             s = 0
          self.size = self.window.get_size()
          self.builder.get_object('plugins_pane').show()
+         self.builder.get_object('plugins_pane').set_sensitive(1)
          if (s):
             self.window.resize(s[0],s[1])
  
@@ -982,16 +984,33 @@ class spydr:
 
 
    def on_vbox3_key_press(self,wdg,event):
-      # sys.stderr.write("received string: %s\n" % event.string)
-      # sys.stderr.write(event.string)
-      if ((event.string=='q') and (event.state & Gdk.ModifierType.CONTROL_MASK)):
-         self.window.destroy()
-      if (event.string=='q'):
-         self.window.destroy()
-      if (event.string=='l'):
-         self.togglelower()
+
+      keyname = Gdk.keyval_name(event.keyval)
+      ctrl = event.state & Gdk.ModifierType.CONTROL_MASK
+      # sys.stderr.write("received string: %s, keyname: %s\n" % (event.string,keyname))
+
+      if ctrl:
+         if keyname=='q':
+            self.window.destroy()
+         elif keyname=='l':
+            self.togglelower()
+         elif keyname=='p':
+            self.toggleplugins()
+         if event.string=='-':
+            self.spydr_dpi = self.spydr_dpi * 0.9
+            self.drawingareas_size_allocate(self.spydr_dpi)
+            self.builder.get_object('drawingarea1').queue_resize()
+            self.py2yo('spydr_change_dpi %d' % self.spydr_dpi)
+         if event.string=='=':
+            self.spydr_dpi = self.spydr_dpi * 1.1
+            self.drawingareas_size_allocate(self.spydr_dpi)
+            self.builder.get_object('drawingarea1').queue_resize()
+            self.py2yo('spydr_change_dpi %d' % self.spydr_dpi)
+
+
       if (event.string==''):
          return True
+
       if (event.string=='?'):
          self.py2yo('spydr_shortcut_help')
       if (event.string=='k'):
@@ -1065,10 +1084,9 @@ class spydr:
          n = self.builder.get_object('imnum').get_value()
          self.builder.get_object('imnum').set_value(n+1)
       if (event.string=='p'):
-         self.toggleplugins()
-         # self.op_multi_im_impossible()
-         # n = self.builder.get_object('imnum').get_value()
-         # self.builder.get_object('imnum').set_value(n-1)
+         self.op_multi_im_impossible()
+         n = self.builder.get_object('imnum').get_value()
+         self.builder.get_object('imnum').set_value(n-1)
       if (event.string=='R'):
          self.op_multi_im_impossible()
          self.py2yo('spydr_replace_current_from_stack')
@@ -1095,7 +1113,7 @@ class spydr:
          self.py2yo('zcut_to_threshold %d' % self.next_to_all)
       if (event.string=='-'):
          self.py2yo('rad4zoom_incr')
-      if (event.string=='=') or (event.string=='+'):
+      if (event.string=='='):
          self.py2yo('rad4zoom_decr')
       if (event.string=='*'):
          self.next_to_all = 1
